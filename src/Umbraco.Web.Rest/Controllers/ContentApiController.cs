@@ -1,34 +1,47 @@
-﻿using System.Net.Http;
+﻿using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Formatting;
 using System.Web.Http;
-using System.Web.Http.Controllers;
 using CollectionJson;
-using CollectionJson.Client;
 using Umbraco.Core.Models;
-using Umbraco.Web.WebApi;
+using Umbraco.Web.Rest.Routing;
+using Umbraco.Web.Rest.Serialization;
 
 namespace Umbraco.Web.Rest.Controllers
 {
-    [RoutePrefix("api/content/v1")]
-    public class ContentApiController : UmbracoApiController
+    [UmbracoRoutePrefix("v1/content")]
+    public class ContentApiController : UmbracoCollectionJsonController
     {
-        private static bool _formatterAdded;
         protected ICollectionJsonDocumentWriter<IPublishedContent> Writer { get; set; }
 
+        /// <summary>
+        /// Default ctor
+        /// </summary>
+        public ContentApiController()
+        {
+            Writer = new ContentDocumentWriter(Request);
+        }
+
+        /// <summary>
+        /// All dependencies
+        /// </summary>
+        /// <param name="umbracoContext"></param>
+        /// <param name="writer"></param>
         public ContentApiController(UmbracoContext umbracoContext, ICollectionJsonDocumentWriter<IPublishedContent> writer)
             : base(umbracoContext)
         {
             Writer = writer;
         }
 
-        [Route("")]
-        public HttpResponseMessage Get()
-        {
-            var response = new HttpResponseMessage();
-            var items = this.Umbraco.TypedContentAtRoot();
-            var readDoc = Writer.Write(items);
-            response.Content = readDoc.ToObjectContent();
-            return response;
-        }
+        //[Route("")]
+        //public HttpResponseMessage Get()
+        //{
+        //    var response = new HttpResponseMessage();
+        //    var items = this.Umbraco.TypedContentAtRoot();
+        //    var readDoc = Writer.Write(items);
+        //    response.Content = readDoc.ToObjectContent();
+        //    return response;
+        //}
 
         [Route("{id:int}")]
         public HttpResponseMessage Get(int id)
@@ -40,24 +53,24 @@ namespace Umbraco.Web.Rest.Controllers
             return response;
         }
 
-        [Route("{name}")]
-        public HttpResponseMessage Get(string name)
-        {
-            var items = this.Umbraco.TypedSearch(name);
-            var readDocument = Writer.Write(items);
-            return readDocument.ToHttpResponseMessage();
-        }
+        //[Route("{name}")]
+        //public HttpResponseMessage Get(string name)
+        //{
+        //    var items = this.Umbraco.TypedSearch(name);
+        //    var readDocument = Writer.Write(items);
+        //    return readDocument.ToHttpResponseMessage();
+        //}
 
-        [Route("{id:int}/children")]
-        public HttpResponseMessage GetChildren(int id)
-        {
-            var response = new HttpResponseMessage();
-            var publishedContent = this.Umbraco.TypedContent(id);
-            var items = publishedContent.Children;
-            var readDoc = Writer.Write(items);
-            response.Content = readDoc.ToObjectContent();
-            return response;
-        }
+        //[Route("{id:int}/children")]
+        //public HttpResponseMessage GetChildren(int id)
+        //{
+        //    var response = new HttpResponseMessage();
+        //    var publishedContent = this.Umbraco.TypedContent(id);
+        //    var items = publishedContent.Children;
+        //    var readDoc = Writer.Write(items);
+        //    response.Content = readDoc.ToObjectContent();
+        //    return response;
+        //}
 
         //protected override void Initialize(HttpControllerContext controllerContext)
         //{
