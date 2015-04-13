@@ -12,7 +12,7 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
     {     
         public ICollection<Assembly> GetAssemblies()
         {
-            return new[] {typeof (ContentApiController).Assembly};
+            return new[] {typeof (PublishedContentApiController).Assembly};
         }
     }
 }

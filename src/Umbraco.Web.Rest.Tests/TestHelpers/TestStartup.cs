@@ -1,6 +1,8 @@
+using System;
 using System.Web.Http;
 using System.Web.Http.Dispatcher;
 using Owin;
+using Umbraco.Core.Services;
 
 namespace Umbraco.Web.Rest.Tests.TestHelpers
 {
@@ -9,20 +11,26 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
     /// </summary>
     public class TestStartup
     {
+        private readonly Action<ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService> _activator;
+
+        public TestStartup(Action<ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService> activator)
+        {
+            _activator = activator;
+        }
+
         public void Configuration(IAppBuilder app)
         {
-            var configuration = new HttpConfiguration();
-
-            configuration.Services.Replace(typeof(IAssembliesResolver), new TestWebApiResolver());
-            configuration.Services.Replace(typeof(IHttpControllerActivator), new TestControllerActivator());
+            var httpConfig = new HttpConfiguration();
+            httpConfig.Services.Replace(typeof(IAssembliesResolver), new TestWebApiResolver());
+            httpConfig.Services.Replace(typeof(IHttpControllerActivator), new TestControllerActivator(_activator));
 
             //auth everything
             app.AuthenticateEverything();
 
             // Attribute routing.
-            configuration.MapHttpAttributeRoutes();
-            
-            app.UseWebApi(configuration);
+            httpConfig.MapHttpAttributeRoutes();
+
+            app.UseWebApi(httpConfig);
         }
     }
 }
