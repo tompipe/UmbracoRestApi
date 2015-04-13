@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Web.Http.Dispatcher;
 using Umbraco.Web.Rest.Controllers;
 
-namespace Umbraco.Web.Rest.Tests
+namespace Umbraco.Web.Rest.Tests.TestHelpers
 {
     /// <summary>
     /// Custom resolver to look for controllers in our assembly

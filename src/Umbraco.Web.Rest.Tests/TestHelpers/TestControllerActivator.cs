@@ -9,12 +9,14 @@ using Moq;
 using Umbraco.Core;
 using Umbraco.Core.Configuration.UmbracoSettings;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.Membership;
+using Umbraco.Core.Security;
 using Umbraco.Web.Rest.Controllers;
 using Umbraco.Web.Rest.Serialization;
 using Umbraco.Web.Routing;
 using Umbraco.Web.Security;
 
-namespace Umbraco.Web.Rest.Tests
+namespace Umbraco.Web.Rest.Tests.TestHelpers
 {
     /// <summary>
     /// Custom activator to create instances of our controllers with an UmbracoContext
@@ -27,12 +29,35 @@ namespace Umbraco.Web.Rest.Tests
             {
                 //create it with an UmbracoContext
 
+                var owinContext = request.GetOwinContext();
+                
                 var appCtx = new ApplicationContext(CacheHelper.CreateDisabledCacheHelper());
 
+                //httpcontext with an auth'd user
+                var httpContext = Mock.Of<HttpContextBase>(http => http.User == owinContext.Authentication.User);
+                //chuck it into the props since this is what MS does when hosted
+                request.Properties["MS_HttpContext"] = httpContext;
+
+                var backofficeIdentity = (UmbracoBackOfficeIdentity) owinContext.Authentication.User.Identity;
+
+                var webSecurity = new Mock<WebSecurity>(null, null);
+                webSecurity.Setup(x => x.CurrentUser)
+                    .Returns(Mock.Of<IUser>(u => u.IsApproved == true
+                        && u.IsLockedOut == false
+                        && u.AllowedSections == backofficeIdentity.AllowedApplications
+                        && u.Email == "admin@admin.com"
+                        && u.Id == (int)backofficeIdentity.Id
+                        && u.Language == "en"
+                        && u.Name == backofficeIdentity.RealName
+                        && u.StartContentId == backofficeIdentity.StartContentNode
+                        && u.StartMediaId == backofficeIdentity.StartMediaNode
+                        && u.Username == backofficeIdentity.Username));
+
                 var umbCtx = UmbracoContext.EnsureContext(
-                    Mock.Of<HttpContextBase>(),
+                    //set the user of the HttpContext
+                    httpContext,
                     appCtx,
-                    new Mock<WebSecurity>(null, null).Object,
+                    webSecurity.Object,
                     Mock.Of<IUmbracoSettingsSection>(),
                     Enumerable.Empty<IUrlProvider>(),
                     true); //replace it

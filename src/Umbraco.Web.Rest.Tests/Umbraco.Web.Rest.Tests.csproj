@@ -256,12 +256,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestHelpers\AuthenticateEverythingExtensions.cs" />
+    <Compile Include="TestHelpers\AuthenticateEverythingMiddleware.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ProviderUtilities.cs" />
+    <Compile Include="TestHelpers\ProviderUtilities.cs" />
     <Compile Include="PublishedContentTests.cs" />
-    <Compile Include="TestControllerActivator.cs" />
-    <Compile Include="TestStartup.cs" />
-    <Compile Include="TestWebApiResolver.cs" />
+    <Compile Include="TestHelpers\TestControllerActivator.cs" />
+    <Compile Include="TestHelpers\TestStartup.cs" />
+    <Compile Include="TestHelpers\TestWebApiResolver.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

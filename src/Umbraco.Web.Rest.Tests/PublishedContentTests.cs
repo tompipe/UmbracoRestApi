@@ -11,6 +11,7 @@ using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Membership;
 using Umbraco.Core.Services;
+using Umbraco.Web.Rest.Tests.TestHelpers;
 using Umbraco.Web.Security.Providers;
 
 namespace Umbraco.Web.Rest.Tests

@@ -2,7 +2,7 @@ using System;
 using System.Configuration.Provider;
 using System.Reflection;
 
-namespace Umbraco.Web.Rest.Tests
+namespace Umbraco.Web.Rest.Tests.TestHelpers
 {
     /// <summary>
     /// Allows modifying readonly ProviderCollection at runtime (i.e. membership providers) for testing
