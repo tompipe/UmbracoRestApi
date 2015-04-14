@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Web.Http;
@@ -62,40 +63,20 @@ namespace Umbraco.Web.Rest.Controllers
         /// <returns></returns>
         protected override IReadDocument Read(int id, HttpResponseMessage response)
         {
-            var publishedContent = this.Umbraco.TypedContent(id);
-            return Writer.Write(publishedContent);
+            var content = Umbraco.TypedContent(id);
+            if (content == null) throw new HttpResponseException(HttpStatusCode.NotFound);
+            return Writer.Write(content);
         }
 
-        ///// <summary>
-        ///// Returns a single item with traversal rels
-        ///// </summary>
-        ///// <param name="id"></param>
-        ///// <returns></returns>
-        //[Route("{id:int}")]
-        //public override HttpResponseMessage Get(int id)
-        //{
-        //    var response = new HttpResponseMessage();
-        //    var publishedContent = this.Umbraco.TypedContent(id);
-        //    var readDoc = Writer.Write(publishedContent);
-        //    response.Content = readDoc.ToObjectContent();
-        //    return response;
-        //}
-
-        ///// <summary>
-        ///// Returns the children for an item
-        ///// </summary>
-        ///// <param name="id"></param>
-        ///// <returns></returns>
-        //[Route("{id:int}/children")]
-        //public override HttpResponseMessage GetChildren(int id)
-        //{
-        //    var response = new HttpResponseMessage();
-        //    var publishedContent = this.Umbraco.TypedContent(id);
-        //    var items = publishedContent.Children;
-        //    var readDoc = Writer.Write(items);
-        //    response.Content = readDoc.ToObjectContent();
-        //    return response;
-        //}
+        /// <summary>
+        /// Returns the children for an item
+        /// </summary>
+        /// <returns></returns>
+        protected override IReadDocument ReadChildren(int id, HttpResponseMessage response)
+        {
+            var content = Umbraco.TypedContent(id);
+            return Writer.Write(content == null ? Enumerable.Empty<IPublishedContent>() : content.Children);
+        }
 
     }
 }

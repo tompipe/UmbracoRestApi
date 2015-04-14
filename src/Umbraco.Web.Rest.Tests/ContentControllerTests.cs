@@ -1,14 +1,19 @@
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using CollectionJson;
 using CollectionJson.Client;
 using Microsoft.Owin.Testing;
 using Moq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Models;
+using Umbraco.Core.Services;
 using Umbraco.Web.Rest.Routing;
 using Umbraco.Web.Rest.Serialization;
 using Umbraco.Web.Rest.Tests.TestHelpers;
@@ -16,17 +21,19 @@ using Umbraco.Web.Rest.Tests.TestHelpers;
 namespace Umbraco.Web.Rest.Tests
 {
     [TestFixture]
-    public class ContentControllerRoutingTests
+    public class ContentControllerTests
     {
         [TestFixtureSetUp]
         public void TearDown()
         {
             ConfigurationManager.AppSettings.Set("umbracoPath", "~/umbraco");
             ConfigurationManager.AppSettings.Set("umbracoConfigurationStatus", UmbracoVersion.Current.ToString(3));
+            var mockSettings = MockUmbracoSettings.GenerateMockSettings();
+            UmbracoConfig.For.CallMethod("SetUmbracoSettings", mockSettings);
         }
 
         [Test]
-        public async void Get_Id_Is_200_Response()
+        public async void Get_Children_Is_200_Response()
         {
             var startup = new TestStartup<IContent>(
                 //This will be invoked before the controller is created so we can modify these mocked services
@@ -34,10 +41,38 @@ namespace Umbraco.Web.Rest.Tests
                 (request, typedContent, contentService, mediaService, memberService) =>
                 {
                     var mockContentService = Mock.Get(contentService);
-                    mockContentService.Setup(x => x.GetById(It.IsAny<int>())).Returns(SimpleMockedContent);
+                    mockContentService.Setup(x => x.GetChildren(It.IsAny<int>())).Returns(Enumerable.Empty<IContent>());
 
                     return new Tuple<ICollectionJsonDocumentWriter<IContent>, ICollectionJsonDocumentReader<IContent>>(
-                        new ContentDocumentWriter(request),
+                        new ContentDocumentWriter(request, mockContentService.Object),
+                        null);
+                });
+
+            using (var server = TestServer.Create(builder => startup.Configuration(builder)))
+            {
+                var result = await server.HttpClient.GetAsync(
+                    string.Format("http://testserver/umbraco/v1/{0}/123/children", RouteConstants.ContentSegment));
+                Console.WriteLine(result);
+                Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+            }
+        }
+
+        [Test]
+        public async void Get_Id_Result()
+        {
+            var startup = new TestStartup<IContent>(
+                //This will be invoked before the controller is created so we can modify these mocked services
+                // it needs to return the required reader/writer for the tests
+                (request, typedContent, contentService, mediaService, memberService) =>
+                {
+                    var mockContentService = Mock.Get(contentService);
+
+                    mockContentService.Setup(x => x.GetById(It.IsAny<int>())).Returns(() => SimpleMockedContent());
+
+                    mockContentService.Setup(x => x.GetChildren(It.IsAny<int>())).Returns(new List<IContent>(new[] { SimpleMockedContent(789) }));
+
+                    return new Tuple<ICollectionJsonDocumentWriter<IContent>, ICollectionJsonDocumentReader<IContent>>(
+                        new ContentDocumentWriter(request, mockContentService.Object),
                         null);
                 });
 
@@ -46,7 +81,28 @@ namespace Umbraco.Web.Rest.Tests
                 var result = await server.HttpClient.GetAsync(
                     string.Format("http://testserver/umbraco/v1/{0}/123", RouteConstants.ContentSegment));
                 Console.WriteLine(result);
+
                 Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+                Assert.AreEqual("application/vnd.collection+json", result.Content.Headers.ContentType.MediaType);
+                Assert.IsAssignableFrom<StreamContent>(result.Content);
+                var json = await ((StreamContent)result.Content).ReadAsStringAsync();
+                Assert.IsTrue(json.Contains("\"collection\""));
+
+                var djson = JsonConvert.DeserializeObject<JObject>(json);
+                Assert.AreEqual("http://testserver/umbraco/v1/content", djson["collection"]["href"].Value<string>());
+                Assert.AreEqual(1, djson["collection"]["items"].Count());
+                Assert.AreEqual("http://testserver/umbraco/v1/content/123", djson["collection"]["items"][0]["href"].Value<string>());
+                Assert.Greater(djson["collection"]["items"][0]["data"].Count(), 0);
+                Assert.AreEqual(2, djson["collection"]["items"][0]["links"].Count());
+
+                Assert.AreEqual("children", djson["collection"]["items"][0]["links"][0]["rel"].Value<string>());
+                Assert.AreEqual("parent", djson["collection"]["items"][0]["links"][1]["rel"].Value<string>());
+                Assert.AreEqual("Children", djson["collection"]["items"][0]["links"][0]["prompt"].Value<string>());
+                Assert.AreEqual("Parent", djson["collection"]["items"][0]["links"][1]["prompt"].Value<string>());
+                Assert.AreEqual("http://testserver/umbraco/v1/content/123/children", djson["collection"]["items"][0]["links"][0]["href"].Value<string>());
+                Assert.AreEqual("http://testserver/umbraco/v1/content/456", djson["collection"]["items"][0]["links"][1]["href"].Value<string>());
+
+                //TODO: Need to assert more values!
             }
         }
 
@@ -62,7 +118,7 @@ namespace Umbraco.Web.Rest.Tests
                     mockContentService.Setup(x => x.GetRootContent()).Returns(Enumerable.Empty<IContent>());
 
                     return new Tuple<ICollectionJsonDocumentWriter<IContent>, ICollectionJsonDocumentReader<IContent>>(
-                        new ContentDocumentWriter(request),
+                        new ContentDocumentWriter(request, mockContentService.Object),
                         null);
                 });
 
@@ -80,7 +136,7 @@ namespace Umbraco.Web.Rest.Tests
         {
             var startup = new TestStartup<IContent>(
                 (request, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IContent>, ICollectionJsonDocumentReader<IContent>>(
-                    new ContentDocumentWriter(request),
+                    new ContentDocumentWriter(request, Mock.Of<IContentService>()),
                     null));
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -92,7 +148,7 @@ namespace Umbraco.Web.Rest.Tests
                 Console.WriteLine(result);
 
                 //NOTE: NotImplemented because we cannot post for published content
-                Assert.AreEqual(HttpStatusCode.NotImplemented, result.StatusCode);
+                Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
             }
         }
 
@@ -101,7 +157,7 @@ namespace Umbraco.Web.Rest.Tests
         {
             var startup = new TestStartup<IContent>(
                 (request, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IContent>, ICollectionJsonDocumentReader<IContent>>(
-                    new ContentDocumentWriter(request),
+                    new ContentDocumentWriter(request, Mock.Of<IContentService>()),
                     null));
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -113,7 +169,7 @@ namespace Umbraco.Web.Rest.Tests
                 Console.WriteLine(result);
 
                 //NOTE: NotImplemented because we cannot post for published content
-                Assert.AreEqual(HttpStatusCode.NotImplemented, result.StatusCode);
+                Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
             }
         }
 
@@ -122,7 +178,7 @@ namespace Umbraco.Web.Rest.Tests
         {
             var startup = new TestStartup<IContent>(
                 (request, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IContent>, ICollectionJsonDocumentReader<IContent>>(
-                    new ContentDocumentWriter(request),
+                    new ContentDocumentWriter(request, Mock.Of<IContentService>()),
                     null));
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -133,13 +189,13 @@ namespace Umbraco.Web.Rest.Tests
                 Console.WriteLine(result);
 
                 //NOTE: NotImplemented because we cannot post for published content
-                Assert.AreEqual(HttpStatusCode.NotImplemented, result.StatusCode);
+                Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
             }
         }
 
-        private static IContent SimpleMockedContent()
+        private static IContent SimpleMockedContent(int id = 123)
         {
-            return Mock.Of<IContent>(content => content.Id == 123
+            return Mock.Of<IContent>(content => content.Id == id
                                                          && content.Published == true
                                                          && content.CreateDate == DateTime.Now.AddDays(-2)
                                                          && content.CreatorId == 0
@@ -149,10 +205,13 @@ namespace Umbraco.Web.Rest.Tests
                                                          && content.Level == 1
                                                          && content.Name == "Home"
                                                          && content.Path == "-1,123"
+                                                         && content.ParentId == 456
                                                          && content.SortOrder == 1
                                                          && content.Template == Mock.Of<ITemplate>(te => te.Id == 9 && te.Alias == "home")
                                                          && content.UpdateDate == DateTime.Now.AddDays(-1)                                                         
-                                                         && content.WriterId == 1);
+                                                         && content.WriterId == 1
+                                                         && content.Properties == new PropertyCollection(new[]{ new Property(3, Guid.NewGuid(), 
+                                                             new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty"), "property value" ) }));
         }
 
     }

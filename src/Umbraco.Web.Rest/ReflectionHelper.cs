@@ -16,6 +16,15 @@ namespace Umbraco.Web.Rest
             return propertyInfo.GetValue(null, null);
         }
 
+        public static void SetStaticProperty(this Type type, string propertyName, object value, Func<IEnumerable<PropertyInfo>, PropertyInfo> filter = null)
+        {
+            var propertyInfo = GetPropertyInfo(type, propertyName, filter);
+            if (propertyInfo == null)
+                throw new ArgumentOutOfRangeException("propertyName",
+                    string.Format("Couldn't find property {0} in type {1}", propertyName, type.FullName));
+            propertyInfo.SetValue(null, value, null);
+        }
+
         public static object CallStaticMethod(this Type type, string methodName, params object[] parameters)
         {
             var methodInfo = GetMethodInfo(type, methodName);

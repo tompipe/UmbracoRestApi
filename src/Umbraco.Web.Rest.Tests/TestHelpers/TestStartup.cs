@@ -73,7 +73,7 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
         {
             //Used for 'GETs' since we have multiple get action names
             routes.MapHttpRoute(
-                name: routeName + "_GET",
+                name: RouteConstants.GetRouteNameForGetRequests(routeName),
                 routeTemplate: routeTemplateGet,
                 defaults: new { controller = defaultController, action = "Get", id = RouteParameter.Optional },
                 constraints: new { httpMethod = new System.Web.Http.Routing.HttpMethodConstraint(HttpMethod.Get) }

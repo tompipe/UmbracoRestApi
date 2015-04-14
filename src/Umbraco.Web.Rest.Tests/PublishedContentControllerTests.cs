@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -12,6 +14,8 @@ using CollectionJson;
 using CollectionJson.Client;
 using Microsoft.Owin.Testing;
 using Moq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using Umbraco.Core;
 using Umbraco.Core.Configuration;
@@ -26,7 +30,7 @@ using Umbraco.Web.Security.Providers;
 namespace Umbraco.Web.Rest.Tests
 {
     [TestFixture]
-    public class PublishedContentControllerRoutingTests
+    public class PublishedContentControllerTests
     {
         [TestFixtureSetUp]
         public void TearDown()
@@ -36,7 +40,7 @@ namespace Umbraco.Web.Rest.Tests
         }
 
         [Test]
-        public async void Get_Id_Is_200_Response()
+        public async void Get_Children_Is_200_Response()
         {
             var startup = new TestStartup<IPublishedContent>(
                 //This will be invoked before the controller is created so we can modify these mocked services
@@ -44,7 +48,32 @@ namespace Umbraco.Web.Rest.Tests
                 (request, typedContent, contentService, mediaService, memberService) =>
                 {
                     var mockTypedContent = Mock.Get(typedContent);
-                    mockTypedContent.Setup(x => x.TypedContent(It.IsAny<int>())).Returns(SimpleMockedPublishedContent);
+                    mockTypedContent.Setup(x => x.TypedContent(It.IsAny<int>())).Returns(() => SimpleMockedPublishedContent(123, 456, 789));
+
+                    return new Tuple<ICollectionJsonDocumentWriter<IPublishedContent>, ICollectionJsonDocumentReader<IPublishedContent>>(
+                        new PublishedContentDocumentWriter(request),
+                        null);
+                });
+
+            using (var server = TestServer.Create(builder => startup.Configuration(builder)))
+            {
+                var result = await server.HttpClient.GetAsync(
+                    string.Format("http://testserver/umbraco/v1/{0}/{1}/123/children", RouteConstants.ContentSegment, RouteConstants.PublishedSegment));
+                Console.WriteLine(result);
+                Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+            }
+        }
+
+        [Test]
+        public async void Get_Id_Result()
+        {
+            var startup = new TestStartup<IPublishedContent>(
+                //This will be invoked before the controller is created so we can modify these mocked services
+                // it needs to return the required reader/writer for the tests
+                (request, typedContent, contentService, mediaService, memberService) =>
+                {
+                    var mockTypedContent = Mock.Get(typedContent);
+                    mockTypedContent.Setup(x => x.TypedContent(It.IsAny<int>())).Returns(() => SimpleMockedPublishedContent(123, 456, 789));
 
                     return new Tuple<ICollectionJsonDocumentWriter<IPublishedContent>, ICollectionJsonDocumentReader<IPublishedContent>>(
                         new PublishedContentDocumentWriter(request),
@@ -56,7 +85,28 @@ namespace Umbraco.Web.Rest.Tests
                 var result = await server.HttpClient.GetAsync(
                     string.Format("http://testserver/umbraco/v1/{0}/{1}/123", RouteConstants.ContentSegment, RouteConstants.PublishedSegment));
                 Console.WriteLine(result);
+
                 Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+                Assert.AreEqual("application/vnd.collection+json", result.Content.Headers.ContentType.MediaType);
+                Assert.IsAssignableFrom<StreamContent>(result.Content);
+                var json = await ((StreamContent)result.Content).ReadAsStringAsync();
+                Assert.IsTrue(json.Contains("\"collection\""));
+
+                var djson = JsonConvert.DeserializeObject<JObject>(json);
+                Assert.AreEqual("http://testserver/umbraco/v1/content/published", djson["collection"]["href"].Value<string>());
+                Assert.AreEqual(1, djson["collection"]["items"].Count());
+                Assert.AreEqual("http://testserver/umbraco/v1/content/published/123", djson["collection"]["items"][0]["href"].Value<string>());
+                Assert.Greater(djson["collection"]["items"][0]["data"].Count(), 0);
+                Assert.AreEqual(2, djson["collection"]["items"][0]["links"].Count());
+
+                Assert.AreEqual("children", djson["collection"]["items"][0]["links"][0]["rel"].Value<string>());
+                Assert.AreEqual("parent", djson["collection"]["items"][0]["links"][1]["rel"].Value<string>());
+                Assert.AreEqual("Children", djson["collection"]["items"][0]["links"][0]["prompt"].Value<string>());
+                Assert.AreEqual("Parent", djson["collection"]["items"][0]["links"][1]["prompt"].Value<string>());
+                Assert.AreEqual("http://testserver/umbraco/v1/content/published/123/children", djson["collection"]["items"][0]["links"][0]["href"].Value<string>());
+                Assert.AreEqual("http://testserver/umbraco/v1/content/published/456", djson["collection"]["items"][0]["links"][1]["href"].Value<string>());
+
+                //TODO: Need to assert more values!
             }
         }
 
@@ -147,26 +197,36 @@ namespace Umbraco.Web.Rest.Tests
             }
         }
 
-        private static IPublishedContent SimpleMockedPublishedContent()
+        private static IPublishedContent SimpleMockedPublishedContent(int id = 123, int? parentId = null, int? childId = null)
         {
-            return Mock.Of<IPublishedContent>(content => content.Id == 123
-                                                         && content.IsDraft == false
-                                                         && content.CreateDate == DateTime.Now.AddDays(-2)
-                                                         && content.CreatorId == 0
-                                                         && content.CreatorName == "admin"
-                                                         && content.DocumentTypeAlias == "test"
-                                                         && content.DocumentTypeId == 10
-                                                         && content.ItemType == PublishedItemType.Content
-                                                         && content.Level == 1
-                                                         && content.Name == "Home"
-                                                         && content.Path == "-1,123"
-                                                         && content.SortOrder == 1
-                                                         && content.TemplateId == 9
-                                                         && content.UpdateDate == DateTime.Now.AddDays(-1)
-                                                         && content.Url == "/home"
-                                                         && content.UrlName == "home"
-                                                         && content.WriterId == 1
-                                                         && content.WriterName == "Editor");
+            return Mock.Of<IPublishedContent>(
+                content => content.Id == id
+                           && content.IsDraft == false
+                           && content.CreateDate == DateTime.Now.AddDays(-2)
+                           && content.CreatorId == 0
+                           && content.CreatorName == "admin"
+                           && content.DocumentTypeAlias == "test"
+                           && content.DocumentTypeId == 10
+                           && content.ItemType == PublishedItemType.Content
+                           && content.Level == 1
+                           && content.Name == "Home"
+                           && content.Path == "-1,123"
+                           && content.SortOrder == 1
+                           && content.TemplateId == 9
+                           && content.UpdateDate == DateTime.Now.AddDays(-1)
+                           && content.Url == "/home"
+                           && content.UrlName == "home"
+                           && content.WriterId == 1
+                           && content.WriterName == "Editor"
+                           && content.Properties == new List<IPublishedProperty>(new[]
+                           {
+                               Mock.Of<IPublishedProperty>(property => property.HasValue == true
+                                && property.PropertyTypeAlias == "testProperty"
+                                && property.DataValue == "raw value"
+                                && property.Value == "Property Value")
+                           })
+                           && content.Parent == (parentId.HasValue ? SimpleMockedPublishedContent(parentId.Value, null, null) : null)
+                           && content.Children == (childId.HasValue ? new[] {SimpleMockedPublishedContent(childId.Value, null, null)} : Enumerable.Empty<IPublishedContent>()));
         }
 
     }

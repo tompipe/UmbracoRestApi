@@ -16,6 +16,15 @@ namespace Umbraco.Web.Rest.Routing
         public const string MediaRouteName = "UR_Media";
         public const string MembersRouteName = "UR_Members";
 
+        /// <summary>
+        /// Gets the route name for the GET requests
+        /// </summary>
+        /// <param name="baseRouteName"></param>
+        /// <returns></returns>
+        public static string GetRouteNameForGetRequests(string baseRouteName)
+        {
+            return baseRouteName + "_GET";
+        }
         
     }
 }

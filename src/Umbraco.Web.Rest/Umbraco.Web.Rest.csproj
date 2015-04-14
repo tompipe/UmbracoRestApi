@@ -254,6 +254,7 @@
     <Compile Include="Routing\UmbracoRoutePrefix.cs" />
     <Compile Include="Serialization\ContentDocumentWriter.cs" />
     <Compile Include="Serialization\PublishedContentDocumentWriter.cs" />
+    <Compile Include="Serialization\UmbracoDocumentWriterBase.cs" />
     <Compile Include="UmbracoRestStartup.cs" />
   </ItemGroup>
   <ItemGroup>
