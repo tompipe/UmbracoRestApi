@@ -244,14 +244,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\CollectionJsonFormatterConfigurationAttribute.cs" />
-    <Compile Include="Controllers\PublishedContentApiController.cs" />
+    <Compile Include="Controllers\ContentController.cs" />
+    <Compile Include="Controllers\PublishedContentController.cs" />
     <Compile Include="Controllers\UmbracoCollectionJsonController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadDocumentExtensions.cs" />
     <Compile Include="ReflectionHelper.cs" />
+    <Compile Include="Routing\RouteConstants.cs" />
     <Compile Include="Routing\UmbracoRoutePrefix.cs" />
     <Compile Include="Serialization\ContentDocumentWriter.cs" />
-    <Compile Include="Startup.cs" />
+    <Compile Include="Serialization\PublishedContentDocumentWriter.cs" />
+    <Compile Include="UmbracoRestStartup.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

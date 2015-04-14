@@ -22,24 +22,25 @@ using Umbraco.Web.Rest.Controllers;
 using Umbraco.Web.Rest.Serialization;
 using Umbraco.Web.Routing;
 using Umbraco.Web.Security;
+using Umbraco.Web.WebApi;
 
 namespace Umbraco.Web.Rest.Tests.TestHelpers
 {
     /// <summary>
     /// Custom activator to create instances of our controllers with an UmbracoContext
     /// </summary>
-    public class TestControllerActivator : DefaultHttpControllerActivator, IHttpControllerActivator
+    public class TestControllerActivator<TItem> : DefaultHttpControllerActivator, IHttpControllerActivator
     {
-        private readonly Action<ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService> _onServicesCreated;
+        private readonly Func<HttpRequestMessage, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService, Tuple<ICollectionJsonDocumentWriter<TItem>, ICollectionJsonDocumentReader<TItem>>> _onServicesCreated;
 
-        public TestControllerActivator(Action<ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService> onServicesCreated)
+        public TestControllerActivator(Func<HttpRequestMessage, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService, Tuple<ICollectionJsonDocumentWriter<TItem>, ICollectionJsonDocumentReader<TItem>>> onServicesCreated)
         {
             _onServicesCreated = onServicesCreated;
         }
 
         IHttpController IHttpControllerActivator.Create(HttpRequestMessage request, HttpControllerDescriptor controllerDescriptor, Type controllerType)
         {
-            if (typeof(UmbracoCollectionJsonController).IsAssignableFrom(controllerType))
+            if (typeof(UmbracoApiControllerBase).IsAssignableFrom(controllerType))
             {
                 var owinContext = request.GetOwinContext();
 
@@ -50,10 +51,7 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
                 var mockedMediaService = Mock.Of<IMediaService>();
                 var mockedMemberService = Mock.Of<IMemberService>();
 
-                if (_onServicesCreated != null)
-                {
-                    _onServicesCreated(mockedTypedContent, mockedContentService, mockedMediaService, mockedMemberService);    
-                }
+                var readerWriter = _onServicesCreated(request, mockedTypedContent, mockedContentService, mockedMediaService, mockedMemberService);    
                 
                 //new app context
                 var appCtx = ApplicationContext.EnsureContext(
@@ -124,18 +122,25 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
                 {
                     typeof(UmbracoContext), 
                     typeof(UmbracoHelper), 
-                    typeof(ICollectionJsonDocumentWriter<IPublishedContent>)
+                    typeof(ICollectionJsonDocumentWriter<TItem>),
+                    typeof(ICollectionJsonDocumentReader<TItem>)
                 });
-                if (ctor != null)
+
+                if (ctor == null)
                 {
-                    return (IHttpController)ctor.Invoke(new object[]
+                    throw new MethodAccessException("Could not find the required constructor for the controller");
+                }
+
+                var created = (UmbracoApiControllerBase)ctor.Invoke(new object[]
                     {
                         //ctor args
                         umbCtx, 
                         umbHelper,
-                        new ContentDocumentWriter(request)
+                        readerWriter.Item1,
+                        readerWriter.Item2
                     });
-                }
+
+                return created;
             }
             //default
             return base.Create(request, controllerDescriptor, controllerType);

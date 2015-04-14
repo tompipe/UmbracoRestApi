@@ -1,25 +1,28 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 using CollectionJson;
 using Umbraco.Core.Models;
 
 namespace Umbraco.Web.Rest.Serialization
 {
     /// <summary>
-    /// A writer for IContent
+    /// A writer for IPublishedContent
     /// </summary>
-    public class ContentDocumentWriter : ICollectionJsonDocumentWriter<IContent>
+    public class PublishedContentDocumentWriter : ICollectionJsonDocumentWriter<IPublishedContent>
     {
         private readonly Uri _requestUri;
 
-        public ContentDocumentWriter(HttpRequestMessage request)
+        public PublishedContentDocumentWriter(HttpRequestMessage request)
         {
             _requestUri = request.RequestUri;
         }
 
-        public IReadDocument Write(IEnumerable<IContent> items)
+        public IReadDocument Write(IEnumerable<IPublishedContent> items)
         {
             //TODO: If we are actually going to be adding Prompt's then they should be localized
 
@@ -34,15 +37,11 @@ namespace Umbraco.Web.Rest.Serialization
                 item.Data.Add(new Data { Name = "path", Value = content.Path, Prompt = "Path" });
                 item.Data.Add(new Data { Name = "level", Value = content.Level.ToString(CultureInfo.InvariantCulture), Prompt = "Level" });
                 item.Data.Add(new Data { Name = "sortorder", Value = content.SortOrder.ToString(CultureInfo.InvariantCulture), Prompt = "Sort Order" });
-                item.Data.Add(new Data { Name = "contenttypealias", Value = content.ContentType.Alias, Prompt = "ContentType Alias" });
-               
-                //TODO: We should create a single query for all content item id's to check if any of them have children and then use that resolved collection here
-                // otherwise we'll end up with N+1 queries because we'd have to make a service call for each item to see if it has children
-                //if (content.Children.Any())
-                //    item.Links.Add(new Link { Rel = "children", Href = new Uri(_requestUri, string.Format("/api/content/v1/{0}/children", content.Id)), Prompt = "Children" });
-                
-                if (content.ParentId > 0)
-                    item.Links.Add(new Link { Rel = "parent", Href = new Uri(_requestUri, "/api/content/v1/" + content.ParentId), Prompt = "Parent" });
+                item.Data.Add(new Data { Name = "contenttypealias", Value = content.DocumentTypeAlias, Prompt = "ContentType Alias" });
+                if (content.Children.Any())
+                    item.Links.Add(new Link { Rel = "children", Href = new Uri(_requestUri, string.Format("/api/content/v1/{0}/children", content.Id)), Prompt = "Children" });
+                if (content.Parent != null)
+                    item.Links.Add(new Link { Rel = "parent", Href = new Uri(_requestUri, "/api/content/v1/" + content.Parent.Id), Prompt = "Parent" });
                 collection.Items.Add(item);
             }
 

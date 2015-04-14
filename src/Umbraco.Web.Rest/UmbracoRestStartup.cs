@@ -1,43 +1,32 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Dispatcher;
-using System.Web.Http.Routing;
-using CollectionJson;
-using Owin;
-using Umbraco.Core.Services;
+using System.Web.Routing;
+using Umbraco.Core;
 using Umbraco.Web.Rest.Routing;
 
-namespace Umbraco.Web.Rest.Tests.TestHelpers
+namespace Umbraco.Web.Rest
 {
-    /// <summary>
-    /// OWIN startup class for the self-hosted web server
-    /// </summary>
-    public class TestStartup<TItem>
+    public class UmbracoRestStartup : ApplicationEventHandler
     {
+        protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
+        { 
+            //Create routes for REST
+            //NOTE : we are NOT using attribute routing! This is because there is no way to enable attribute routing against your own
+            // assemblies with a custom DefaultDirectRouteProvider which we would require to implement inherited attribute routes. 
+            // So we're just going to create the routes manually which is far less intruisive for an end-user developer since we don't
+            // have to muck around with any startup logic.
 
-        const string UmbracoMvcArea = "umbraco";
-        private readonly Func<HttpRequestMessage, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService, Tuple<ICollectionJsonDocumentWriter<TItem>, ICollectionJsonDocumentReader<TItem>>> _activator;
-
-        public TestStartup(Func<HttpRequestMessage, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService, Tuple<ICollectionJsonDocumentWriter<TItem>, ICollectionJsonDocumentReader<TItem>>> activator)
-        {
-            _activator = activator;
+            CreateRoutes(RouteTable.Routes);
         }
 
-        public void Configuration(IAppBuilder app)
+        public static void CreateRoutes(RouteCollection routes)
         {
-            var httpConfig = new HttpConfiguration();
-
-            httpConfig.Services.Replace(typeof(IAssembliesResolver), new TestWebApiResolver());
-            httpConfig.Services.Replace(typeof(IHttpControllerActivator), new TestControllerActivator<TItem>(_activator));
-
-            //auth everything
-            app.AuthenticateEverything();
-
-            //Create routes
-
-            var routes = httpConfig.Routes;
-
             //** PublishedContent routes
             MapEntityTypeRoute(routes,
                 RouteConstants.PublishedContentRouteName,
@@ -65,11 +54,9 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
                 string.Format("{0}/v1/{1}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.MembersSegment),
                 string.Format("{0}/v1/{1}/{{id}}", UmbracoMvcArea, RouteConstants.MembersSegment),
                 "Members");
-
-            app.UseWebApi(httpConfig);
         }
-
-        private void MapEntityTypeRoute(HttpRouteCollection routes, string routeName, string routeTemplateGet, string routeTemplateOther, string defaultController)
+        
+        public static void MapEntityTypeRoute(RouteCollection routes, string routeName, string routeTemplateGet, string routeTemplateOther, string defaultController)
         {
             //Used for 'GETs' since we have multiple get action names
             routes.MapHttpRoute(
@@ -84,6 +71,25 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
                 routeTemplate: routeTemplateOther,
                 defaults: new { controller = defaultController, id = RouteParameter.Optional }
                 );
+        }
+
+        private static string _umbracoMvcArea;
+
+        /// <summary>
+        /// This returns the string of the MVC Area route.
+        /// </summary>
+        /// <remarks>
+        /// Uses reflection to get the internal property in umb core, we don't want to expose this publicly in the core
+        /// until we sort out the Global configuration bits and make it an interface, put them in the correct place, etc...
+        /// </remarks>
+        private static string UmbracoMvcArea
+        {
+            get
+            {
+                return _umbracoMvcArea ??
+                       //Use reflection to get the type and value and cache
+                       (_umbracoMvcArea = (string) Assembly.Load("Umbraco.Core").GetType("Umbraco.Core.Configuration.GlobalSettings").GetStaticProperty("UmbracoMvcArea"));
+            }
         }
     }
 }

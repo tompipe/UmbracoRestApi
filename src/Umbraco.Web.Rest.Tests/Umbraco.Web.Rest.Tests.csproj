@@ -54,12 +54,20 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\CollectionJson.0.7.7\lib\portable-net40+sl50+win+wpa81+wp80\CollectionJson.dll</HintPath>
     </Reference>
+    <Reference Include="CollectionJson.Client, Version=0.7.7.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\CollectionJson.Client.0.7.7\lib\portable-net45+win+wpa81+wp80\CollectionJson.Client.dll</HintPath>
+    </Reference>
     <Reference Include="controls, Version=1.0.5581.38298, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\UmbracoCms.Core.7.3.0-nightly5\lib\controls.dll</HintPath>
     </Reference>
     <Reference Include="CookComputing.XmlRpcV2">
       <HintPath>..\packages\xmlrpcnet.2.5.0\lib\net20\CookComputing.XmlRpcV2.dll</HintPath>
+    </Reference>
+    <Reference Include="DynamicUtils, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\DynamicUtils.1.0.1\lib\portable-net45+sl50+win+wp80\DynamicUtils.dll</HintPath>
     </Reference>
     <Reference Include="Examine">
       <HintPath>..\packages\Examine.0.1.62.2941\lib\Examine.dll</HintPath>
@@ -256,11 +264,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContentControllerRoutingTests.cs" />
     <Compile Include="TestHelpers\AuthenticateEverythingExtensions.cs" />
     <Compile Include="TestHelpers\AuthenticateEverythingMiddleware.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestHelpers\ProviderUtilities.cs" />
-    <Compile Include="PublishedContentTests.cs" />
+    <Compile Include="PublishedContentControllerRoutingTests.cs" />
     <Compile Include="TestHelpers\TestControllerActivator.cs" />
     <Compile Include="TestHelpers\TestStartup.cs" />
     <Compile Include="TestHelpers\TestWebApiResolver.cs" />
