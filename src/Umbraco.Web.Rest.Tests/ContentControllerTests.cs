@@ -93,6 +93,9 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.AreEqual(1, djson["collection"]["items"].Count());
                 Assert.AreEqual("http://testserver/umbraco/v1/content/123", djson["collection"]["items"][0]["href"].Value<string>());
                 Assert.Greater(djson["collection"]["items"][0]["data"].Count(), 0);
+                Assert.IsNotNull(djson["collection"]["items"][0]["data"].SingleOrDefault(x => x["name"].Value<string>() == "properties"));
+                Assert.AreEqual(2, djson["collection"]["items"][0]["data"].SingleOrDefault(x => x["name"].Value<string>() == "properties")["items"].Count());
+                
                 Assert.AreEqual(2, djson["collection"]["items"][0]["links"].Count());
 
                 Assert.AreEqual("children", djson["collection"]["items"][0]["links"][0]["rel"].Value<string>());
@@ -195,23 +198,34 @@ namespace Umbraco.Web.Rest.Tests
 
         private static IContent SimpleMockedContent(int id = 123)
         {
-            return Mock.Of<IContent>(content => content.Id == id
-                                                         && content.Published == true
-                                                         && content.CreateDate == DateTime.Now.AddDays(-2)
-                                                         && content.CreatorId == 0
-                                                         && content.HasIdentity == true
-                                                         && content.ContentType == Mock.Of<IContentType>(ct => ct.Id == 99 && ct.Alias == "testType")
-                                                         && content.ContentTypeId == 10                                                         
-                                                         && content.Level == 1
-                                                         && content.Name == "Home"
-                                                         && content.Path == "-1,123"
-                                                         && content.ParentId == 456
-                                                         && content.SortOrder == 1
-                                                         && content.Template == Mock.Of<ITemplate>(te => te.Id == 9 && te.Alias == "home")
-                                                         && content.UpdateDate == DateTime.Now.AddDays(-1)                                                         
-                                                         && content.WriterId == 1
-                                                         && content.Properties == new PropertyCollection(new[]{ new Property(3, Guid.NewGuid(), 
-                                                             new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty"), "property value" ) }));
+            return Mock.Of<IContent>(
+                content => content.Id == id
+                           && content.Published == true
+                           && content.CreateDate == DateTime.Now.AddDays(-2)
+                           && content.CreatorId == 0
+                           && content.HasIdentity == true
+                           && content.ContentType == Mock.Of<IContentType>(ct => ct.Id == 99 && ct.Alias == "testType")
+                           && content.ContentTypeId == 10
+                           && content.Level == 1
+                           && content.Name == "Home"
+                           && content.Path == "-1,123"
+                           && content.ParentId == 456
+                           && content.SortOrder == 1
+                           && content.Template == Mock.Of<ITemplate>(te => te.Id == 9 && te.Alias == "home")
+                           && content.UpdateDate == DateTime.Now.AddDays(-1)
+                           && content.WriterId == 1
+                           && content.PropertyTypes == new List<PropertyType>(new[]
+                           {
+                               new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty1") {Name = "Test Property1"},
+                               new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty2") {Name = "Test Property2"}
+                           })
+                           && content.Properties == new PropertyCollection(new[]
+                           {
+                               new Property(3, Guid.NewGuid(),
+                                   new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty1"), "property value1"),
+                               new Property(3, Guid.NewGuid(),
+                                   new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty2"), "property value2"),
+                           }));
         }
 
     }

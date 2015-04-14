@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Routing;
@@ -17,7 +19,7 @@ namespace Umbraco.Web.Rest.Serialization
             UrlHelper = new UrlHelper(request);
         }
 
-        protected Uri RequestUri {get; private set; }
+        protected Uri RequestUri { get; private set; }
         protected UrlHelper UrlHelper { get; private set; }
 
         protected abstract string BaseRouteName { get; }
@@ -26,7 +28,7 @@ namespace Umbraco.Web.Rest.Serialization
         /// Helper to create the document with the root link
         /// </summary>
         /// <returns></returns>
-        protected ReadDocument CreateDocument()
+        public ReadDocument CreateDocument()
         {
             var document = new ReadDocument();
             var collection = new Collection { Version = "1.0", Href = new Uri(RequestUri, GetRootLink()) };
@@ -38,7 +40,7 @@ namespace Umbraco.Web.Rest.Serialization
         /// Helper to create a content item
         /// </summary>
         /// <returns></returns>
-        protected Item CreateContentItem(object contentId, string name, string path, int level, int sortOrder, string contentTypeAlias,
+        public Item CreateContentItem(object contentId, string name, string path, int level, int sortOrder, string contentTypeAlias,
             bool hasChildren, int parentId)
         {
             var item = new Item { Href = new Uri(RequestUri, GetItemLink(contentId)) };
@@ -65,14 +67,28 @@ namespace Umbraco.Web.Rest.Serialization
         /// </summary>
         /// <param name="item"></param>
         /// <param name="propertyName"></param>
+        /// <param name="propertyAlias"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        protected Data CreatePropertyData(Item item, string propertyName, string value)
+        public Data CreatePropertyData(Item item, string propertyName, string propertyAlias, string value)
         {
-            //Since this is a user defined property, we need to suffix it because it might overlap with normal content properties
-            var serializedPropertyName = "property_" + propertyName;
-            var data = new Data {Name = serializedPropertyName, Value = value};
-            item.Data.Add(data);
+            //get the property data item, if it's not there yet, then add it
+            var propertyData = item.Data.FirstOrDefault(x => x.Name == "properties");
+            if (propertyData == null)
+            {
+                propertyData = new Data() { Name = "properties", Prompt = "Properties" };
+                item.Data.Add(propertyData);
+            }
+
+            //now check for the list value, if its not there create a new one
+            var propertyList = propertyData.GetValue<List<Data>>("items") ?? new List<Data>();
+
+            //create the new property item data and add it to the list
+            var data = new Data { Name = propertyAlias, Value = value, Prompt = propertyName };
+            propertyList.Add(data);
+
+            //set the custom list back to our custom property data item
+            propertyData.SetValue("items", propertyList);
             return data;
         }
 
@@ -80,28 +96,32 @@ namespace Umbraco.Web.Rest.Serialization
         /// Helper to create a property data
         /// </summary>
         /// <param name="item"></param>
-        /// <param name="property"></param>
+        /// <param name="content"></param>
+        /// <param name="propertyAlias"></param>
         /// <returns></returns>
-        protected Data CreatePropertyData(Item item, Property property)
+        public Data CreatePropertyData(Item item, IContentBase content, string propertyAlias)
         {
-            //TODO: Since we are returning this for consumption, do we need to put this through the PropertyValueEditor.ConvertDbToEditor ?
-            // I'd assume that we'll have to do that.
-            return CreatePropertyData(item, property.Alias, property.Value == null ? string.Empty : property.Value.ToString());
+            return CreatePropertyData(item,
+                content.PropertyTypes.Single(x => x.Alias == propertyAlias).Name,
+                propertyAlias,
+                //TODO: Since we are returning this for consumption, do we need to put this through the PropertyValueEditor.ConvertDbToEditor ?
+                // I'd assume that we'll have to do that.
+                content.Properties[propertyAlias].Value == null ? string.Empty : content.Properties[propertyAlias].Value.ToString());
         }
 
-        protected string GetRootLink()
+        public string GetRootLink()
         {
             var rootLink = UrlHelper.Link(RouteConstants.GetRouteNameForGetRequests(BaseRouteName), new { id = RouteParameter.Optional });
             return rootLink;
         }
 
-        protected string GetChildrenLink(object id)
+        public string GetChildrenLink(object id)
         {
             var rootLink = UrlHelper.Link(RouteConstants.GetRouteNameForGetRequests(BaseRouteName), new { id = id, action = "children" });
             return rootLink;
         }
 
-        protected string GetItemLink(object parentId)
+        public string GetItemLink(object parentId)
         {
             var rootLink = UrlHelper.Link(RouteConstants.GetRouteNameForGetRequests(BaseRouteName), new { id = parentId });
             return rootLink;

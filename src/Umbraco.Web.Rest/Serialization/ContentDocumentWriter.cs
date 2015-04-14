@@ -43,7 +43,7 @@ namespace Umbraco.Web.Rest.Serialization
 
                 foreach (var property in content.Properties)
                 {
-                    CreatePropertyData(item, property);
+                    CreatePropertyData(item, content, property.Alias);
                 }    
 
                 document.Collection.Items.Add(item);
