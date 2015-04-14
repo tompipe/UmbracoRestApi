@@ -26,7 +26,7 @@ namespace Umbraco.Web.Rest.Controllers
         /// </summary>
         public PublishedContentController()
         {
-            Writer = new PublishedContentDocumentWriter(Request);
+            Writer = new PublishedContentDocumentWriter(Request, UmbracoContext.UrlProvider);
         }
 
         /// <summary>

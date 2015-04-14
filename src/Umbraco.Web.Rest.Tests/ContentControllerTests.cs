@@ -17,6 +17,7 @@ using Umbraco.Core.Services;
 using Umbraco.Web.Rest.Routing;
 using Umbraco.Web.Rest.Serialization;
 using Umbraco.Web.Rest.Tests.TestHelpers;
+using Umbraco.Web.Routing;
 
 namespace Umbraco.Web.Rest.Tests
 {
@@ -38,13 +39,13 @@ namespace Umbraco.Web.Rest.Tests
             var startup = new TestStartup<IContent>(
                 //This will be invoked before the controller is created so we can modify these mocked services
                 // it needs to return the required reader/writer for the tests
-                (request, typedContent, contentService, mediaService, memberService) =>
+                (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
                 {
                     var mockContentService = Mock.Get(contentService);
                     mockContentService.Setup(x => x.GetChildren(It.IsAny<int>())).Returns(Enumerable.Empty<IContent>());
 
                     return new Tuple<ICollectionJsonDocumentWriter<IContent>, ICollectionJsonDocumentReader<IContent>>(
-                        new ContentDocumentWriter(request, mockContentService.Object),
+                        new ContentDocumentWriter(request, umbCtx.UrlProvider,  mockContentService.Object),
                         null);
                 });
 
@@ -63,7 +64,7 @@ namespace Umbraco.Web.Rest.Tests
             var startup = new TestStartup<IContent>(
                 //This will be invoked before the controller is created so we can modify these mocked services
                 // it needs to return the required reader/writer for the tests
-                (request, typedContent, contentService, mediaService, memberService) =>
+                (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
                 {
                     var mockContentService = Mock.Get(contentService);
 
@@ -72,7 +73,7 @@ namespace Umbraco.Web.Rest.Tests
                     mockContentService.Setup(x => x.GetChildren(It.IsAny<int>())).Returns(new List<IContent>(new[] { SimpleMockedContent(789) }));
 
                     return new Tuple<ICollectionJsonDocumentWriter<IContent>, ICollectionJsonDocumentReader<IContent>>(
-                        new ContentDocumentWriter(request, mockContentService.Object),
+                        new ContentDocumentWriter(request, umbCtx.UrlProvider, mockContentService.Object),
                         null);
                 });
 
@@ -92,7 +93,8 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.AreEqual("http://testserver/umbraco/v1/content", djson["collection"]["href"].Value<string>());
                 Assert.AreEqual(1, djson["collection"]["items"].Count());
                 Assert.AreEqual("http://testserver/umbraco/v1/content/123", djson["collection"]["items"][0]["href"].Value<string>());
-                Assert.Greater(djson["collection"]["items"][0]["data"].Count(), 0);
+                Assert.AreEqual(11, djson["collection"]["items"][0]["data"].Count());
+  
                 Assert.IsNotNull(djson["collection"]["items"][0]["data"].SingleOrDefault(x => x["name"].Value<string>() == "properties"));
                 Assert.AreEqual(2, djson["collection"]["items"][0]["data"].SingleOrDefault(x => x["name"].Value<string>() == "properties")["items"].Count());
                 
@@ -115,13 +117,13 @@ namespace Umbraco.Web.Rest.Tests
             var startup = new TestStartup<IContent>(
                 //This will be invoked before the controller is created so we can modify these mocked services,
                 // it needs to return the required reader/writer for the tests
-                (request, typedContent, contentService, mediaService, memberService) =>
+                (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
                 {
                     var mockContentService = Mock.Get(contentService);
                     mockContentService.Setup(x => x.GetRootContent()).Returns(Enumerable.Empty<IContent>());
 
                     return new Tuple<ICollectionJsonDocumentWriter<IContent>, ICollectionJsonDocumentReader<IContent>>(
-                        new ContentDocumentWriter(request, mockContentService.Object),
+                        new ContentDocumentWriter(request, umbCtx.UrlProvider, mockContentService.Object),
                         null);
                 });
 
@@ -138,8 +140,8 @@ namespace Umbraco.Web.Rest.Tests
         public async void Post_Is_200_Response()
         {
             var startup = new TestStartup<IContent>(
-                (request, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IContent>, ICollectionJsonDocumentReader<IContent>>(
-                    new ContentDocumentWriter(request, Mock.Of<IContentService>()),
+                (request, umbCtx, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IContent>, ICollectionJsonDocumentReader<IContent>>(
+                    new ContentDocumentWriter(request, umbCtx.UrlProvider, Mock.Of<IContentService>()),
                     null));
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -159,8 +161,8 @@ namespace Umbraco.Web.Rest.Tests
         public async void Put_Is_200_Response()
         {
             var startup = new TestStartup<IContent>(
-                (request, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IContent>, ICollectionJsonDocumentReader<IContent>>(
-                    new ContentDocumentWriter(request, Mock.Of<IContentService>()),
+                (request, umbCtx, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IContent>, ICollectionJsonDocumentReader<IContent>>(
+                    new ContentDocumentWriter(request, umbCtx.UrlProvider, Mock.Of<IContentService>()),
                     null));
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -180,8 +182,8 @@ namespace Umbraco.Web.Rest.Tests
         public async void Delete_Is_200_Response()
         {
             var startup = new TestStartup<IContent>(
-                (request, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IContent>, ICollectionJsonDocumentReader<IContent>>(
-                    new ContentDocumentWriter(request, Mock.Of<IContentService>()),
+                (request, umbCtx, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IContent>, ICollectionJsonDocumentReader<IContent>>(
+                    new ContentDocumentWriter(request, umbCtx.UrlProvider, Mock.Of<IContentService>()),
                     null));
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))

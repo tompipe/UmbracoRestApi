@@ -10,6 +10,7 @@ using System.Web.Http.Routing;
 using CollectionJson;
 using Umbraco.Core.Models;
 using Umbraco.Web.Rest.Routing;
+using Umbraco.Web.Routing;
 
 namespace Umbraco.Web.Rest.Serialization
 {
@@ -18,8 +19,8 @@ namespace Umbraco.Web.Rest.Serialization
     /// </summary>
     public class PublishedContentDocumentWriter : UmbracoDocumentWriterBase, ICollectionJsonDocumentWriter<IPublishedContent>
     {
-        public PublishedContentDocumentWriter(HttpRequestMessage request)
-            : base(request)
+        public PublishedContentDocumentWriter(HttpRequestMessage request, UrlProvider urlProvider)
+            : base(request, urlProvider)
         {
         }
 
@@ -33,7 +34,15 @@ namespace Umbraco.Web.Rest.Serialization
             {
                 var item = CreateContentItem(
                     content.Id, content.Name, content.Path, content.Level, content.SortOrder, content.DocumentTypeAlias,
-                    content.Children.Any(), content.Parent == null ? -1 : content.Parent.Id);
+                    content.Children.Any(), content.Parent == null ? -1 : content.Parent.Id,
+                    content.CreatorId, content.CreatorName, content.WriterId, content.WriterName);
+
+                foreach (var property in content.Properties)
+                {
+                    //TODO: Since we are returning this for consumption and since this is published content, I'm thinking that we'd need to put this
+                    // value through the property value converters!
+                    CreatePropertyData(item, property.PropertyTypeAlias, property.PropertyTypeAlias, property.Value == null ? string.Empty : property.Value.ToString());
+                }
 
                 document.Collection.Items.Add(item);
             }

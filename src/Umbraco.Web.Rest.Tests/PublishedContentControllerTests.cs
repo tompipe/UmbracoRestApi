@@ -45,13 +45,13 @@ namespace Umbraco.Web.Rest.Tests
             var startup = new TestStartup<IPublishedContent>(
                 //This will be invoked before the controller is created so we can modify these mocked services
                 // it needs to return the required reader/writer for the tests
-                (request, typedContent, contentService, mediaService, memberService) =>
+                (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
                 {
                     var mockTypedContent = Mock.Get(typedContent);
                     mockTypedContent.Setup(x => x.TypedContent(It.IsAny<int>())).Returns(() => SimpleMockedPublishedContent(123, 456, 789));
 
                     return new Tuple<ICollectionJsonDocumentWriter<IPublishedContent>, ICollectionJsonDocumentReader<IPublishedContent>>(
-                        new PublishedContentDocumentWriter(request),
+                        new PublishedContentDocumentWriter(request, umbCtx.UrlProvider),
                         null);
                 });
 
@@ -70,13 +70,13 @@ namespace Umbraco.Web.Rest.Tests
             var startup = new TestStartup<IPublishedContent>(
                 //This will be invoked before the controller is created so we can modify these mocked services
                 // it needs to return the required reader/writer for the tests
-                (request, typedContent, contentService, mediaService, memberService) =>
+                (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
                 {
                     var mockTypedContent = Mock.Get(typedContent);
                     mockTypedContent.Setup(x => x.TypedContent(It.IsAny<int>())).Returns(() => SimpleMockedPublishedContent(123, 456, 789));
 
                     return new Tuple<ICollectionJsonDocumentWriter<IPublishedContent>, ICollectionJsonDocumentReader<IPublishedContent>>(
-                        new PublishedContentDocumentWriter(request),
+                        new PublishedContentDocumentWriter(request, umbCtx.UrlProvider),
                         null);
                 });
 
@@ -96,7 +96,11 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.AreEqual("http://testserver/umbraco/v1/content/published", djson["collection"]["href"].Value<string>());
                 Assert.AreEqual(1, djson["collection"]["items"].Count());
                 Assert.AreEqual("http://testserver/umbraco/v1/content/published/123", djson["collection"]["items"][0]["href"].Value<string>());
-                Assert.Greater(djson["collection"]["items"][0]["data"].Count(), 0);
+                Assert.AreEqual(11, djson["collection"]["items"][0]["data"].Count());
+
+                Assert.IsNotNull(djson["collection"]["items"][0]["data"].SingleOrDefault(x => x["name"].Value<string>() == "properties"));
+                Assert.AreEqual(2, djson["collection"]["items"][0]["data"].SingleOrDefault(x => x["name"].Value<string>() == "properties")["items"].Count());
+
                 Assert.AreEqual(2, djson["collection"]["items"][0]["links"].Count());
 
                 Assert.AreEqual("children", djson["collection"]["items"][0]["links"][0]["rel"].Value<string>());
@@ -116,13 +120,13 @@ namespace Umbraco.Web.Rest.Tests
             var startup = new TestStartup<IPublishedContent>(
                 //This will be invoked before the controller is created so we can modify these mocked services,
                 // it needs to return the required reader/writer for the tests
-                (request, typedContent, contentService, mediaService, memberService) =>
+                (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
                 {
                     var mockTypedContent = Mock.Get(typedContent);
                     mockTypedContent.Setup(x => x.TypedContentAtRoot()).Returns(Enumerable.Empty<IPublishedContent>());
 
                     return new Tuple<ICollectionJsonDocumentWriter<IPublishedContent>, ICollectionJsonDocumentReader<IPublishedContent>>(
-                        new PublishedContentDocumentWriter(request),
+                        new PublishedContentDocumentWriter(request, umbCtx.UrlProvider),
                         null);
                 });
 
@@ -139,8 +143,8 @@ namespace Umbraco.Web.Rest.Tests
         public async void Post_Is_501_Response()
         {
             var startup = new TestStartup<IPublishedContent>(
-                (request, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IPublishedContent>, ICollectionJsonDocumentReader<IPublishedContent>>(
-                    new PublishedContentDocumentWriter(request),
+                (request, umbCtx, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IPublishedContent>, ICollectionJsonDocumentReader<IPublishedContent>>(
+                    new PublishedContentDocumentWriter(request, umbCtx.UrlProvider),
                     null));
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -160,8 +164,8 @@ namespace Umbraco.Web.Rest.Tests
         public async void Put_Is_501_Response()
         {
             var startup = new TestStartup<IPublishedContent>(
-                (request, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IPublishedContent>, ICollectionJsonDocumentReader<IPublishedContent>>(
-                    new PublishedContentDocumentWriter(request),
+                (request, umbCtx, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IPublishedContent>, ICollectionJsonDocumentReader<IPublishedContent>>(
+                    new PublishedContentDocumentWriter(request, umbCtx.UrlProvider),
                     null));
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -181,8 +185,8 @@ namespace Umbraco.Web.Rest.Tests
         public async void Delete_Is_501_Response()
         {
             var startup = new TestStartup<IPublishedContent>(
-                (request, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IPublishedContent>, ICollectionJsonDocumentReader<IPublishedContent>>(
-                    new PublishedContentDocumentWriter(request),
+                (request, umbCtx, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IPublishedContent>, ICollectionJsonDocumentReader<IPublishedContent>>(
+                    new PublishedContentDocumentWriter(request, umbCtx.UrlProvider),
                     null));
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -221,9 +225,13 @@ namespace Umbraco.Web.Rest.Tests
                            && content.Properties == new List<IPublishedProperty>(new[]
                            {
                                Mock.Of<IPublishedProperty>(property => property.HasValue == true
-                                && property.PropertyTypeAlias == "testProperty"
-                                && property.DataValue == "raw value"
-                                && property.Value == "Property Value")
+                                                                       && property.PropertyTypeAlias == "testProperty1"
+                                                                       && property.DataValue == "raw value"
+                                                                       && property.Value == "Property Value"),
+                               Mock.Of<IPublishedProperty>(property => property.HasValue == true
+                                                                       && property.PropertyTypeAlias == "testProperty2"
+                                                                       && property.DataValue == "raw value"
+                                                                       && property.Value == "Property Value")
                            })
                            && content.Parent == (parentId.HasValue ? SimpleMockedPublishedContent(parentId.Value, null, null) : null)
                            && content.Children == (childId.HasValue ? new[] {SimpleMockedPublishedContent(childId.Value, null, null)} : Enumerable.Empty<IPublishedContent>()));

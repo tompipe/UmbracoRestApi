@@ -17,9 +17,9 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
     {
 
         const string UmbracoMvcArea = "umbraco";
-        private readonly Func<HttpRequestMessage, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService, Tuple<ICollectionJsonDocumentWriter<TItem>, ICollectionJsonDocumentReader<TItem>>> _activator;
+        private readonly Func<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService, Tuple<ICollectionJsonDocumentWriter<TItem>, ICollectionJsonDocumentReader<TItem>>> _activator;
 
-        public TestStartup(Func<HttpRequestMessage, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService, Tuple<ICollectionJsonDocumentWriter<TItem>, ICollectionJsonDocumentReader<TItem>>> activator)
+        public TestStartup(Func<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService, Tuple<ICollectionJsonDocumentWriter<TItem>, ICollectionJsonDocumentReader<TItem>>> activator)
         {
             _activator = activator;
         }

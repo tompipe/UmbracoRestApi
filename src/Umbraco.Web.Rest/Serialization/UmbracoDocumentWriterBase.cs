@@ -8,19 +8,24 @@ using System.Web.Http.Routing;
 using CollectionJson;
 using Umbraco.Core.Models;
 using Umbraco.Web.Rest.Routing;
+using Umbraco.Web.Routing;
 
 namespace Umbraco.Web.Rest.Serialization
 {
     public abstract class UmbracoDocumentWriterBase
     {
-        protected UmbracoDocumentWriterBase(HttpRequestMessage request)
+        
+
+        protected UmbracoDocumentWriterBase(HttpRequestMessage request, UrlProvider urlProvider)
         {
+            UrlProvider = urlProvider;
             RequestUri = request.RequestUri;
             UrlHelper = new UrlHelper(request);
         }
 
         protected Uri RequestUri { get; private set; }
         protected UrlHelper UrlHelper { get; private set; }
+        protected UrlProvider UrlProvider { get; private set; }
 
         protected abstract string BaseRouteName { get; }
 
@@ -40,16 +45,23 @@ namespace Umbraco.Web.Rest.Serialization
         /// Helper to create a content item
         /// </summary>
         /// <returns></returns>
-        public Item CreateContentItem(object contentId, string name, string path, int level, int sortOrder, string contentTypeAlias,
-            bool hasChildren, int parentId)
+        public Item CreateContentItem(int contentId, string name, string path, int level, int sortOrder, string contentTypeAlias,
+            bool hasChildren, int parentId, int creatorId, string creatorName, int writerId, string writerName)
         {
             var item = new Item { Href = new Uri(RequestUri, GetItemLink(contentId)) };
             item.Data.Add(new Data { Name = "name", Value = name, Prompt = "Name" });
             item.Data.Add(new Data { Name = "path", Value = path, Prompt = "Path" });
             item.Data.Add(new Data { Name = "level", Value = level.ToString(CultureInfo.InvariantCulture), Prompt = "Level" });
-            item.Data.Add(new Data { Name = "sortorder", Value = sortOrder.ToString(CultureInfo.InvariantCulture), Prompt = "Sort Order" });
-            item.Data.Add(new Data { Name = "contenttypealias", Value = contentTypeAlias, Prompt = "ContentType Alias" });
-
+            item.Data.Add(new Data { Name = "sortOrder", Value = sortOrder.ToString(CultureInfo.InvariantCulture), Prompt = "Sort Order" });
+            item.Data.Add(new Data { Name = "contentTypeAlias", Value = contentTypeAlias, Prompt = "ContentType Alias" });
+            item.Data.Add(new Data { Name = "creatorId", Value = creatorId.ToString(CultureInfo.InvariantCulture), Prompt = "Creator Id" });
+            item.Data.Add(new Data { Name = "creatorName", Value = creatorName, Prompt = "Creator Name" });
+            item.Data.Add(new Data { Name = "writerId", Value = writerId.ToString(CultureInfo.InvariantCulture), Prompt = "Writer Id" });
+            item.Data.Add(new Data { Name = "writerName", Value = writerName, Prompt = "Writer Name" });
+            //NOTE: This is just a normal data property, some would argue that it should be a 'link' but it is not a link to more REST
+            // resources, it's the actual CMS URl of the item
+            item.Data.Add(new Data { Name = "url", Value = GetContentUrl(contentId), Prompt = "Url" });
+            
             if (hasChildren)
             {
                 item.Links.Add(new Link { Rel = "children", Href = new Uri(RequestUri, GetChildrenLink(contentId)), Prompt = "Children" });
@@ -59,6 +71,7 @@ namespace Umbraco.Web.Rest.Serialization
             {
                 item.Links.Add(new Link { Rel = "parent", Href = new Uri(RequestUri, GetItemLink(parentId)), Prompt = "Parent" });
             }
+
             return item;
         }
 
@@ -109,22 +122,27 @@ namespace Umbraco.Web.Rest.Serialization
                 content.Properties[propertyAlias].Value == null ? string.Empty : content.Properties[propertyAlias].Value.ToString());
         }
 
-        public string GetRootLink()
+        public virtual string GetRootLink()
         {
             var rootLink = UrlHelper.Link(RouteConstants.GetRouteNameForGetRequests(BaseRouteName), new { id = RouteParameter.Optional });
             return rootLink;
         }
 
-        public string GetChildrenLink(object id)
+        public virtual string GetChildrenLink(int id)
         {
             var rootLink = UrlHelper.Link(RouteConstants.GetRouteNameForGetRequests(BaseRouteName), new { id = id, action = "children" });
             return rootLink;
         }
 
-        public string GetItemLink(object parentId)
+        public virtual string GetItemLink(int parentId)
         {
             var rootLink = UrlHelper.Link(RouteConstants.GetRouteNameForGetRequests(BaseRouteName), new { id = parentId });
             return rootLink;
+        }
+
+        public virtual string GetContentUrl(int id)
+        {
+            return UrlProvider.GetUrl(id);
         }
     }
 }

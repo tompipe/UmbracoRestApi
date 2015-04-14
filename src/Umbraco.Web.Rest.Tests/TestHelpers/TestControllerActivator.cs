@@ -31,9 +31,9 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
     /// </summary>
     public class TestControllerActivator<TItem> : DefaultHttpControllerActivator, IHttpControllerActivator
     {
-        private readonly Func<HttpRequestMessage, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService, Tuple<ICollectionJsonDocumentWriter<TItem>, ICollectionJsonDocumentReader<TItem>>> _onServicesCreated;
+        private readonly Func<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService, Tuple<ICollectionJsonDocumentWriter<TItem>, ICollectionJsonDocumentReader<TItem>>> _onServicesCreated;
 
-        public TestControllerActivator(Func<HttpRequestMessage, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService, Tuple<ICollectionJsonDocumentWriter<TItem>, ICollectionJsonDocumentReader<TItem>>> onServicesCreated)
+        public TestControllerActivator(Func<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService, Tuple<ICollectionJsonDocumentWriter<TItem>, ICollectionJsonDocumentReader<TItem>>> onServicesCreated)
         {
             _onServicesCreated = onServicesCreated;
         }
@@ -51,8 +51,6 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
                 var mockedMediaService = Mock.Of<IMediaService>();
                 var mockedMemberService = Mock.Of<IMemberService>();
 
-                var readerWriter = _onServicesCreated(request, mockedTypedContent, mockedContentService, mockedMediaService, mockedMemberService);    
-                
                 //new app context
                 var appCtx = ApplicationContext.EnsureContext(
                     new DatabaseContext(Mock.Of<IDatabaseFactory>(), Mock.Of<ILogger>(), Mock.Of<ISqlSyntaxProvider>(), "test"), 
@@ -93,7 +91,7 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
                     httpContext,
                     appCtx,
                     webSecurity.Object,
-                    Mock.Of<IUmbracoSettingsSection>(),
+                    Mock.Of<IUmbracoSettingsSection>(section => section.WebRouting == Mock.Of<IWebRoutingSection>(routingSection => routingSection.UrlProviderMode == UrlProviderMode.Auto.ToString())),
                     Enumerable.Empty<IUrlProvider>(),
                     true); //replace it
 
@@ -116,6 +114,8 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
                     Mock.Of<ICultureDictionary>(),
                     Mock.Of<IUmbracoComponentRenderer>(),
                     membershipHelper);
+
+                var readerWriter = _onServicesCreated(request, umbCtx, mockedTypedContent, mockedContentService, mockedMediaService, mockedMemberService);
 
                 //Create the controller with all dependencies
                 var ctor = controllerType.GetConstructor(new[]

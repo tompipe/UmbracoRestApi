@@ -8,6 +8,7 @@ using CollectionJson;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
 using Umbraco.Web.Rest.Routing;
+using Umbraco.Web.Routing;
 
 namespace Umbraco.Web.Rest.Serialization
 {
@@ -18,8 +19,8 @@ namespace Umbraco.Web.Rest.Serialization
     {
         private readonly IContentService _contentService;
 
-        public ContentDocumentWriter(HttpRequestMessage request, IContentService contentService)
-            : base(request)
+        public ContentDocumentWriter(HttpRequestMessage request, UrlProvider urlProvider, IContentService contentService)
+            : base(request, urlProvider)
         {
             _contentService = contentService;
         }
@@ -38,8 +39,9 @@ namespace Umbraco.Web.Rest.Serialization
 
                 var item = CreateContentItem(
                    content.Id, content.Name, content.Path, content.Level, content.SortOrder, content.ContentType.Alias,
-                   hasChildren, 
-                   content.ParentId);
+                   hasChildren, content.ParentId,
+                   //NOTE: we are passing empty strings for the creator and writer name because if we use looked them up we'd have tons of N+1
+                   content.CreatorId, string.Empty, content.WriterId, string.Empty);
 
                 foreach (var property in content.Properties)
                 {
