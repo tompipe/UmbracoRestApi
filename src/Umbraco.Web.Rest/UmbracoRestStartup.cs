@@ -7,6 +7,7 @@ using System.Web.Http;
 using System.Web.Http.Routing;
 using System.Web.Routing;
 using Umbraco.Core;
+using Umbraco.Web.Rest.Controllers;
 using Umbraco.Web.Rest.Routing;
 
 namespace Umbraco.Web.Rest
@@ -64,14 +65,18 @@ namespace Umbraco.Web.Rest
                 routeTemplate: routeTemplateGet,
                 defaults: new { controller = defaultController, action = "Get", id = RouteParameter.Optional },
                 constraints: new { httpMethod = new System.Web.Http.Routing.HttpMethodConstraint(HttpMethod.Get) }
-                ).WithRouteName(routeName);
+                )
+                .WithRouteName(routeName)
+                .WithNamespace(typeof(PublishedContentController).Namespace);
 
             //Used for everything else
             routes.MapHttpRoute(
                 name: routeName,
                 routeTemplate: routeTemplateOther,
                 defaults: new { controller = defaultController, id = RouteParameter.Optional }
-                ).WithRouteName(routeName);
+                )
+                .WithRouteName(routeName)
+                .WithNamespace(typeof(PublishedContentController).Namespace);
         }
 
         private static string _umbracoMvcArea;
