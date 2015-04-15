@@ -23,6 +23,7 @@ namespace Umbraco.Web.Rest
         public const string Value = "value";
         public const string Regexp = "regexp";
         public const string Required = "required";
-        
+        public const string ParentId = "parentId";
+
     }
 }

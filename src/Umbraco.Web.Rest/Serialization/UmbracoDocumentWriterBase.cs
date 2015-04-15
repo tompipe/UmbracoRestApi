@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Routing;
 using CollectionJson;
+using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web.Rest.Routing;
 using Umbraco.Web.Routing;
@@ -65,6 +66,7 @@ namespace Umbraco.Web.Rest.Serialization
             item.Data.Add(new Data { Name = FieldNames.CreatorName, Value = creatorName, Prompt = "Creator Name" });
             item.Data.Add(new Data { Name = FieldNames.WriterId, Value = writerId.ToString(CultureInfo.InvariantCulture), Prompt = "Writer Id" });
             item.Data.Add(new Data { Name = FieldNames.WriterName, Value = writerName, Prompt = "Writer Name" });
+            item.Data.Add(new Data { Name = FieldNames.ParentId, Value = parentId.ToInvariantString(), Prompt = "Parent Id" });
             //NOTE: This is just a normal data property, some would argue that it should be a 'link' but it is not a link to more REST
             // resources, it's the actual CMS URl of the item
             item.Data.Add(new Data { Name = FieldNames.Url, Value = GetContentUrl(contentId), Prompt = "Url" });

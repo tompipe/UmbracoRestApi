@@ -1,8 +1,10 @@
-﻿using System.Net.Http;
+﻿using System.Collections.Concurrent;
+using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Routing;
 using System.Web.Routing;
 using Umbraco.Core;
 using Umbraco.Web.Rest.Routing;
@@ -55,19 +57,21 @@ namespace Umbraco.Web.Rest
         
         public static void MapEntityTypeRoute(RouteCollection routes, string routeName, string routeTemplateGet, string routeTemplateOther, string defaultController)
         {
+            
             //Used for 'GETs' since we have multiple get action names
             routes.MapHttpRoute(
                 name: RouteConstants.GetRouteNameForGetRequests(routeName),
                 routeTemplate: routeTemplateGet,
                 defaults: new { controller = defaultController, action = "Get", id = RouteParameter.Optional },
                 constraints: new { httpMethod = new System.Web.Http.Routing.HttpMethodConstraint(HttpMethod.Get) }
-                );
+                ).WithRouteName(routeName);
+
             //Used for everything else
             routes.MapHttpRoute(
                 name: routeName,
                 routeTemplate: routeTemplateOther,
                 defaults: new { controller = defaultController, id = RouteParameter.Optional }
-                );
+                ).WithRouteName(routeName);
         }
 
         private static string _umbracoMvcArea;

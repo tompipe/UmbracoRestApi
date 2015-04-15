@@ -88,8 +88,10 @@ namespace Umbraco.Web.Rest.Serialization
             var templateData = document.Collection.Template.Data;
 
             templateData.Add(new Data { Name = FieldNames.Name, Value = content.Name });
-            // this is of course readonly but required for persistence
+            
+            // these two are of course readonly but required for persistence
             templateData.Add(new Data { Name = FieldNames.ContentTypeAlias, Value = content.ContentType.Alias });
+            templateData.Add(new Data { Name = FieldNames.ParentId, Value = content.ParentId.ToInvariantString() });
 
             //TODO: What else is directly writable? maybe template, publish at, expire at?
 

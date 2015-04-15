@@ -30,9 +30,10 @@ namespace Umbraco.Web.Rest.Serialization
 
             var contentType = template.Data.GetRequiredDataValueByName<string>(FieldNames.ContentTypeAlias);
             var name = template.Data.GetRequiredDataValueByName<string>(FieldNames.Name);
+            var parentId = template.Data.GetRequiredDataValueByName<int>(FieldNames.ParentId);
 
             //get a temp content item based on the content type alias
-            var content = _contentService.CreateContent(name, -1, contentType);
+            var content = _contentService.CreateContent(name, parentId, contentType);
         
             var properties = template.Data.GetDataByName(FieldNames.Properties);
             //no properties to save, just return

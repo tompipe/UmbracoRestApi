@@ -77,13 +77,13 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
                 routeTemplate: routeTemplateGet,
                 defaults: new { controller = defaultController, action = "Get", id = RouteParameter.Optional },
                 constraints: new { httpMethod = new System.Web.Http.Routing.HttpMethodConstraint(HttpMethod.Get) }
-                );
+                ).WithRouteName(routeName);
             //Used for everything else
             routes.MapHttpRoute(
                 name: routeName,
                 routeTemplate: routeTemplateOther,
                 defaults: new { controller = defaultController, id = RouteParameter.Optional }
-                );
+                ).WithRouteName(routeName);
         }
     }
 }

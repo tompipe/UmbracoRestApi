@@ -6,6 +6,7 @@ using CollectionJson;
 using CollectionJson.Server;
 using Umbraco.Core;
 using Umbraco.Core.Models;
+using Umbraco.Web.Rest.Routing;
 using Umbraco.Web.Security;
 using Umbraco.Web.WebApi;
 
@@ -24,8 +25,6 @@ namespace Umbraco.Web.Rest.Controllers
     [CollectionJsonFormatterConfiguration]
     public abstract class UmbracoCollectionJsonController<TData, TId> : UmbracoApiControllerBase
     {
-        private readonly string _routeName;
-
         protected UmbracoCollectionJsonController()
         {
         }
@@ -34,12 +33,9 @@ namespace Umbraco.Web.Rest.Controllers
             UmbracoContext umbracoContext, 
             UmbracoHelper umbracoHelper, 
             ICollectionJsonDocumentWriter<TData> writer, 
-            ICollectionJsonDocumentReader<TData> reader,
-            //TODO: I believe this might need to be required for this all to work
-            string routeName = "DefaultApi")
+            ICollectionJsonDocumentReader<TData> reader)
             : base(umbracoContext, umbracoHelper)
         {
-            this._routeName = routeName;
             this.Writer = writer;
             this.Reader = reader;
         }
@@ -99,7 +95,13 @@ namespace Umbraco.Web.Rest.Controllers
         {
             var response = new HttpResponseMessage(HttpStatusCode.Created);
             var id = Create(document, response);
-            response.Headers.Location = new Uri(Url.Link(this._routeName, new { controller = this.ControllerName, id = id }));
+
+            //generate the URL for the GET by ID for this item
+            var url = Url.Link(
+                RouteConstants.GetRouteNameForGetRequests(ControllerContext.RouteData.Route.GetRouteName()),
+                new {controller = this.ControllerName, id = id});
+
+            response.Headers.Location = new Uri(url);
             return response;
         }
 
@@ -120,6 +122,17 @@ namespace Umbraco.Web.Rest.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Creates an item
+        /// </summary>
+        /// <param name="document"></param>
+        /// <param name="response"></param>
+        /// <returns>
+        /// the server responds with a status code of 201 and a Location header that contains the URI of the newly created item resource.
+        /// </returns>
+        /// <remarks>
+        /// http://amundsen.com/media-types/collection/format/#read-write  see: 2.1.2. Adding an Item
+        /// </remarks>
         protected virtual TId Create(IWriteDocument document, HttpResponseMessage response)
         {
             throw new HttpResponseException(System.Net.HttpStatusCode.NotImplemented);
@@ -154,6 +167,18 @@ namespace Umbraco.Web.Rest.Controllers
             throw new HttpResponseException(System.Net.HttpStatusCode.NotImplemented);
         }
 
+        /// <summary>
+        /// Updates an item
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="writeDocument"></param>
+        /// <param name="response"></param>
+        /// <returns>
+        /// The server will respond with HTTP status code 200 and a representation of the updated item resource representation.
+        /// </returns>
+        /// <remarks>
+        /// http://amundsen.com/media-types/collection/format/#read-write  see: 2.1.4. Updating an Item
+        /// </remarks>
         protected virtual IReadDocument Update(TId id, IWriteDocument writeDocument, HttpResponseMessage response)
         {
             throw new HttpResponseException(System.Net.HttpStatusCode.NotImplemented);

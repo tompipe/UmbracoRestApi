@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Controllers;
+using System.Web.Http.Results;
 using CollectionJson;
 using CollectionJson.Server;
 using Umbraco.Core.Models;
@@ -97,6 +98,28 @@ namespace Umbraco.Web.Rest.Controllers
         }
 
         /// <summary>
+        /// Creates an item
+        /// </summary>
+        /// <param name="document"></param>
+        /// <param name="response"></param>
+        /// <returns>
+        /// the server responds with a status code of 201 and a Location header that contains the URI of the newly created item resource.
+        /// </returns>
+        /// <remarks>
+        /// http://amundsen.com/media-types/collection/format/#read-write  see: 2.1.2. Adding an Item
+        /// </remarks>
+        protected override int Create(IWriteDocument document, HttpResponseMessage response)
+        {
+            //read the request into an IContent instance
+            var content = Reader.Read(document);
+
+            //That's it! just save it
+            ContentService.Save(content);
+
+            return content.Id;
+        }
+
+        /// <summary>
         /// Updates an item
         /// </summary>
         /// <param name="id"></param>
@@ -110,9 +133,11 @@ namespace Umbraco.Web.Rest.Controllers
         /// </remarks>
         protected override IReadDocument Update(int id, IWriteDocument writeDocument, HttpResponseMessage response)
         {
+            //ensure it exists
             var content = ContentService.GetById(id);
             if (content == null) throw new HttpResponseException(HttpStatusCode.NotFound);
 
+            //read the request into an IContent instance
             var parsedContent = Reader.Read(writeDocument);
 
             //now perform any required updates
@@ -120,7 +145,7 @@ namespace Umbraco.Web.Rest.Controllers
             {
                 content.Name = parsedContent.Name;
             }
-
+            
             foreach (var property in parsedContent.Properties)
             {
                 var foundPropertyType = content.PropertyTypes.FirstOrDefault(x => x.Alias == property.Alias);
