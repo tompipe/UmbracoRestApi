@@ -87,6 +87,9 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.AreEqual("application/vnd.collection+json", result.Content.Headers.ContentType.MediaType);
                 Assert.IsAssignableFrom<StreamContent>(result.Content);
                 var json = await ((StreamContent)result.Content).ReadAsStringAsync();
+                
+                Console.Write(json);
+
                 Assert.IsTrue(json.Contains("\"collection\""));
 
                 var djson = JsonConvert.DeserializeObject<JObject>(json);
@@ -95,14 +98,14 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.AreEqual("http://testserver/umbraco/v1/content/123", djson["collection"]["items"][0]["href"].Value<string>());
                 Assert.AreEqual(11, djson["collection"]["items"][0]["data"].Count());
   
-                Assert.IsNotNull(djson["collection"]["items"][0]["data"].SingleOrDefault(x => x["name"].Value<string>() == "properties"));
-                var propertyCollection = djson["collection"]["items"][0]["data"].Single(x => x["name"].Value<string>() == "properties")["items"];
+                Assert.IsNotNull(djson["collection"]["items"][0]["data"].SingleOrDefault(x => x[FieldNames.Name].Value<string>() == FieldNames.Properties));
+                var propertyCollection = djson["collection"]["items"][0]["data"].Single(x => x[FieldNames.Name].Value<string>() == FieldNames.Properties)["items"];
                 Assert.AreEqual(2, propertyCollection.Count());
 
-                Assert.AreEqual("", propertyCollection[0]["data"].Single(x => x["name"].Value<string>() == "regexp")["value"].Value<string>());
-                Assert.AreEqual("zyxw", propertyCollection[1]["data"].Single(x => x["name"].Value<string>() == "regexp")["value"].Value<string>());
-                Assert.AreEqual("true", propertyCollection[0]["data"].Single(x => x["name"].Value<string>() == "required")["value"].Value<string>());
-                Assert.AreEqual("false", propertyCollection[1]["data"].Single(x => x["name"].Value<string>() == "required")["value"].Value<string>());
+                Assert.AreEqual("", propertyCollection[0]["data"].Single(x => x[FieldNames.Name].Value<string>() == FieldNames.Regexp)[FieldNames.Value].Value<string>());
+                Assert.AreEqual("zyxw", propertyCollection[1]["data"].Single(x => x[FieldNames.Name].Value<string>() == FieldNames.Regexp)[FieldNames.Value].Value<string>());
+                Assert.AreEqual("true", propertyCollection[0]["data"].Single(x => x[FieldNames.Name].Value<string>() == FieldNames.Required)[FieldNames.Value].Value<string>());
+                Assert.AreEqual("false", propertyCollection[1]["data"].Single(x => x[FieldNames.Name].Value<string>() == FieldNames.Required)[FieldNames.Value].Value<string>());
                 
                 Assert.AreEqual(2, djson["collection"]["items"][0]["links"].Count());
 
@@ -112,6 +115,12 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.AreEqual("Parent", djson["collection"]["items"][0]["links"][1]["prompt"].Value<string>());
                 Assert.AreEqual("http://testserver/umbraco/v1/content/123/children", djson["collection"]["items"][0]["links"][0]["href"].Value<string>());
                 Assert.AreEqual("http://testserver/umbraco/v1/content/456", djson["collection"]["items"][0]["links"][1]["href"].Value<string>());
+
+                Assert.IsNotNull(djson["collection"]["template"]);
+                Assert.AreEqual(2, djson["collection"]["template"]["data"].Count());
+                var templatePropertyCollection = djson["collection"]["template"]["data"].Single(x => x[FieldNames.Name].Value<string>() == FieldNames.Properties)["items"];
+                Assert.AreEqual(2, templatePropertyCollection[0]["data"].Count());
+                Assert.AreEqual(2, templatePropertyCollection[1]["data"].Count());
 
                 //TODO: Need to assert more values!
             }

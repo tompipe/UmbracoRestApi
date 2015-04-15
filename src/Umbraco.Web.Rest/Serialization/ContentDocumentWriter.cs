@@ -6,9 +6,10 @@ using System.Net.Http;
 using System.Web.Http.Routing;
 using CollectionJson;
 using Umbraco.Core.Models;
-using Umbraco.Core.Services;
 using Umbraco.Web.Rest.Routing;
 using Umbraco.Web.Routing;
+using UmbracoExamine.DataServices;
+using IContentService = Umbraco.Core.Services.IContentService;
 
 namespace Umbraco.Web.Rest.Serialization
 {
@@ -31,6 +32,7 @@ namespace Umbraco.Web.Rest.Serialization
 
             var document = CreateDocument();
 
+            var totalItems = 0;
             foreach (var content in items)
             {
                 //TODO: We should create a single query for all content item id's to check if any of them have children and then use that resolved collection here
@@ -40,34 +42,72 @@ namespace Umbraco.Web.Rest.Serialization
                 var item = CreateContentItem(
                    content.Id, content.Name, content.Path, content.Level, content.SortOrder, content.ContentType.Alias,
                    hasChildren, content.ParentId,
-                   //NOTE: we are passing empty strings for the creator and writer name because if we use looked them up we'd have tons of N+1
+                    //NOTE: we are passing empty strings for the creator and writer name because if we use looked them up we'd have tons of N+1
                    content.CreatorId, string.Empty, content.WriterId, string.Empty);
 
-                foreach (var property in content.Properties)
-                {
-                    CreatePropertyData(item, content, property.Alias);
-                }    
+                CreatePropertyDataForContent(item, content);
 
                 document.Collection.Items.Add(item);
+                totalItems++;
             }
 
             //TODO: Add real query rels here when we create the service
 
             //var query = new Query { Rel = "search", Href = new Uri(_requestUri, "/api/content/v1/"), Prompt = "Search" };
-            //query.Data.Add(new Data { Name = "name", Prompt = "Search Term" });
+            //query.Data.Add(new Data { Name = FieldNames.Name, Prompt = "Search Term" });
             //document.Collection.Queries.Add(query);
 
-            //TODO: When we implement create/update the template needs to exist so consumers know what data to send up, when we define that
-            // we need to write the template
-
-            //var data = document.Collection.Template.Data;
-            //data.Add(new Data { Name = "name", Prompt = "Name" });
-            //data.Add(new Data { Name = "path", Prompt = "Path" });
-            //data.Add(new Data { Name = "level", Prompt = "Level" });
-            //data.Add(new Data { Name = "sortorder", Prompt = "Sort Order" });
-            //data.Add(new Data { Name = "contenttypealias", Prompt = "ContentType Alias" });
+            //If there is only a single item, then render it's template
+            if (totalItems == 1)
+            {
+                WriteTemplate(document, items.Single());
+            }
 
             return document;
+        }
+
+        /// <summary>
+        /// This writes out a template for a single content item
+        /// </summary>
+        /// <param name="document"></param>
+        /// <param name="content"></param>
+        protected void WriteTemplate(IReadDocument document, IContent content)
+        {
+            //Generate the JSON template for use with updating/persisting
+            // ensure not to enclude any readonly values like:
+            // * creator or writer, 
+            // * contentTypeAlias
+            // * sortOrder (which could be writable but would be a bit trickier since we'd need to auto sort the rest)
+            // * level, path (both of which would require a move operation)
+
+            var templateData = document.Collection.Template.Data;
+            templateData.Add(new Data { Name = FieldNames.Name, Value = content.Name});
+            //TODO: What else is directly writable? maybe template, publish at, expire at?
+            
+            //this is a custom nested template for property values
+            var propertiesData = new Data { Name = FieldNames.Properties };
+            var propertyList = new List<Data>();
+
+            foreach (var propertyType in content.PropertyTypes)
+            {
+                var properties = new List<Data>
+                {
+                    new Data {Name = FieldNames.Alias, Value = propertyType.Alias},
+                    new Data
+                    {
+                        Name = FieldNames.Value,
+                        Value = content.Properties[propertyType.Alias].Value == null
+                            ? ""
+                            : content.Properties[propertyType.Alias].Value.ToString()
+                    }
+                };
+                var prop = new Data();
+                prop.SetValue("data", properties);
+                propertyList.Add(prop);
+            }
+
+            propertiesData.SetValue("items", propertyList);
+            templateData.Add(propertiesData);
         }
 
         protected override string BaseRouteName

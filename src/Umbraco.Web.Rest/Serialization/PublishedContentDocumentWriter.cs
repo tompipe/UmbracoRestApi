@@ -37,6 +37,7 @@ namespace Umbraco.Web.Rest.Serialization
                     content.Children.Any(), content.Parent == null ? -1 : content.Parent.Id,
                     content.CreatorId, content.CreatorName, content.WriterId, content.WriterName);
 
+                //NOTE: we're going to assume these are in the correct sort order due to how publish cache stores it's values
                 foreach (var property in content.Properties)
                 {
                     //TODO: Since we are returning this for consumption and since this is published content, I'm thinking that we'd need to put this
@@ -50,7 +51,7 @@ namespace Umbraco.Web.Rest.Serialization
             //TODO: Add real query rels here when we create the service
 
             //var query = new Query { Rel = "search", Href = new Uri(_requestUri, "/api/content/v1/"), Prompt = "Search" };
-            //query.Data.Add(new Data { Name = "name", Prompt = "Search Term" });
+            //query.Data.Add(new Data { Name = FieldNames.Name, Prompt = "Search Term" });
             //collection.Queries.Add(query);
 
             //NOTE: we don't supply template data for published content, because you cannot create or update it, it is readonly.

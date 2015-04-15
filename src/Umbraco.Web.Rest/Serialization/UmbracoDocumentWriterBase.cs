@@ -51,18 +51,18 @@ namespace Umbraco.Web.Rest.Serialization
             //TODO: Need to add validation meta data for each item - whether it's required, data type, regex required, etc... for the client to deal with it
 
             var item = new Item { Href = new Uri(RequestUri, GetItemLink(contentId)) };
-            item.Data.Add(new Data { Name = "name", Value = name, Prompt = "Name" });
-            item.Data.Add(new Data { Name = "path", Value = path, Prompt = "Path" });
-            item.Data.Add(new Data { Name = "level", Value = level.ToString(CultureInfo.InvariantCulture), Prompt = "Level" });
-            item.Data.Add(new Data { Name = "sortOrder", Value = sortOrder.ToString(CultureInfo.InvariantCulture), Prompt = "Sort Order" });
-            item.Data.Add(new Data { Name = "contentTypeAlias", Value = contentTypeAlias, Prompt = "ContentType Alias" });
-            item.Data.Add(new Data { Name = "creatorId", Value = creatorId.ToString(CultureInfo.InvariantCulture), Prompt = "Creator Id" });
-            item.Data.Add(new Data { Name = "creatorName", Value = creatorName, Prompt = "Creator Name" });
-            item.Data.Add(new Data { Name = "writerId", Value = writerId.ToString(CultureInfo.InvariantCulture), Prompt = "Writer Id" });
-            item.Data.Add(new Data { Name = "writerName", Value = writerName, Prompt = "Writer Name" });
+            item.Data.Add(new Data { Name = FieldNames.Name, Value = name, Prompt = "Name" });
+            item.Data.Add(new Data { Name = FieldNames.Path, Value = path, Prompt = "Path" });
+            item.Data.Add(new Data { Name = FieldNames.Level, Value = level.ToString(CultureInfo.InvariantCulture), Prompt = "Level" });
+            item.Data.Add(new Data { Name = FieldNames.SortOrder, Value = sortOrder.ToString(CultureInfo.InvariantCulture), Prompt = "Sort Order" });
+            item.Data.Add(new Data { Name = FieldNames.ContentTypeAlias, Value = contentTypeAlias, Prompt = "ContentType Alias" });
+            item.Data.Add(new Data { Name = FieldNames.CreatorId, Value = creatorId.ToString(CultureInfo.InvariantCulture), Prompt = "Creator Id" });
+            item.Data.Add(new Data { Name = FieldNames.CreatorName, Value = creatorName, Prompt = "Creator Name" });
+            item.Data.Add(new Data { Name = FieldNames.WriterId, Value = writerId.ToString(CultureInfo.InvariantCulture), Prompt = "Writer Id" });
+            item.Data.Add(new Data { Name = FieldNames.WriterName, Value = writerName, Prompt = "Writer Name" });
             //NOTE: This is just a normal data property, some would argue that it should be a 'link' but it is not a link to more REST
             // resources, it's the actual CMS URl of the item
-            item.Data.Add(new Data { Name = "url", Value = GetContentUrl(contentId), Prompt = "Url" });
+            item.Data.Add(new Data { Name = FieldNames.Url, Value = GetContentUrl(contentId), Prompt = "Url" });
             
             if (hasChildren)
             {
@@ -91,10 +91,10 @@ namespace Umbraco.Web.Rest.Serialization
             //TODO: Need to add validation meta data for each item - whether it's required, regex required, etc... for the client to deal with it
 
             //get the property data item, if it's not there yet, then add it
-            var propertyData = item.Data.FirstOrDefault(x => x.Name == "properties");
+            var propertyData = item.Data.FirstOrDefault(x => x.Name == FieldNames.Properties);
             if (propertyData == null)
             {
-                propertyData = new Data() { Name = "properties", Prompt = "Properties" };                
+                propertyData = new Data() { Name = FieldNames.Properties, Prompt = "Properties" };                
                 item.Data.Add(propertyData);
             }
 
@@ -104,9 +104,9 @@ namespace Umbraco.Web.Rest.Serialization
             //create the name/value pairs for the property data
             var propertyDataList = new List<Data>(new[]
             {
-                new Data {Name = "alias", Value = propertyAlias, Prompt = "Alias"},
-                new Data {Name = "name", Value = propertyName, Prompt = "Name"},
-                new Data {Name = "value", Value = value, Prompt = "Value"}
+                new Data {Name = FieldNames.Alias, Value = propertyAlias, Prompt = "Alias"},
+                new Data {Name = FieldNames.Name, Value = propertyName, Prompt = "Name"},
+                new Data {Name = FieldNames.Value, Value = value, Prompt = "Value"}
             });
 
             //create the new property item data and add it to the list
@@ -117,6 +117,7 @@ namespace Umbraco.Web.Rest.Serialization
 
             //set the custom list back to our custom property data item
             propertyData.SetValue("items", propertyList);
+
             return data;
         }
 
@@ -125,33 +126,34 @@ namespace Umbraco.Web.Rest.Serialization
         /// </summary>
         /// <param name="item"></param>
         /// <param name="content"></param>
-        /// <param name="propertyAlias"></param>
         /// <returns></returns>
         /// <remarks>
         /// Since this is for a persistable content property, we also add validation attributes (regexp and required)
         /// </remarks>
-        public Data CreatePropertyData(Item item, IContentBase content, string propertyAlias)
+        public void CreatePropertyDataForContent(Item item, IContentBase content)
         {
             //TODO: Localize prompts
 
-            var propertyType = content.PropertyTypes.Single(x => x.Alias == propertyAlias);
+            foreach (var propertyType in content.PropertyTypes.OrderBy(x => x.SortOrder))
+            {
+                var propertyData = CreatePropertyData(item,
+                    propertyType.Name,
+                    propertyType.Alias,
+                    //TODO: Since we are returning this for consumption, do we need to put this through the PropertyValueEditor.ConvertDbToEditor ?
+                    // I'd assume that we'll have to do that.
+                    content.Properties[propertyType.Alias].Value == null ? string.Empty : content.Properties[propertyType.Alias].Value.ToString());
 
-            var propertyData = CreatePropertyData(item,
-                propertyType.Name,
-                propertyAlias,
-                //TODO: Since we are returning this for consumption, do we need to put this through the PropertyValueEditor.ConvertDbToEditor ?
-                // I'd assume that we'll have to do that.
-                content.Properties[propertyAlias].Value == null ? string.Empty : content.Properties[propertyAlias].Value.ToString());
+                //TODO: We could look at excluding this data so that it is a smaller payload if the client requests the cut-down version
+                // potentially that would be the default and they would have to request the extended version to include all of this stuff
+                // if they were doing persistence with a form.
 
-            //TODO: We could look at excluding this data so that it is a smaller payload if the client requests the cut-down version
-            // potentially that would be the default and they would have to request the extended version to include all of this stuff
-            // if they were doing persistence with a form.
-            var dataList = propertyData.GetValue<List<Data>>("data");
-            dataList.Add(new Data() { Name = "regexp", Value = propertyType.ValidationRegExp, Prompt = "Validation Pattern"});
-            dataList.Add(new Data() { Name = "required", Value = propertyType.Mandatory.ToString().ToLowerInvariant(), Prompt = "Is Required" });
-            //TODO: Generally with hypermedia we'd also provide the validation message if it failed
+                var dataList = propertyData.GetValue<List<Data>>("data");
 
-            return propertyData;
+                dataList.Add(new Data() { Name = FieldNames.Regexp, Value = propertyType.ValidationRegExp, Prompt = "Validation Pattern" });
+                dataList.Add(new Data() { Name = FieldNames.Required, Value = propertyType.Mandatory.ToString().ToLowerInvariant(), Prompt = "Is Required" });
+                
+                //TODO: Generally with hypermedia we'd also provide the validation message if it failed
+            }
         }
 
         public virtual string GetRootLink()

@@ -98,8 +98,8 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.AreEqual("http://testserver/umbraco/v1/content/published/123", djson["collection"]["items"][0]["href"].Value<string>());
                 Assert.AreEqual(11, djson["collection"]["items"][0]["data"].Count());
 
-                Assert.IsNotNull(djson["collection"]["items"][0]["data"].SingleOrDefault(x => x["name"].Value<string>() == "properties"));
-                Assert.AreEqual(2, djson["collection"]["items"][0]["data"].SingleOrDefault(x => x["name"].Value<string>() == "properties")["items"].Count());
+                Assert.IsNotNull(djson["collection"]["items"][0]["data"].SingleOrDefault(x => x[FieldNames.Name].Value<string>() == FieldNames.Properties));
+                Assert.AreEqual(2, djson["collection"]["items"][0]["data"].SingleOrDefault(x => x[FieldNames.Name].Value<string>() == FieldNames.Properties)["items"].Count());
 
                 Assert.AreEqual(2, djson["collection"]["items"][0]["links"].Count());
 
