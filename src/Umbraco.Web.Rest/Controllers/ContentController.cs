@@ -166,5 +166,17 @@ namespace Umbraco.Web.Rest.Controllers
 
             return Writer.Write(content);
         }
+
+        /// <summary>
+        /// Deletes an item
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="response"></param>
+        protected override void Delete(int id, HttpResponseMessage response)
+        {
+            var content = ContentService.GetById(id);
+            if (content == null) throw new HttpResponseException(HttpStatusCode.NotFound);
+            ContentService.Delete(content);
+        }
     }
 }

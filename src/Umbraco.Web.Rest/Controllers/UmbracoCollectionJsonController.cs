@@ -114,6 +114,11 @@ namespace Umbraco.Web.Rest.Controllers
             return response;
         }
 
+        /// <summary>
+        /// If the delete request is successful, the server should respond with an HTTP status code of 204.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete]
         public HttpResponseMessage Remove(TId id)
         {
@@ -184,6 +189,11 @@ namespace Umbraco.Web.Rest.Controllers
             throw new HttpResponseException(System.Net.HttpStatusCode.NotImplemented);
         }
 
+        /// <summary>
+        /// Deletes an item
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="response"></param>
         protected virtual void Delete(TId id, HttpResponseMessage response)
         {
             throw new HttpResponseException(System.Net.HttpStatusCode.NotImplemented);

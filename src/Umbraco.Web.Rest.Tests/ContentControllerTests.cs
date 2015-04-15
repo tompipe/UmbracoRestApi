@@ -266,9 +266,17 @@ namespace Umbraco.Web.Rest.Tests
         public async void Delete_Is_200_Response()
         {
             var startup = new TestStartup<IContent>(
-                (request, umbCtx, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IContent>, ICollectionJsonDocumentReader<IContent>>(
-                    new ContentDocumentWriter(request, umbCtx.UrlProvider, Mock.Of<IContentService>()),
-                    null));
+                //This will be invoked before the controller is created so we can modify these mocked services
+                // it needs to return the required reader/writer for the tests
+               (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
+               {
+                   var mockContentService = Mock.Get(contentService);
+
+                   mockContentService.Setup(x => x.GetById(It.IsAny<int>()))
+                       .Returns(() => SimpleMockedContent());
+
+                   return new Tuple<ICollectionJsonDocumentWriter<IContent>, ICollectionJsonDocumentReader<IContent>>(null, null);
+               });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
             {
@@ -277,7 +285,6 @@ namespace Umbraco.Web.Rest.Tests
 
                 Console.WriteLine(result);
 
-                //NOTE: NotImplemented because we cannot post for published content
                 Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
             }
         }
