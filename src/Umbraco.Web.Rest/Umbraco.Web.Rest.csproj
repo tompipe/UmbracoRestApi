@@ -243,6 +243,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CollectionJsonExtensions.cs" />
     <Compile Include="Controllers\CollectionJsonFormatterConfigurationAttribute.cs" />
     <Compile Include="Controllers\ContentController.cs" />
     <Compile Include="Controllers\PublishedContentController.cs" />
@@ -253,6 +254,7 @@
     <Compile Include="ReflectionHelper.cs" />
     <Compile Include="Routing\RouteConstants.cs" />
     <Compile Include="Routing\UmbracoRoutePrefix.cs" />
+    <Compile Include="Serialization\ContentDocumentReader.cs" />
     <Compile Include="Serialization\ContentDocumentWriter.cs" />
     <Compile Include="Serialization\PublishedContentDocumentWriter.cs" />
     <Compile Include="Serialization\UmbracoDocumentWriterBase.cs" />

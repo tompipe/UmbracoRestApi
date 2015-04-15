@@ -26,7 +26,6 @@ namespace Umbraco.Web.Rest.Controllers
         /// </summary>
         public PublishedContentController()
         {
-            Writer = new PublishedContentDocumentWriter(Request, UmbracoContext.UrlProvider);
         }
 
         /// <summary>
@@ -43,6 +42,19 @@ namespace Umbraco.Web.Rest.Controllers
             ICollectionJsonDocumentReader<IPublishedContent> reader)
             : base(umbracoContext, umbracoHelper, writer, reader)
         {
+        }
+
+        /// <summary>
+        /// If the Writer is null because the empty ctor was used, initialize them
+        /// </summary>        
+        protected override void Initialize(HttpControllerContext controllerContext)
+        {
+            base.Initialize(controllerContext);
+
+            if (Writer == null)
+            {
+                Writer = new PublishedContentDocumentWriter(Request, Umbraco.UrlProvider);
+            }
         }
 
         /// <summary>

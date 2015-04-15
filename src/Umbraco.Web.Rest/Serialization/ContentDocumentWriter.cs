@@ -1,10 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Web.Http.Routing;
 using CollectionJson;
+using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web.Rest.Routing;
 using Umbraco.Web.Routing;
@@ -19,6 +19,12 @@ namespace Umbraco.Web.Rest.Serialization
     public class ContentDocumentWriter : UmbracoDocumentWriterBase, ICollectionJsonDocumentWriter<IContent>
     {
         private readonly IContentService _contentService;
+
+        public ContentDocumentWriter(HttpRequestMessage request, UrlProvider urlProvider, UrlHelper urlHelper, IContentService contentService)
+            : base(request, urlProvider, urlHelper)
+        {
+            _contentService = contentService;
+        }
 
         public ContentDocumentWriter(HttpRequestMessage request, UrlProvider urlProvider, IContentService contentService)
             : base(request, urlProvider)
@@ -71,19 +77,22 @@ namespace Umbraco.Web.Rest.Serialization
         /// </summary>
         /// <param name="document"></param>
         /// <param name="content"></param>
-        protected void WriteTemplate(IReadDocument document, IContent content)
+        public void WriteTemplate(IReadDocument document, IContent content)
         {
             //Generate the JSON template for use with updating/persisting
             // ensure not to enclude any readonly values like:
             // * creator or writer, 
-            // * contentTypeAlias
             // * sortOrder (which could be writable but would be a bit trickier since we'd need to auto sort the rest)
             // * level, path (both of which would require a move operation)
 
             var templateData = document.Collection.Template.Data;
-            templateData.Add(new Data { Name = FieldNames.Name, Value = content.Name});
+
+            templateData.Add(new Data { Name = FieldNames.Name, Value = content.Name });
+            // this is of course readonly but required for persistence
+            templateData.Add(new Data { Name = FieldNames.ContentTypeAlias, Value = content.ContentType.Alias });
+
             //TODO: What else is directly writable? maybe template, publish at, expire at?
-            
+
             //this is a custom nested template for property values
             var propertiesData = new Data { Name = FieldNames.Properties };
             var propertyList = new List<Data>();
@@ -106,7 +115,9 @@ namespace Umbraco.Web.Rest.Serialization
                 propertyList.Add(prop);
             }
 
-            propertiesData.SetValue("items", propertyList);
+            //NOTE: on the 'array' syntax: https://github.com/collection-json/extensions/blob/master/value-types.md
+            // we're going to use that standard since at least someone else is using it
+            propertiesData.SetValue("array", propertyList);
             templateData.Add(propertiesData);
         }
 

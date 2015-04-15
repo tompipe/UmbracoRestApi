@@ -58,7 +58,7 @@ namespace Umbraco.Web.Rest.Tests
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
             {
                 var result = await server.HttpClient.GetAsync(
-                    string.Format("http://testserver/umbraco/v1/{0}/{1}/123/children", RouteConstants.ContentSegment, RouteConstants.PublishedSegment));
+                    string.Format("http://testserver/umbraco/rest/v1/{0}/{1}/123/children", RouteConstants.ContentSegment, RouteConstants.PublishedSegment));
                 Console.WriteLine(result);
                 Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
             }
@@ -83,7 +83,7 @@ namespace Umbraco.Web.Rest.Tests
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
             {
                 var result = await server.HttpClient.GetAsync(
-                    string.Format("http://testserver/umbraco/v1/{0}/{1}/123", RouteConstants.ContentSegment, RouteConstants.PublishedSegment));
+                    string.Format("http://testserver/umbraco/rest/v1/{0}/{1}/123", RouteConstants.ContentSegment, RouteConstants.PublishedSegment));
                 Console.WriteLine(result);
 
                 Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -93,13 +93,13 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.IsTrue(json.Contains("\"collection\""));
 
                 var djson = JsonConvert.DeserializeObject<JObject>(json);
-                Assert.AreEqual("http://testserver/umbraco/v1/content/published", djson["collection"]["href"].Value<string>());
+                Assert.AreEqual("http://testserver/umbraco/rest/v1/content/published", djson["collection"]["href"].Value<string>());
                 Assert.AreEqual(1, djson["collection"]["items"].Count());
-                Assert.AreEqual("http://testserver/umbraco/v1/content/published/123", djson["collection"]["items"][0]["href"].Value<string>());
+                Assert.AreEqual("http://testserver/umbraco/rest/v1/content/published/123", djson["collection"]["items"][0]["href"].Value<string>());
                 Assert.AreEqual(11, djson["collection"]["items"][0]["data"].Count());
 
                 Assert.IsNotNull(djson["collection"]["items"][0]["data"].SingleOrDefault(x => x[FieldNames.Name].Value<string>() == FieldNames.Properties));
-                Assert.AreEqual(2, djson["collection"]["items"][0]["data"].SingleOrDefault(x => x[FieldNames.Name].Value<string>() == FieldNames.Properties)["items"].Count());
+                Assert.AreEqual(2, djson["collection"]["items"][0]["data"].SingleOrDefault(x => x[FieldNames.Name].Value<string>() == FieldNames.Properties)["array"].Count());
 
                 Assert.AreEqual(2, djson["collection"]["items"][0]["links"].Count());
 
@@ -107,8 +107,8 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.AreEqual("parent", djson["collection"]["items"][0]["links"][1]["rel"].Value<string>());
                 Assert.AreEqual("Children", djson["collection"]["items"][0]["links"][0]["prompt"].Value<string>());
                 Assert.AreEqual("Parent", djson["collection"]["items"][0]["links"][1]["prompt"].Value<string>());
-                Assert.AreEqual("http://testserver/umbraco/v1/content/published/123/children", djson["collection"]["items"][0]["links"][0]["href"].Value<string>());
-                Assert.AreEqual("http://testserver/umbraco/v1/content/published/456", djson["collection"]["items"][0]["links"][1]["href"].Value<string>());
+                Assert.AreEqual("http://testserver/umbraco/rest/v1/content/published/123/children", djson["collection"]["items"][0]["links"][0]["href"].Value<string>());
+                Assert.AreEqual("http://testserver/umbraco/rest/v1/content/published/456", djson["collection"]["items"][0]["links"][1]["href"].Value<string>());
 
                 //TODO: Need to assert more values!
             }
@@ -133,7 +133,7 @@ namespace Umbraco.Web.Rest.Tests
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
             {
                 var result = await server.HttpClient.GetAsync(
-                    string.Format("http://testserver/umbraco/v1/{0}/{1}", RouteConstants.ContentSegment, RouteConstants.PublishedSegment));
+                    string.Format("http://testserver/umbraco/rest/v1/{0}/{1}", RouteConstants.ContentSegment, RouteConstants.PublishedSegment));
                 Console.WriteLine(result);
                 Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
             }
@@ -150,7 +150,7 @@ namespace Umbraco.Web.Rest.Tests
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
             {
                 var result = await server.HttpClient.PostAsync(
-                    new Uri(string.Format("http://testserver/umbraco/v1/{0}/{1}", RouteConstants.ContentSegment, RouteConstants.PublishedSegment)),
+                    new Uri(string.Format("http://testserver/umbraco/rest/v1/{0}/{1}", RouteConstants.ContentSegment, RouteConstants.PublishedSegment)),
                     new CollectionJsonContent(new Collection()));
 
                 Console.WriteLine(result);
@@ -171,7 +171,7 @@ namespace Umbraco.Web.Rest.Tests
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
             {
                 var result = await server.HttpClient.PutAsync(
-                    new Uri(string.Format("http://testserver/umbraco/v1/{0}/{1}/123", RouteConstants.ContentSegment, RouteConstants.PublishedSegment)),
+                    new Uri(string.Format("http://testserver/umbraco/rest/v1/{0}/{1}/123", RouteConstants.ContentSegment, RouteConstants.PublishedSegment)),
                     new CollectionJsonContent(new Collection()));
 
                 Console.WriteLine(result);
@@ -192,7 +192,7 @@ namespace Umbraco.Web.Rest.Tests
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
             {
                 var result = await server.HttpClient.DeleteAsync(
-                    new Uri(string.Format("http://testserver/umbraco/v1/{0}/{1}/123", RouteConstants.ContentSegment, RouteConstants.PublishedSegment)));
+                    new Uri(string.Format("http://testserver/umbraco/rest/v1/{0}/{1}/123", RouteConstants.ContentSegment, RouteConstants.PublishedSegment)));
 
                 Console.WriteLine(result);
 

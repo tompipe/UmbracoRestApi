@@ -6,19 +6,32 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Controllers;
 using CollectionJson;
 using CollectionJson.Server;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
+using Umbraco.Web.Rest.Serialization;
+using Umbraco.Web.Routing;
 
 namespace Umbraco.Web.Rest.Controllers
 {
     public class ContentController : UmbracoCollectionJsonController<IContent, int>
     {
+        /// <summary>
+        /// Default ctor
+        /// </summary>
         public ContentController()
-        {            
+        {   
         }
 
+        /// <summary>
+        /// All dependencies
+        /// </summary>
+        /// <param name="umbracoContext"></param>
+        /// <param name="writer"></param>
+        /// <param name="umbracoHelper"></param>
+        /// <param name="reader"></param>
         public ContentController(
             UmbracoContext umbracoContext, 
             UmbracoHelper umbracoHelper, 
@@ -26,6 +39,23 @@ namespace Umbraco.Web.Rest.Controllers
             ICollectionJsonDocumentReader<IContent> reader)
             : base(umbracoContext, umbracoHelper, writer, reader)
         {
+        }
+
+        /// <summary>
+        /// If the Reader/Writer are null because the empty ctor was used, initialize them
+        /// </summary>        
+        protected override void Initialize(HttpControllerContext controllerContext)
+        {
+            base.Initialize(controllerContext);
+
+            if (Reader == null)
+            {
+                Reader = new ContentDocumentReader(ApplicationContext.Services.ContentService, Logger);
+            }
+            if (Writer == null)
+            {
+                Writer = new ContentDocumentWriter(Request, Umbraco.UrlProvider, ApplicationContext.Services.ContentService);
+            }
         }
 
         protected IContentService ContentService
@@ -63,6 +93,52 @@ namespace Umbraco.Web.Rest.Controllers
         protected override IReadDocument ReadChildren(int id, HttpResponseMessage response)
         {
             var content = ContentService.GetChildren(id);
+            return Writer.Write(content);
+        }
+
+        /// <summary>
+        /// Updates an item
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="writeDocument"></param>
+        /// <param name="response"></param>
+        /// <returns>
+        /// The server will respond with HTTP status code 200 and a representation of the updated item resource representation.
+        /// </returns>
+        /// <remarks>
+        /// http://amundsen.com/media-types/collection/format/#read-write  see: 2.1.4. Updating an Item
+        /// </remarks>
+        protected override IReadDocument Update(int id, IWriteDocument writeDocument, HttpResponseMessage response)
+        {
+            var content = ContentService.GetById(id);
+            if (content == null) throw new HttpResponseException(HttpStatusCode.NotFound);
+
+            var parsedContent = Reader.Read(writeDocument);
+
+            //now perform any required updates
+            if (parsedContent.Name != content.Name)
+            {
+                content.Name = parsedContent.Name;
+            }
+
+            foreach (var property in parsedContent.Properties)
+            {
+                var foundPropertyType = content.PropertyTypes.FirstOrDefault(x => x.Alias == property.Alias);
+                if (foundPropertyType != null)
+                {
+                    var foundProperty = content.Properties[foundPropertyType.Alias];
+                    //need to use "Equals" here because the underlying object is 'object'
+                    if (foundProperty != null && foundProperty.Value.Equals(property.Value) == false)
+                    {
+                        //update the property value if it is different
+                        foundProperty.Value = property.Value;
+                    }
+                }
+            }
+
+            //update
+            ContentService.Save(content);
+
             return Writer.Write(content);
         }
     }

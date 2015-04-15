@@ -14,13 +14,18 @@ namespace Umbraco.Web.Rest.Serialization
 {
     public abstract class UmbracoDocumentWriterBase
     {
-        
-
         protected UmbracoDocumentWriterBase(HttpRequestMessage request, UrlProvider urlProvider)
         {
             UrlProvider = urlProvider;
             RequestUri = request.RequestUri;
             UrlHelper = new UrlHelper(request);
+        }
+
+        protected UmbracoDocumentWriterBase(HttpRequestMessage request, UrlProvider urlProvider, UrlHelper urlHelper)
+        {
+            UrlProvider = urlProvider;
+            RequestUri = request.RequestUri;
+            UrlHelper = urlHelper;
         }
 
         protected Uri RequestUri { get; private set; }
@@ -99,7 +104,9 @@ namespace Umbraco.Web.Rest.Serialization
             }
 
             //now check for the list value, if its not there create a new one
-            var propertyList = propertyData.GetValue<List<Data>>("items") ?? new List<Data>();
+            //NOTE: on the 'array' syntax: https://github.com/collection-json/extensions/blob/master/value-types.md
+            // we're going to use that standard since at least someone else is using it
+            var propertyList = propertyData.GetValue<List<Data>>("array") ?? new List<Data>();
             
             //create the name/value pairs for the property data
             var propertyDataList = new List<Data>(new[]
@@ -116,7 +123,7 @@ namespace Umbraco.Web.Rest.Serialization
             propertyList.Add(data);
 
             //set the custom list back to our custom property data item
-            propertyData.SetValue("items", propertyList);
+            propertyData.SetValue("array", propertyList);
 
             return data;
         }

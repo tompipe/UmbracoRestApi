@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,29 +27,29 @@ namespace Umbraco.Web.Rest
             //** PublishedContent routes
             MapEntityTypeRoute(routes,
                 RouteConstants.PublishedContentRouteName,
-                string.Format("{0}/v1/{1}/{2}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.ContentSegment, RouteConstants.PublishedSegment),
-                string.Format("{0}/v1/{1}/{2}/{{id}}", UmbracoMvcArea, RouteConstants.ContentSegment, RouteConstants.PublishedSegment),
+                string.Format("{0}/rest/v1/{1}/{2}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.ContentSegment, RouteConstants.PublishedSegment),
+                string.Format("{0}/rest/v1/{1}/{2}/{{id}}", UmbracoMvcArea, RouteConstants.ContentSegment, RouteConstants.PublishedSegment),
                 "PublishedContent");
 
             //** Content routes
             MapEntityTypeRoute(routes,
                 RouteConstants.ContentRouteName,
-                string.Format("{0}/v1/{1}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.ContentSegment),
-                string.Format("{0}/v1/{1}/{{id}}", UmbracoMvcArea, RouteConstants.ContentSegment),
+                string.Format("{0}/rest/v1/{1}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.ContentSegment),
+                string.Format("{0}/rest/v1/{1}/{{id}}", UmbracoMvcArea, RouteConstants.ContentSegment),
                 "Content");
 
             //** Media routes
             MapEntityTypeRoute(routes,
                 RouteConstants.MediaRouteName,
-                string.Format("{0}/v1/{1}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.MediaSegment),
+                string.Format("{0}/rest/v1/{1}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.MediaSegment),
                 string.Format("{0}/v1/{1}/{{id}}", UmbracoMvcArea, RouteConstants.MediaSegment),
                 "Media");
 
             //** Members routes
             MapEntityTypeRoute(routes,
                 RouteConstants.MembersRouteName,
-                string.Format("{0}/v1/{1}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.MembersSegment),
-                string.Format("{0}/v1/{1}/{{id}}", UmbracoMvcArea, RouteConstants.MembersSegment),
+                string.Format("{0}/rest/v1/{1}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.MembersSegment),
+                string.Format("{0}/rest/v1/{1}/{{id}}", UmbracoMvcArea, RouteConstants.MembersSegment),
                 "Members");
         }
         
