@@ -96,7 +96,13 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.AreEqual(11, djson["collection"]["items"][0]["data"].Count());
   
                 Assert.IsNotNull(djson["collection"]["items"][0]["data"].SingleOrDefault(x => x["name"].Value<string>() == "properties"));
-                Assert.AreEqual(2, djson["collection"]["items"][0]["data"].SingleOrDefault(x => x["name"].Value<string>() == "properties")["items"].Count());
+                var propertyCollection = djson["collection"]["items"][0]["data"].Single(x => x["name"].Value<string>() == "properties")["items"];
+                Assert.AreEqual(2, propertyCollection.Count());
+
+                Assert.AreEqual("", propertyCollection[0]["data"].Single(x => x["name"].Value<string>() == "regexp")["value"].Value<string>());
+                Assert.AreEqual("zyxw", propertyCollection[1]["data"].Single(x => x["name"].Value<string>() == "regexp")["value"].Value<string>());
+                Assert.AreEqual("true", propertyCollection[0]["data"].Single(x => x["name"].Value<string>() == "required")["value"].Value<string>());
+                Assert.AreEqual("false", propertyCollection[1]["data"].Single(x => x["name"].Value<string>() == "required")["value"].Value<string>());
                 
                 Assert.AreEqual(2, djson["collection"]["items"][0]["links"].Count());
 
@@ -218,8 +224,8 @@ namespace Umbraco.Web.Rest.Tests
                            && content.WriterId == 1
                            && content.PropertyTypes == new List<PropertyType>(new[]
                            {
-                               new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty1") {Name = "Test Property1"},
-                               new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty2") {Name = "Test Property2"}
+                               new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty1") {Name = "Test Property1", Mandatory = true, ValidationRegExp = ""},
+                               new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty2") {Name = "Test Property2", Mandatory = false, ValidationRegExp = "zyxw"}
                            })
                            && content.Properties == new PropertyCollection(new[]
                            {

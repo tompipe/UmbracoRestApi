@@ -48,6 +48,8 @@ namespace Umbraco.Web.Rest.Serialization
         public Item CreateContentItem(int contentId, string name, string path, int level, int sortOrder, string contentTypeAlias,
             bool hasChildren, int parentId, int creatorId, string creatorName, int writerId, string writerName)
         {
+            //TODO: Need to add validation meta data for each item - whether it's required, data type, regex required, etc... for the client to deal with it
+
             var item = new Item { Href = new Uri(RequestUri, GetItemLink(contentId)) };
             item.Data.Add(new Data { Name = "name", Value = name, Prompt = "Name" });
             item.Data.Add(new Data { Name = "path", Value = path, Prompt = "Path" });
@@ -85,19 +87,32 @@ namespace Umbraco.Web.Rest.Serialization
         /// <returns></returns>
         public Data CreatePropertyData(Item item, string propertyName, string propertyAlias, string value)
         {
+            //TODO: Localize prompts
+            //TODO: Need to add validation meta data for each item - whether it's required, regex required, etc... for the client to deal with it
+
             //get the property data item, if it's not there yet, then add it
             var propertyData = item.Data.FirstOrDefault(x => x.Name == "properties");
             if (propertyData == null)
             {
-                propertyData = new Data() { Name = "properties", Prompt = "Properties" };
+                propertyData = new Data() { Name = "properties", Prompt = "Properties" };                
                 item.Data.Add(propertyData);
             }
 
             //now check for the list value, if its not there create a new one
             var propertyList = propertyData.GetValue<List<Data>>("items") ?? new List<Data>();
+            
+            //create the name/value pairs for the property data
+            var propertyDataList = new List<Data>(new[]
+            {
+                new Data {Name = "alias", Value = propertyAlias, Prompt = "Alias"},
+                new Data {Name = "name", Value = propertyName, Prompt = "Name"},
+                new Data {Name = "value", Value = value, Prompt = "Value"}
+            });
 
             //create the new property item data and add it to the list
-            var data = new Data { Name = propertyAlias, Value = value, Prompt = propertyName };
+            var data = new Data();
+            
+            data.SetValue("data", propertyDataList);            
             propertyList.Add(data);
 
             //set the custom list back to our custom property data item
@@ -112,14 +127,31 @@ namespace Umbraco.Web.Rest.Serialization
         /// <param name="content"></param>
         /// <param name="propertyAlias"></param>
         /// <returns></returns>
+        /// <remarks>
+        /// Since this is for a persistable content property, we also add validation attributes (regexp and required)
+        /// </remarks>
         public Data CreatePropertyData(Item item, IContentBase content, string propertyAlias)
         {
-            return CreatePropertyData(item,
-                content.PropertyTypes.Single(x => x.Alias == propertyAlias).Name,
+            //TODO: Localize prompts
+
+            var propertyType = content.PropertyTypes.Single(x => x.Alias == propertyAlias);
+
+            var propertyData = CreatePropertyData(item,
+                propertyType.Name,
                 propertyAlias,
                 //TODO: Since we are returning this for consumption, do we need to put this through the PropertyValueEditor.ConvertDbToEditor ?
                 // I'd assume that we'll have to do that.
                 content.Properties[propertyAlias].Value == null ? string.Empty : content.Properties[propertyAlias].Value.ToString());
+
+            //TODO: We could look at excluding this data so that it is a smaller payload if the client requests the cut-down version
+            // potentially that would be the default and they would have to request the extended version to include all of this stuff
+            // if they were doing persistence with a form.
+            var dataList = propertyData.GetValue<List<Data>>("data");
+            dataList.Add(new Data() { Name = "regexp", Value = propertyType.ValidationRegExp, Prompt = "Validation Pattern"});
+            dataList.Add(new Data() { Name = "required", Value = propertyType.Mandatory.ToString().ToLowerInvariant(), Prompt = "Is Required" });
+            //TODO: Generally with hypermedia we'd also provide the validation message if it failed
+
+            return propertyData;
         }
 
         public virtual string GetRootLink()
