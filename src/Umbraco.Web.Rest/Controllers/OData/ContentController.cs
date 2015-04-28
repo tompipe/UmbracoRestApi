@@ -4,14 +4,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.OData;
-using System.Web.OData.Routing;
 using CollectionJson;
 using Umbraco.Core.Services;
 using Umbraco.Web.Rest.Models;
 
 namespace Umbraco.Web.Rest.Controllers.OData
 {
-    //[ODataRoutePrefix("umbraco/rest/v1/odata")]
     public class ContentController : UmbracoODataController
     {
         public ContentController()
@@ -33,22 +31,10 @@ namespace Umbraco.Web.Rest.Controllers.OData
             {
                 Id = content.Id,
                 Name = content.Name,
-                Level = content.Level
+                Level = content.Level,
+                ParentId = content.ParentId
             };
         }
-
-        //[EnableQuery]
-        //public GenericContent Get([FromODataUri] int key)
-        //{
-        //    var content = ContentService.GetById(key);
-
-        //    return new GenericContent
-        //    {
-        //        Id = content.Id,
-        //        Name = content.Name,
-        //        Level = content.Level
-        //    };
-        //}
 
         protected IContentService ContentService
         {

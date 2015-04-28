@@ -10,10 +10,12 @@ using System.Web.Http.Routing;
 using System.Web.OData.Builder;
 using System.Web.OData.Extensions;
 using System.Web.OData.Routing;
+using System.Web.OData.Routing.Conventions;
 using System.Web.Routing;
 using Umbraco.Core;
 using Umbraco.Web.Rest.Controllers;
 using Umbraco.Web.Rest.Controllers.CollectionJson;
+using Umbraco.Web.Rest.Controllers.OData;
 using Umbraco.Web.Rest.Models;
 using Umbraco.Web.Rest.Routing;
 
@@ -37,19 +39,20 @@ namespace Umbraco.Web.Rest
         {
             //OData routes:
 
-            ODataModelBuilder builder = new ODataConventionModelBuilder();
-            builder.EntitySet<GenericContent>("Content");
+            //var builder = new ODataConventionModelBuilder();
+            //builder.EntitySet<GenericContent>("Content");
+
+            var builder = new UmbracoContentModelBuilder(config);
+
+            var conventions = ODataRoutingConventions.CreateDefault();
+            conventions.Insert(0, new IdInUrlParameterRoutingConvention());
+
             var odataRoute = config.MapODataServiceRoute(
                 routeName: RouteConstants.PublishedContentRouteName + RouteConstants.ODataPrefix,
                 routePrefix: string.Format("{0}/rest/v1/{1}", UmbracoMvcArea, RouteConstants.ODataPrefix),
-                model: builder.GetEdmModel());
-
-            //var constraint = (ODataPathRouteConstraint) odataRoute.Constraints.Single(x => x.Value is ODataPathRouteConstraint).Value;
-            //odataRoute.Constraints.Clear();
-            //odataRoute.Constraints.Add("Test", new TestODataPathRouteConstraint(constraint.PathHandler, constraint.EdmModel, constraint.RouteName, constraint.RoutingConventions));
-            
-            
-            //odataRoute.Constraints.Remove(constraint);
+                model: builder.GetEdmModel(),
+                pathHandler: new DefaultODataPathHandler(),
+                routingConventions: conventions);
 
             //config.CustomMapODataServiceRoute(
             //    routeName: RouteConstants.PublishedContentRouteName + RouteConstants.ODataPrefix,

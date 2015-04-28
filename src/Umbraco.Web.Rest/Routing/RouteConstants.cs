@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Web.Http.Controllers;
 using System.Web.Http.Routing;
 
 namespace Umbraco.Web.Rest.Routing

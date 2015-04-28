@@ -151,6 +151,7 @@
       <HintPath>..\packages\UmbracoCms.Core.7.3.0-nightly5\lib\SQLCE4Umbraco.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.SqlServerCe">
       <HintPath>..\packages\UmbracoCms.Core.7.3.0-nightly5\lib\System.Data.SqlServerCe.dll</HintPath>
@@ -262,6 +263,7 @@
     <Compile Include="Controllers\CollectionJson\PublishedContentController.cs" />
     <Compile Include="Controllers\CollectionJson\UmbracoCollectionJsonController.cs" />
     <Compile Include="Controllers\OData\ContentController.cs" />
+    <Compile Include="Models\UmbracoContentModelBuilder.cs" />
     <Compile Include="Controllers\OData\UmbracoODataController.cs" />
     <Compile Include="FieldNames.cs" />
     <Compile Include="Models\GenericContent.cs" />
@@ -269,6 +271,7 @@
     <Compile Include="ReadDocumentExtensions.cs" />
     <Compile Include="ReflectionHelper.cs" />
     <Compile Include="RouteExtensions.cs" />
+    <Compile Include="Routing\CompositeKeyRoutingConvention.cs" />
     <Compile Include="Routing\RouteConstants.cs" />
     <Compile Include="Routing\UmbracoRoutePrefix.cs" />
     <Compile Include="Serialization\ContentDocumentReader.cs" />
