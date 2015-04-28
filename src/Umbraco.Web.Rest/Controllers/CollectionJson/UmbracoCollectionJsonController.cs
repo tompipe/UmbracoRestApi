@@ -3,14 +3,10 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using CollectionJson;
-using CollectionJson.Server;
-using Umbraco.Core;
-using Umbraco.Core.Models;
 using Umbraco.Web.Rest.Routing;
-using Umbraco.Web.Security;
 using Umbraco.Web.WebApi;
 
-namespace Umbraco.Web.Rest.Controllers
+namespace Umbraco.Web.Rest.Controllers.CollectionJson
 {
     /// <summary>
     /// Base CollectionJson controller for all Umbraco REST services

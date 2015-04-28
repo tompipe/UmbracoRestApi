@@ -1,28 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Controllers;
-using System.Web.Http.Results;
 using CollectionJson;
-using CollectionJson.Server;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
 using Umbraco.Web.Rest.Serialization;
-using Umbraco.Web.Routing;
 
-namespace Umbraco.Web.Rest.Controllers
+namespace Umbraco.Web.Rest.Controllers.CollectionJson
 {
-    public class ContentController : UmbracoCollectionJsonController<IContent, int>
+    public class Content2Controller : UmbracoCollectionJsonController<IContent, int>
     {
         /// <summary>
         /// Default ctor
         /// </summary>
-        public ContentController()
+        public Content2Controller()
         {   
         }
 
@@ -33,7 +26,7 @@ namespace Umbraco.Web.Rest.Controllers
         /// <param name="writer"></param>
         /// <param name="umbracoHelper"></param>
         /// <param name="reader"></param>
-        public ContentController(
+        public Content2Controller(
             UmbracoContext umbracoContext, 
             UmbracoHelper umbracoHelper, 
             ICollectionJsonDocumentWriter<IContent> writer, 

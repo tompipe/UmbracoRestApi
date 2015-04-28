@@ -1,17 +1,13 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Formatting;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using CollectionJson;
 using Umbraco.Core.Models;
-using Umbraco.Web.Rest.Routing;
 using Umbraco.Web.Rest.Serialization;
-using Umbraco.Web.Security;
 
-namespace Umbraco.Web.Rest.Controllers
+namespace Umbraco.Web.Rest.Controllers.CollectionJson
 {
     /// <summary>
     /// REST service for querying against Published content

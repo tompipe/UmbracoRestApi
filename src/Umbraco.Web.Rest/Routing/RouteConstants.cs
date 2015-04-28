@@ -6,8 +6,11 @@ namespace Umbraco.Web.Rest.Routing
 {
     public static class RouteConstants
     {
+        public const string CollectionJsonPrefix = "cj";
+        public const string ODataPrefix = "odata";
+
         public const string PublishedSegment = "published";
-        public const string ContentSegment = "content";
+        public const string ContentSegment = "Content";
         public const string MediaSegment = "media";
         public const string MembersSegment = "members";
 
@@ -25,6 +28,5 @@ namespace Umbraco.Web.Rest.Routing
         {
             return baseRouteName + "_GET";
         }
-        
     }
 }

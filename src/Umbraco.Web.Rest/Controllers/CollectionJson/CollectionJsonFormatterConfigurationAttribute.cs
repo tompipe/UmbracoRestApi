@@ -1,17 +1,8 @@
 ﻿using System;
-using System.Collections;
-using System.IO;
-using System.Net.Http;
-using System.Net.Http.Formatting;
-using System.Reflection;
-using System.Threading.Tasks;
 using System.Web.Http.Controllers;
-using CollectionJson;
 using CollectionJson.Client;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
-namespace Umbraco.Web.Rest.Controllers
+namespace Umbraco.Web.Rest.Controllers.CollectionJson
 {
     /// <summary>
     /// Applying this attribute to any webapi controller will ensure that the CollectionJsonFormatter is added to the controller

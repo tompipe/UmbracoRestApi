@@ -30,7 +30,7 @@ using Umbraco.Web.Security.Providers;
 namespace Umbraco.Web.Rest.Tests
 {
     [TestFixture]
-    public class PublishedContentControllerTests
+    public class CollectionJsonPublishedContentControllerTests
     {
         [TestFixtureSetUp]
         public void TearDown()
@@ -42,7 +42,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Get_Children_Is_200_Response()
         {
-            var startup = new TestStartup<IPublishedContent>(
+            var startup = new CollectionJsonTestStartup<IPublishedContent>(
                 //This will be invoked before the controller is created so we can modify these mocked services
                 // it needs to return the required reader/writer for the tests
                 (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
@@ -67,7 +67,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Get_Id_Result()
         {
-            var startup = new TestStartup<IPublishedContent>(
+            var startup = new CollectionJsonTestStartup<IPublishedContent>(
                 //This will be invoked before the controller is created so we can modify these mocked services
                 // it needs to return the required reader/writer for the tests
                 (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
@@ -117,7 +117,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Get_Empty_Is_200_Response()
         {
-            var startup = new TestStartup<IPublishedContent>(
+            var startup = new CollectionJsonTestStartup<IPublishedContent>(
                 //This will be invoked before the controller is created so we can modify these mocked services,
                 // it needs to return the required reader/writer for the tests
                 (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
@@ -142,7 +142,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Post_Is_501_Response()
         {
-            var startup = new TestStartup<IPublishedContent>(
+            var startup = new CollectionJsonTestStartup<IPublishedContent>(
                 (request, umbCtx, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IPublishedContent>, ICollectionJsonDocumentReader<IPublishedContent>>(
                     new PublishedContentDocumentWriter(request, umbCtx.UrlProvider),
                     null));
@@ -163,7 +163,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Put_Is_501_Response()
         {
-            var startup = new TestStartup<IPublishedContent>(
+            var startup = new CollectionJsonTestStartup<IPublishedContent>(
                 (request, umbCtx, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IPublishedContent>, ICollectionJsonDocumentReader<IPublishedContent>>(
                     new PublishedContentDocumentWriter(request, umbCtx.UrlProvider),
                     null));
@@ -184,7 +184,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Delete_Is_501_Response()
         {
-            var startup = new TestStartup<IPublishedContent>(
+            var startup = new CollectionJsonTestStartup<IPublishedContent>(
                 (request, umbCtx, typedContent, contentService, mediaService, memberService) => new Tuple<ICollectionJsonDocumentWriter<IPublishedContent>, ICollectionJsonDocumentReader<IPublishedContent>>(
                     new PublishedContentDocumentWriter(request, umbCtx.UrlProvider),
                     null));

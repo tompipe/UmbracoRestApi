@@ -105,6 +105,14 @@
     <Reference Include="Microsoft.AspNet.Identity.Owin">
       <HintPath>..\packages\Microsoft.AspNet.Identity.Owin.2.2.1\lib\net45\Microsoft.AspNet.Identity.Owin.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.OData.Core, Version=6.10.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.OData.Core.6.10.0\lib\portable-net40+sl5+wp8+win8+wpa\Microsoft.OData.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.OData.Edm, Version=6.10.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.OData.Edm.6.10.0\lib\portable-net40+sl5+wp8+win8+wpa\Microsoft.OData.Edm.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Owin">
       <HintPath>..\packages\Microsoft.Owin.3.0.1\lib\net45\Microsoft.Owin.dll</HintPath>
     </Reference>
@@ -126,6 +134,10 @@
     </Reference>
     <Reference Include="Microsoft.Owin.Testing">
       <HintPath>..\packages\Microsoft.Owin.Testing.3.0.1\lib\net45\Microsoft.Owin.Testing.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Spatial, Version=6.10.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Spatial.6.10.0\lib\portable-net40+sl5+wp8+win8+wpa\Microsoft.Spatial.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
@@ -201,6 +213,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.AspNet.Mvc.4.0.30506.0\lib\net40\System.Web.Mvc.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web.OData, Version=5.5.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.OData.5.5.1\lib\net45\System.Web.OData.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.AspNet.Razor.2.0.20710.0\lib\net40\System.Web.Razor.dll</HintPath>
@@ -264,15 +280,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ContentControllerTests.cs" />
+    <Compile Include="CollectionJsonContentControllerTests.cs" />
+    <Compile Include="ODataContentControllerTests.cs" />
     <Compile Include="TestHelpers\AuthenticateEverythingExtensions.cs" />
     <Compile Include="TestHelpers\AuthenticateEverythingMiddleware.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestHelpers\MockUmbracoSettings.cs" />
+    <Compile Include="TestHelpers\ModelMocks.cs" />
+    <Compile Include="TestHelpers\ODataTestControllerActivator.cs" />
+    <Compile Include="TestHelpers\ODataTestStartup.cs" />
     <Compile Include="TestHelpers\ProviderUtilities.cs" />
-    <Compile Include="PublishedContentControllerTests.cs" />
-    <Compile Include="TestHelpers\TestControllerActivator.cs" />
-    <Compile Include="TestHelpers\TestStartup.cs" />
+    <Compile Include="CollectionJsonPublishedContentControllerTests.cs" />
+    <Compile Include="TestHelpers\CollectionJsonTestControllerActivator.cs" />
+    <Compile Include="TestHelpers\CollectionJsonTestStartup.cs" />
+    <Compile Include="TestHelpers\TestControllerActivatorBase.cs" />
     <Compile Include="TestHelpers\TestWebApiResolver.cs" />
   </ItemGroup>
   <ItemGroup>

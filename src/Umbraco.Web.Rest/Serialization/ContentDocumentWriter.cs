@@ -125,7 +125,7 @@ namespace Umbraco.Web.Rest.Serialization
 
         protected override string BaseRouteName
         {
-            get { return RouteConstants.ContentRouteName; }
+            get { return RouteConstants.ContentRouteName + RouteConstants.CollectionJsonPrefix; }
         }
     }
 }

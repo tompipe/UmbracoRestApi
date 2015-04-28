@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Web.Http.Dispatcher;
 using Umbraco.Web.Rest.Controllers;
+using Umbraco.Web.Rest.Controllers.CollectionJson;
 
 namespace Umbraco.Web.Rest.Tests.TestHelpers
 {
