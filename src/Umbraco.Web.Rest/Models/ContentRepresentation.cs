@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Umbraco.Core.Models;
-using Umbraco.Web.Rest.Models.OData;
 using WebApi.Hal;
 
-namespace Umbraco.Web.Rest.Models.HAL
+namespace Umbraco.Web.Rest.Models
 {
     public class ContentRepresentation : Representation
     {

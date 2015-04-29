@@ -1,20 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Net.Http;
-using System.Web.Http;
-using System.Web.Http.Batch;
-using System.Web.Http.Controllers;
-using System.Web.Http.Routing;
-using System.Web.OData;
-using System.Web.OData.Batch;
-using System.Web.OData.Extensions;
-using System.Web.OData.Routing;
-using System.Web.OData.Routing.Conventions;
+﻿using System.Web.Http.Routing;
 using System.Web.Routing;
-using Microsoft.OData.Core;
-using Microsoft.OData.Edm;
 
 namespace Umbraco.Web.Rest
 {

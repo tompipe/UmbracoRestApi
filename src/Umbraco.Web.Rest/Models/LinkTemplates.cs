@@ -1,6 +1,6 @@
 ﻿using WebApi.Hal;
 
-namespace Umbraco.Web.Rest.Models.HAL
+namespace Umbraco.Web.Rest.Models
 {
     public static class LinkTemplates
     {

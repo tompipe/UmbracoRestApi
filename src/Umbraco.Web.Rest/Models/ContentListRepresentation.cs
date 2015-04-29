@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using WebApi.Hal;
 
-namespace Umbraco.Web.Rest.Models.HAL
+namespace Umbraco.Web.Rest.Models
 {
     public class ContentListRepresentation : SimpleListRepresentation<ContentRepresentation>
     {

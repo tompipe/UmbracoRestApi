@@ -2,8 +2,6 @@ using System;
 using System.Net.Http;
 using System.Web.Http;
 using Umbraco.Core.Services;
-using Umbraco.Web.Rest.Controllers.OData;
-using Umbraco.Web.WebApi;
 
 namespace Umbraco.Web.Rest.Tests.TestHelpers
 {

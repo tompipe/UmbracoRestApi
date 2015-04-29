@@ -47,5 +47,41 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
 
             return mock.Object;
         }
+
+        public static IPublishedContent SimpleMockedPublishedContent(int id = 123, int? parentId = null, int? childId = null)
+        {
+            return Mock.Of<IPublishedContent>(
+                content => content.Id == id
+                           && content.IsDraft == false
+                           && content.CreateDate == DateTime.Now.AddDays(-2)
+                           && content.CreatorId == 0
+                           && content.CreatorName == "admin"
+                           && content.DocumentTypeAlias == "test"
+                           && content.DocumentTypeId == 10
+                           && content.ItemType == PublishedItemType.Content
+                           && content.Level == 1
+                           && content.Name == "Home"
+                           && content.Path == "-1,123"
+                           && content.SortOrder == 1
+                           && content.TemplateId == 9
+                           && content.UpdateDate == DateTime.Now.AddDays(-1)
+                           && content.Url == "/home"
+                           && content.UrlName == "home"
+                           && content.WriterId == 1
+                           && content.WriterName == "Editor"
+                           && content.Properties == new List<IPublishedProperty>(new[]
+                           {
+                               Mock.Of<IPublishedProperty>(property => property.HasValue == true
+                                                                       && property.PropertyTypeAlias == "testProperty1"
+                                                                       && property.DataValue == "raw value"
+                                                                       && property.Value == "Property Value"),
+                               Mock.Of<IPublishedProperty>(property => property.HasValue == true
+                                                                       && property.PropertyTypeAlias == "testProperty2"
+                                                                       && property.DataValue == "raw value"
+                                                                       && property.Value == "Property Value")
+                           })
+                           && content.Parent == (parentId.HasValue ? SimpleMockedPublishedContent(parentId.Value, null, null) : null)
+                           && content.Children == (childId.HasValue ? new[] { SimpleMockedPublishedContent(childId.Value, null, null) } : Enumerable.Empty<IPublishedContent>()));
+        }
     }
 }

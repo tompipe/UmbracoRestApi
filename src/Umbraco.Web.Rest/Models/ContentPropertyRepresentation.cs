@@ -1,4 +1,4 @@
-namespace Umbraco.Web.Rest.Models.HAL
+namespace Umbraco.Web.Rest.Models
 {
     public class ContentPropertyRepresentation
     {

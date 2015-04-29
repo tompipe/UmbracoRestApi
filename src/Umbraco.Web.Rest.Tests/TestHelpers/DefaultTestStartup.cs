@@ -3,12 +3,9 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Dispatcher;
 using AutoMapper;
-using CollectionJson;
 using Owin;
 using Umbraco.Core.Services;
 using Umbraco.Web.Rest.Models;
-using Umbraco.Web.Rest.Models.HAL;
-using Umbraco.Web.Rest.Models.OData;
 using Umbraco.Web.WebApi;
 
 namespace Umbraco.Web.Rest.Tests.TestHelpers
@@ -31,9 +28,7 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
 
             Mapper.Initialize(configuration =>
             {
-                var contentItemMapper = new ContentItemMapper();
                 var contentRepresentationMapper = new ContentRepresentationMapper();
-                contentItemMapper.ConfigureMappings(configuration, umbracoContext.Application);
                 contentRepresentationMapper.ConfigureMappings(configuration, umbracoContext.Application);
             });
         }
