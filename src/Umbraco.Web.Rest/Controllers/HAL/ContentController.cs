@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -45,6 +46,37 @@ namespace Umbraco.Web.Rest.Controllers.HAL
             var content = ContentService.GetById(id);
             if (content == null) throw new HttpResponseException(HttpStatusCode.NotFound);
             return Mapper.Map<ContentRepresentation>(content);
+        }
+
+        /// <summary>
+        /// Returns the children for an item
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [ActionName("children")]
+        public ContentListRepresentation GetChildren(int id)
+        {
+            var items = ContentService.GetChildren(id);
+            return Mapper.Map<ContentListRepresentation>(items);
+        }
+
+        public HttpResponseMessage Post(ContentRepresentation content)
+        {
+            return Request.CreateResponse(HttpStatusCode.Created, content);
+        }
+
+
+        public ContentRepresentation Put(int id, string value)
+        {
+            var content = ContentService.GetById(id);
+            if (content == null) throw new HttpResponseException(HttpStatusCode.NotFound);
+            //TODO: Update
+            return Mapper.Map<ContentRepresentation>(content);
+        }
+
+        public void Delete(int id)
+        {
         }
 
         protected IContentService ContentService

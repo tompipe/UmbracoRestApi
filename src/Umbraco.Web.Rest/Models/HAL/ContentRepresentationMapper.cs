@@ -17,7 +17,26 @@ namespace Umbraco.Web.Rest.Models.HAL
 
 
             config.CreateMap<IContent, ContentRepresentation>()
-                .ForMember(representation => representation.Properties, expression => expression.Ignore());
+                .ForMember(representation => representation.HasChildren, expression => expression.MapFrom(content => 
+                    applicationContext.Services.ContentService.HasChildren(content.Id)))
+                .ForMember(representation => representation.Properties, expression => expression.ResolveUsing(content =>
+                {
+                    var d = new Dictionary<string, ContentPropertyRepresentation>();
+                    foreach (var propertyType in content.PropertyTypes)
+                    {
+                        var prop = content.HasProperty(propertyType.Alias) ? content.Properties[propertyType.Alias] : null;
+                        if (prop != null)
+                        {
+                            d.Add(propertyType.Alias, new ContentPropertyRepresentation
+                            {
+                                Value = prop.Value,
+                                Label = propertyType.Name,
+                                //TODO: Validation
+                            });
+                        }
+                    }
+                    return d;
+                }));
         }
     }
 }

@@ -68,6 +68,8 @@ namespace Umbraco.Web.Rest.Tests
                      mockContentService.Setup(x => x.GetById(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedContent());
 
                      mockContentService.Setup(x => x.GetChildren(It.IsAny<int>())).Returns(new List<IContent>(new[] { ModelMocks.SimpleMockedContent(789) }));
+
+                     mockContentService.Setup(x => x.HasChildren(It.IsAny<int>())).Returns(true);
                  });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -88,6 +90,80 @@ namespace Umbraco.Web.Rest.Tests
                 Console.Write(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), Formatting.Indented));
 
                 Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+            }
+        }
+
+        [Test]
+        public async void Get_Children_Is_200_Response()
+        {
+            var startup = new DefaultTestStartup(
+                //This will be invoked before the controller is created so we can modify these mocked services
+                (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
+                {
+                    var mockContentService = Mock.Get(contentService);
+
+                    mockContentService.Setup(x => x.GetById(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedContent());
+
+                    mockContentService.Setup(x => x.GetChildren(It.IsAny<int>())).Returns(new List<IContent>(new[] { ModelMocks.SimpleMockedContent(789) }));
+
+                    mockContentService.Setup(x => x.HasChildren(It.IsAny<int>())).Returns(true);
+                });
+
+            using (var server = TestServer.Create(builder => startup.Configuration(builder)))
+            {
+                var request = new HttpRequestMessage()
+                {
+                    RequestUri = new Uri(string.Format("http://testserver/umbraco/rest/v1/hal/{0}/123/children", RouteConstants.ContentSegment)),
+                    Method = HttpMethod.Get,
+                };
+
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/hal+json"));
+
+                Console.WriteLine(request);
+                var result = await server.HttpClient.SendAsync(request);
+                Console.WriteLine(result);
+
+                var json = await ((StreamContent)result.Content).ReadAsStringAsync();
+                Console.Write(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), Formatting.Indented));
+
+                Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+            }
+        }
+
+        [Test]
+        public async void Post_Is_201_Response()
+        {
+            var startup = new DefaultTestStartup(
+                //This will be invoked before the controller is created so we can modify these mocked services
+                (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
+                {
+                    var mockContentService = Mock.Get(contentService);
+
+                    mockContentService.Setup(x => x.GetById(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedContent());
+
+                    mockContentService.Setup(x => x.GetChildren(It.IsAny<int>())).Returns(new List<IContent>(new[] { ModelMocks.SimpleMockedContent(789) }));
+
+                    mockContentService.Setup(x => x.HasChildren(It.IsAny<int>())).Returns(true);
+                });
+
+            using (var server = TestServer.Create(builder => startup.Configuration(builder)))
+            {
+                var request = new HttpRequestMessage()
+                {
+                    RequestUri = new Uri(string.Format("http://testserver/umbraco/rest/v1/hal/{0}", RouteConstants.ContentSegment)),
+                    Method = HttpMethod.Post,
+                };
+
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/hal+json"));
+
+                Console.WriteLine(request);
+                var result = await server.HttpClient.SendAsync(request);
+                Console.WriteLine(result);
+
+                var json = await ((StreamContent)result.Content).ReadAsStringAsync();
+                Console.Write(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), Formatting.Indented));
+
+                Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
             }
         }
     }
