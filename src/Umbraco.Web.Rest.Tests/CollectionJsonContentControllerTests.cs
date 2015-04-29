@@ -98,9 +98,9 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.IsTrue(json.Contains("\"collection\""));
 
                 var djson = JsonConvert.DeserializeObject<JObject>(json);
-                Assert.AreEqual("http://testserver/umbraco/rest/v1/cj/content", djson["collection"]["href"].Value<string>());
+                Assert.AreEqual("http://testserver/umbraco/rest/v1/cj/Content", djson["collection"]["href"].Value<string>());
                 Assert.AreEqual(1, djson["collection"]["items"].Count());
-                Assert.AreEqual("http://testserver/umbraco/rest/v1/cj/content/123", djson["collection"]["items"][0]["href"].Value<string>());
+                Assert.AreEqual("http://testserver/umbraco/rest/v1/cj/Content/123", djson["collection"]["items"][0]["href"].Value<string>());
                 Assert.AreEqual(12, djson["collection"]["items"][0]["data"].Count());
   
                 Assert.IsNotNull(djson["collection"]["items"][0]["data"].SingleOrDefault(x => x[FieldNames.Name].Value<string>() == FieldNames.Properties));
@@ -118,8 +118,8 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.AreEqual("parent", djson["collection"]["items"][0]["links"][1]["rel"].Value<string>());
                 Assert.AreEqual("Children", djson["collection"]["items"][0]["links"][0]["prompt"].Value<string>());
                 Assert.AreEqual("Parent", djson["collection"]["items"][0]["links"][1]["prompt"].Value<string>());
-                Assert.AreEqual("http://testserver/umbraco/rest/v1/cj/content/123/children", djson["collection"]["items"][0]["links"][0]["href"].Value<string>());
-                Assert.AreEqual("http://testserver/umbraco/rest/v1/cj/content/456", djson["collection"]["items"][0]["links"][1]["href"].Value<string>());
+                Assert.AreEqual("http://testserver/umbraco/rest/v1/cj/Content/123/children", djson["collection"]["items"][0]["links"][0]["href"].Value<string>());
+                Assert.AreEqual("http://testserver/umbraco/rest/v1/cj/Content/456", djson["collection"]["items"][0]["links"][1]["href"].Value<string>());
 
                 Assert.IsNotNull(djson["collection"]["template"]);
                 Assert.AreEqual(4, djson["collection"]["template"]["data"].Count());
@@ -206,7 +206,7 @@ namespace Umbraco.Web.Rest.Tests
                 Console.WriteLine(result);
 
                 Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-                Assert.AreEqual("http://testserver/umbraco/rest/v1/cj/content/8888", result.Headers.Location.OriginalString);
+                Assert.AreEqual("http://testserver/umbraco/rest/v1/cj/Content/8888", result.Headers.Location.OriginalString);
             }
         }
 

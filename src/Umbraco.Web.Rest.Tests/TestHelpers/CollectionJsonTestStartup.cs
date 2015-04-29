@@ -8,6 +8,7 @@ using CollectionJson;
 using Owin;
 using Umbraco.Core.Services;
 using Umbraco.Web.Rest.Routing;
+using Umbraco.Web.WebApi;
 
 namespace Umbraco.Web.Rest.Tests.TestHelpers
 {
@@ -28,9 +29,8 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
             var httpConfig = new HttpConfiguration();
 
             httpConfig.Services.Replace(typeof(IAssembliesResolver), new TestWebApiResolver());
-            httpConfig.Services.Replace(typeof(IHttpControllerActivator), new CollectionJsonTestControllerActivator<TItem>(_activator));
-            //httpConfig.Services.Replace(typeof(IHttpControllerTypeResolver), new TestControllerTypeResolver());
-            //httpConfig.Services.Replace(typeof(IHttpControllerSelector), new TestControllerSelector(httpConfig));
+            httpConfig.Services.Replace(typeof(IHttpControllerActivator), new CollectionJsonTestControllerActivator<TItem>(_activator));            
+            httpConfig.Services.Replace(typeof(IHttpControllerSelector), new NamespaceHttpControllerSelector(httpConfig));
 
             //auth everything
             app.AuthenticateEverything();

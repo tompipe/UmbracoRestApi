@@ -259,12 +259,12 @@
   <ItemGroup>
     <Compile Include="CollectionJsonExtensions.cs" />
     <Compile Include="Controllers\CollectionJson\CollectionJsonFormatterConfigurationAttribute.cs" />
-    <Compile Include="Controllers\CollectionJson\Content2Controller.cs" />
+    <Compile Include="Controllers\CollectionJson\ContentController.cs" />
     <Compile Include="Controllers\CollectionJson\PublishedContentController.cs" />
     <Compile Include="Controllers\CollectionJson\UmbracoCollectionJsonController.cs" />
     <Compile Include="Controllers\OData\ContentController.cs" />
     <Compile Include="Controllers\OData\UmbracoODataFormatterConfigurationAttribute.cs" />
-    <Compile Include="Models\ODataContentMapper.cs" />
+    <Compile Include="Models\ContentItemMapper.cs" />
     <Compile Include="Models\UmbracoContentModelBuilder.cs" />
     <Compile Include="Controllers\OData\UmbracoODataController.cs" />
     <Compile Include="FieldNames.cs" />

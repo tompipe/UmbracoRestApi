@@ -11,12 +11,12 @@ using Umbraco.Web.Rest.Serialization.CollectionJson;
 
 namespace Umbraco.Web.Rest.Controllers.CollectionJson
 {
-    public class Content2Controller : UmbracoCollectionJsonController<IContent, int>
+    public class ContentController : UmbracoCollectionJsonController<IContent, int>
     {
         /// <summary>
         /// Default ctor
         /// </summary>
-        public Content2Controller()
+        public ContentController()
         {   
         }
 
@@ -27,7 +27,7 @@ namespace Umbraco.Web.Rest.Controllers.CollectionJson
         /// <param name="writer"></param>
         /// <param name="umbracoHelper"></param>
         /// <param name="reader"></param>
-        public Content2Controller(
+        public ContentController(
             UmbracoContext umbracoContext, 
             UmbracoHelper umbracoHelper, 
             ICollectionJsonDocumentWriter<IContent> writer, 

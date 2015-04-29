@@ -10,7 +10,7 @@ using Umbraco.Core.Models.Mapping;
 
 namespace Umbraco.Web.Rest.Models
 {
-    public class ODataContentMapper : MapperConfiguration
+    public class ContentItemMapper : MapperConfiguration
     {
         public override void ConfigureMappings(IConfiguration config, ApplicationContext applicationContext)
         {

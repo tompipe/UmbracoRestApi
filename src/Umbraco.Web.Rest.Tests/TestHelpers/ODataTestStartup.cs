@@ -7,6 +7,7 @@ using CollectionJson;
 using Owin;
 using Umbraco.Core.Services;
 using Umbraco.Web.Rest.Models;
+using Umbraco.Web.WebApi;
 
 namespace Umbraco.Web.Rest.Tests.TestHelpers
 {
@@ -28,7 +29,7 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
 
             Mapper.Initialize(configuration =>
             {
-                var mapper = new ODataContentMapper();
+                var mapper = new ContentItemMapper();
                 mapper.ConfigureMappings(configuration, umbracoContext.Application);
             });
         }
@@ -39,8 +40,7 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
 
             httpConfig.Services.Replace(typeof(IAssembliesResolver), new TestWebApiResolver());
             httpConfig.Services.Replace(typeof(IHttpControllerActivator), new ODataTestControllerActivator(Activator));
-            //httpConfig.Services.Replace(typeof(IHttpControllerTypeResolver), new TestControllerTypeResolver());
-            //httpConfig.Services.Replace(typeof(IHttpControllerSelector), new TestControllerSelector(httpConfig));
+            httpConfig.Services.Replace(typeof(IHttpControllerSelector), new NamespaceHttpControllerSelector(httpConfig));
 
             //auth everything
             app.AuthenticateEverything();
