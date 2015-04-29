@@ -9,6 +9,7 @@ using System.Web.OData;
 using AutoMapper;
 using CollectionJson;
 using CollectionJson.Client;
+using Umbraco.Core.Models;
 using Umbraco.Core.Services;
 using Umbraco.Web.Rest.Models;
 
@@ -44,23 +45,29 @@ namespace Umbraco.Web.Rest.Controllers.OData
             return Mapper.Map<ContentItem>(content);
         }
 
-        public async Task<IHttpActionResult> Post(ContentItem contentItem)
+        public IHttpActionResult Post(ContentItem contentItem)
         {
+            //TODO: Need to perform all of the validation
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            throw new NotImplementedException();
-            //db.Products.Add(product);
-            //await db.SaveChangesAsync();
-            //return Created(product);
+            var content = ContentService.CreateContent(contentItem.Name, contentItem.ParentId, contentItem.ContentTypeAlias, Security.CurrentUser.Id);
+
+            Mapper.Map(contentItem, content);
+
+            ContentService.Save(content);
+
+            return Created(Mapper.Map<ContentItem>(content));
         }
 
         protected IContentService ContentService
         {
             get { return UmbracoContext.Application.Services.ContentService; }
         }
+
 
     }
 }

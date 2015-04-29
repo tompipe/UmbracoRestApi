@@ -262,9 +262,13 @@
     <Compile Include="Controllers\CollectionJson\ContentController.cs" />
     <Compile Include="Controllers\CollectionJson\PublishedContentController.cs" />
     <Compile Include="Controllers\CollectionJson\UmbracoCollectionJsonController.cs" />
+    <Compile Include="Controllers\HAL\ContentController.cs" />
     <Compile Include="Controllers\OData\ContentController.cs" />
     <Compile Include="Controllers\OData\UmbracoODataFormatterConfigurationAttribute.cs" />
     <Compile Include="Models\ContentItemMapper.cs" />
+    <Compile Include="Models\ContentItemProperties.cs" />
+    <Compile Include="Models\ContentItemProperty.cs" />
+    <Compile Include="Models\MappingExpressionExtensions.cs" />
     <Compile Include="Models\UmbracoContentModelBuilder.cs" />
     <Compile Include="Controllers\OData\UmbracoODataController.cs" />
     <Compile Include="FieldNames.cs" />
@@ -281,6 +285,7 @@
     <Compile Include="Serialization\CollectionJson\PublishedContentDocumentWriter.cs" />
     <Compile Include="Serialization\CollectionJson\UmbracoDocumentWriterBase.cs" />
     <Compile Include="Serialization\OData\ContentSerializerProvider.cs" />
+    <Compile Include="Serialization\OData\UmbracoAnnotationsEntitySerializer.cs" />
     <Compile Include="UmbracoRestStartup.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -43,9 +43,11 @@ namespace Umbraco.Web.Rest.Models
 
             //do declarations
 
+            
+
             builder.EntitySet<ContentItem>("Content");
-            builder.ComplexType<ContentItemProperty>();
-                
+            builder.ComplexType<ContentItemProperty>()
+                .Ignore(property => property.PropertyType);
             
             //when it's created, customize a few things:
             builder.OnModelCreating = mb =>

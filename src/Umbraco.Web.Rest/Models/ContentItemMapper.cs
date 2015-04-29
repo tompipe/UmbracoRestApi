@@ -27,7 +27,8 @@ namespace Umbraco.Web.Rest.Models
                             d.Add(propertyType.Alias, new ContentItemProperty
                             {
                                 Value = new Dictionary<string, object> { { "value", prop.Value } },                                
-                                Label = propertyType.Name
+                                Label = propertyType.Name,
+                                PropertyType = propertyType
                                 //TODO: Validation
                             });
                         }                        
@@ -37,6 +38,22 @@ namespace Umbraco.Web.Rest.Models
                         Properties = d
                     };
                 }));
+            
+            config.CreateMap<ContentItem, IContent>()
+                .IgnoreAllUnmapped()
+                .ForMember(content => content.Name, expression => expression.MapFrom(item => item.Name))
+                //TODO: IF people are 'updating' will this move it or cause problems?
+                .ForMember(content => content.ParentId, expression => expression.MapFrom(item => item.ParentId))
+                //TODO: IF people are 'updating' this will probably cause issues
+                .ForMember(content => content.SortOrder, expression => expression.MapFrom(item => item.SortOrder))                
+                //TODO: Need to be able to publish/unpublish - but this is only relavent for Content (not published content, media, members)
+                // so would need to create a derived model for that maybe
+                .AfterMap((item, content) =>
+                {
+                    //TODO: Set template
+
+                    //TODO: Set properties
+                });
 
         }
     }
