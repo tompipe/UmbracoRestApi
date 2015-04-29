@@ -4,9 +4,11 @@ using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Dispatcher;
 using System.Web.Http.Routing;
+using AutoMapper;
 using CollectionJson;
 using Owin;
 using Umbraco.Core.Services;
+using Umbraco.Web.Rest.Models.OData;
 using Umbraco.Web.Rest.Routing;
 using Umbraco.Web.WebApi;
 
@@ -43,4 +45,5 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
         }
 
     }
+
 }

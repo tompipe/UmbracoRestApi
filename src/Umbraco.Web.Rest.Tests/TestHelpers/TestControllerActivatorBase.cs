@@ -18,6 +18,7 @@ using Umbraco.Core.Persistence.SqlSyntax;
 using Umbraco.Core.Profiling;
 using Umbraco.Core.Security;
 using Umbraco.Core.Services;
+using Umbraco.Web.Rest.Controllers.HAL;
 using Umbraco.Web.Rest.Controllers.OData;
 using Umbraco.Web.Routing;
 using Umbraco.Web.Security;
@@ -29,7 +30,9 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
     {
         IHttpController IHttpControllerActivator.Create(HttpRequestMessage request, HttpControllerDescriptor controllerDescriptor, Type controllerType)
         {
-            if (typeof(UmbracoApiControllerBase).IsAssignableFrom(controllerType) || typeof(UmbracoODataController).IsAssignableFrom(controllerType))
+            if (typeof(UmbracoApiControllerBase).IsAssignableFrom(controllerType) 
+                || typeof(UmbracoODataController).IsAssignableFrom(controllerType)
+                || typeof(UmbracoHalContentController).IsAssignableFrom(controllerType))
             {
                 var owinContext = request.GetOwinContext();
 

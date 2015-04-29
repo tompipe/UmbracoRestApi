@@ -12,6 +12,7 @@ using CollectionJson.Client;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
 using Umbraco.Web.Rest.Models;
+using Umbraco.Web.Rest.Models.OData;
 
 namespace Umbraco.Web.Rest.Controllers.OData
 {

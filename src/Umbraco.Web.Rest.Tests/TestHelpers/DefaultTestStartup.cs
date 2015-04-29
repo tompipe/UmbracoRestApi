@@ -7,6 +7,8 @@ using CollectionJson;
 using Owin;
 using Umbraco.Core.Services;
 using Umbraco.Web.Rest.Models;
+using Umbraco.Web.Rest.Models.HAL;
+using Umbraco.Web.Rest.Models.OData;
 using Umbraco.Web.WebApi;
 
 namespace Umbraco.Web.Rest.Tests.TestHelpers
@@ -14,11 +16,11 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
     /// <summary>
     /// OWIN startup class for the self-hosted web server
     /// </summary>
-    public class ODataTestStartup
+    public class DefaultTestStartup
     {
         private readonly Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService> _activator;
 
-        public ODataTestStartup(Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService> activator)
+        public DefaultTestStartup(Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService> activator)
         {
             _activator = activator;
         }
@@ -29,8 +31,10 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
 
             Mapper.Initialize(configuration =>
             {
-                var mapper = new ContentItemMapper();
-                mapper.ConfigureMappings(configuration, umbracoContext.Application);
+                var contentItemMapper = new ContentItemMapper();
+                var contentRepresentationMapper = new ContentRepresentationMapper();
+                contentItemMapper.ConfigureMappings(configuration, umbracoContext.Application);
+                contentRepresentationMapper.ConfigureMappings(configuration, umbracoContext.Application);
             });
         }
 
@@ -39,7 +43,7 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
             var httpConfig = new HttpConfiguration();
 
             httpConfig.Services.Replace(typeof(IAssembliesResolver), new TestWebApiResolver());
-            httpConfig.Services.Replace(typeof(IHttpControllerActivator), new ODataTestControllerActivator(Activator));
+            httpConfig.Services.Replace(typeof(IHttpControllerActivator), new DefaultTestControllerActivator(Activator));
             httpConfig.Services.Replace(typeof(IHttpControllerSelector), new NamespaceHttpControllerSelector(httpConfig));
 
             //auth everything
@@ -52,4 +56,5 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
             app.UseWebApi(httpConfig);
         }
     }
+
 }

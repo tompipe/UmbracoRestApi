@@ -3,6 +3,7 @@ using System.Web.OData;
 using System.Web.OData.Formatter.Serialization;
 using Microsoft.OData.Core;
 using Umbraco.Web.Rest.Models;
+using Umbraco.Web.Rest.Models.OData;
 
 namespace Umbraco.Web.Rest.Serialization.OData
 {

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Umbraco.Core.Models;
 
-namespace Umbraco.Web.Rest.Models
+namespace Umbraco.Web.Rest.Models.OData
 {
     public class ContentItemProperty
     {

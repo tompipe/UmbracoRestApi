@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Umbraco.Web.Rest.Models
+namespace Umbraco.Web.Rest.Models.OData
 {
     public class ContentItemProperties
     {

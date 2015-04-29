@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using AutoMapper;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Mapping;
 
-namespace Umbraco.Web.Rest.Models
+namespace Umbraco.Web.Rest.Models.OData
 {
     public class ContentItemMapper : MapperConfiguration
     {

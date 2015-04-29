@@ -255,6 +255,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\UmbracoCms.Core.7.3.0-nightly5\lib\UrlRewritingNet.UrlRewriter.dll</HintPath>
     </Reference>
+    <Reference Include="WebApi.Hal">
+      <HintPath>..\packages\WebApi.Hal.2.5.0\lib\net45\WebApi.Hal.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CollectionJsonExtensions.cs" />
@@ -263,16 +266,22 @@
     <Compile Include="Controllers\CollectionJson\PublishedContentController.cs" />
     <Compile Include="Controllers\CollectionJson\UmbracoCollectionJsonController.cs" />
     <Compile Include="Controllers\HAL\ContentController.cs" />
+    <Compile Include="Controllers\HAL\UmbracoHalContentController.cs" />
+    <Compile Include="Controllers\HAL\HalFormatterConfigurationAttribute.cs" />
     <Compile Include="Controllers\OData\ContentController.cs" />
     <Compile Include="Controllers\OData\UmbracoODataFormatterConfigurationAttribute.cs" />
-    <Compile Include="Models\ContentItemMapper.cs" />
-    <Compile Include="Models\ContentItemProperties.cs" />
-    <Compile Include="Models\ContentItemProperty.cs" />
+    <Compile Include="Models\HAL\ContentListRepresentation.cs" />
+    <Compile Include="Models\HAL\ContentPropertyRepresentation.cs" />
+    <Compile Include="Models\HAL\ContentRepresentation.cs" />
+    <Compile Include="Models\HAL\ContentRepresentationMapper.cs" />
+    <Compile Include="Models\OData\ContentItemMapper.cs" />
+    <Compile Include="Models\OData\ContentItemProperties.cs" />
+    <Compile Include="Models\OData\ContentItemProperty.cs" />
     <Compile Include="Models\MappingExpressionExtensions.cs" />
-    <Compile Include="Models\UmbracoContentModelBuilder.cs" />
+    <Compile Include="Models\OData\UmbracoContentModelBuilder.cs" />
     <Compile Include="Controllers\OData\UmbracoODataController.cs" />
     <Compile Include="FieldNames.cs" />
-    <Compile Include="Models\ContentItem.cs" />
+    <Compile Include="Models\OData\ContentItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadDocumentExtensions.cs" />
     <Compile Include="ReflectionHelper.cs" />

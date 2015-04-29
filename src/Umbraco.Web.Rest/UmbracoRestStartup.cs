@@ -20,6 +20,7 @@ using Umbraco.Web.Rest.Controllers;
 using Umbraco.Web.Rest.Controllers.CollectionJson;
 using Umbraco.Web.Rest.Controllers.OData;
 using Umbraco.Web.Rest.Models;
+using Umbraco.Web.Rest.Models.OData;
 using Umbraco.Web.Rest.Routing;
 using Umbraco.Web.Rest.Serialization.OData;
 
@@ -57,6 +58,40 @@ namespace Umbraco.Web.Rest
                 routingConventions: conventions)
                 .WithNamespace(typeof (Umbraco.Web.Rest.Controllers.OData.ContentController).Namespace);
 
+            //HAL routes:
+
+            ////** PublishedContent routes
+            //MapEntityTypeRoute(config,
+            //    RouteConstants.PublishedContentRouteName + RouteConstants.HalPrefix,
+            //    string.Format("{0}/rest/v1/{3}/{1}/{2}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.ContentSegment, RouteConstants.PublishedSegment, RouteConstants.HalPrefix),
+            //    string.Format("{0}/rest/v1/{3}/{1}/{2}/{{id}}", UmbracoMvcArea, RouteConstants.ContentSegment, RouteConstants.PublishedSegment, RouteConstants.HalPrefix),
+            //    "PublishedContent",
+            //    typeof(Umbraco.Web.Rest.Controllers.HAL.ContentController).Namespace);
+
+            //** Content routes
+            MapEntityTypeRoute(config,
+                RouteConstants.ContentRouteName + RouteConstants.HalPrefix,
+                string.Format("{0}/rest/v1/{2}/{1}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.ContentSegment, RouteConstants.HalPrefix),
+                string.Format("{0}/rest/v1/{2}/{1}/{{id}}", UmbracoMvcArea, RouteConstants.ContentSegment, RouteConstants.HalPrefix),
+                "Content",
+                typeof(Umbraco.Web.Rest.Controllers.HAL.ContentController).Namespace);
+
+            ////** Media routes
+            //MapEntityTypeRoute(config,
+            //    RouteConstants.MediaRouteName + RouteConstants.HalPrefix,
+            //    string.Format("{0}/rest/v1/{2}/{1}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.MediaSegment, RouteConstants.HalPrefix),
+            //    string.Format("{0}/v1/{2}/{1}/{{id}}", UmbracoMvcArea, RouteConstants.MediaSegment, RouteConstants.HalPrefix),
+            //    "Media",
+            //    typeof(Umbraco.Web.Rest.Controllers.HAL.ContentController).Namespace);
+
+            ////** Members routes
+            //MapEntityTypeRoute(config,
+            //    RouteConstants.MembersRouteName + RouteConstants.HalPrefix,
+            //    string.Format("{0}/rest/v1/{2}/{1}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.MembersSegment, RouteConstants.HalPrefix),
+            //    string.Format("{0}/rest/v1/{2}/{1}/{{id}}", UmbracoMvcArea, RouteConstants.MembersSegment, RouteConstants.HalPrefix),
+            //    "Members",
+            //    typeof(Umbraco.Web.Rest.Controllers.HAL.ContentController).Namespace);
+
             //Collection+Json routes:
 
             //** PublishedContent routes
@@ -64,32 +99,36 @@ namespace Umbraco.Web.Rest
                 RouteConstants.PublishedContentRouteName + RouteConstants.CollectionJsonPrefix,
                 string.Format("{0}/rest/v1/{3}/{1}/{2}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.ContentSegment, RouteConstants.PublishedSegment, RouteConstants.CollectionJsonPrefix),
                 string.Format("{0}/rest/v1/{3}/{1}/{2}/{{id}}", UmbracoMvcArea, RouteConstants.ContentSegment, RouteConstants.PublishedSegment, RouteConstants.CollectionJsonPrefix),
-                "PublishedContent");
+                "PublishedContent",
+                typeof(Umbraco.Web.Rest.Controllers.CollectionJson.ContentController).Namespace);
 
             //** Content routes
             MapEntityTypeRoute(config,
                 RouteConstants.ContentRouteName + RouteConstants.CollectionJsonPrefix,
                 string.Format("{0}/rest/v1/{2}/{1}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.ContentSegment, RouteConstants.CollectionJsonPrefix),
                 string.Format("{0}/rest/v1/{2}/{1}/{{id}}", UmbracoMvcArea, RouteConstants.ContentSegment, RouteConstants.CollectionJsonPrefix),
-                "Content");
+                "Content",
+                typeof(Umbraco.Web.Rest.Controllers.CollectionJson.ContentController).Namespace);
 
             //** Media routes
             MapEntityTypeRoute(config,
                 RouteConstants.MediaRouteName + RouteConstants.CollectionJsonPrefix,
                 string.Format("{0}/rest/v1/{2}/{1}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.MediaSegment, RouteConstants.CollectionJsonPrefix),
                 string.Format("{0}/v1/{2}/{1}/{{id}}", UmbracoMvcArea, RouteConstants.MediaSegment, RouteConstants.CollectionJsonPrefix),
-                "Media");
+                "Media",
+                typeof(Umbraco.Web.Rest.Controllers.CollectionJson.ContentController).Namespace);
 
             //** Members routes
             MapEntityTypeRoute(config,
                 RouteConstants.MembersRouteName + RouteConstants.CollectionJsonPrefix,
                 string.Format("{0}/rest/v1/{2}/{1}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.MembersSegment, RouteConstants.CollectionJsonPrefix),
                 string.Format("{0}/rest/v1/{2}/{1}/{{id}}", UmbracoMvcArea, RouteConstants.MembersSegment, RouteConstants.CollectionJsonPrefix),
-                "Members");
+                "Members",
+                typeof(Umbraco.Web.Rest.Controllers.CollectionJson.ContentController).Namespace);
 
         }
 
-        private static void MapEntityTypeRoute(HttpConfiguration config, string routeName, string routeTemplateGet, string routeTemplateOther, string defaultController)
+        private static void MapEntityTypeRoute(HttpConfiguration config, string routeName, string routeTemplateGet, string routeTemplateOther, string defaultController, string @namespace)
         {
 
             //Used for 'GETs' since we have multiple get action names
@@ -100,7 +139,7 @@ namespace Umbraco.Web.Rest
                 constraints: new { httpMethod = new System.Web.Http.Routing.HttpMethodConstraint(HttpMethod.Get) }
                 )
                 .WithRouteName(routeName)
-                .WithNamespace(typeof(PublishedContentController).Namespace);
+                .WithNamespace(@namespace);
 
             //Used for everything else
             config.Routes.MapHttpRoute(
@@ -109,7 +148,7 @@ namespace Umbraco.Web.Rest
                 defaults: new { controller = defaultController, id = RouteParameter.Optional }
                 )
                 .WithRouteName(routeName)
-                .WithNamespace(typeof(PublishedContentController).Namespace);
+                .WithNamespace(@namespace);
         }
 
         private static string _umbracoMvcArea;

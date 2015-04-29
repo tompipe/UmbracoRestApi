@@ -7,11 +7,11 @@ using Umbraco.Web.WebApi;
 
 namespace Umbraco.Web.Rest.Tests.TestHelpers
 {
-    public class ODataTestControllerActivator : TestControllerActivatorBase
+    public class DefaultTestControllerActivator : TestControllerActivatorBase
     {
         private readonly Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService> _onServicesCreated;
 
-        public ODataTestControllerActivator(Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService> onServicesCreated)
+        public DefaultTestControllerActivator(Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService> onServicesCreated)
         {
             _onServicesCreated = onServicesCreated;
         }
@@ -32,7 +32,7 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
                 throw new MethodAccessException("Could not find the required constructor for the controller");
             }
 
-            var created = (UmbracoODataController)ctor.Invoke(new object[]
+            var created = (ApiController)ctor.Invoke(new object[]
                     {
                         //ctor args
                         helper.UmbracoContext, 

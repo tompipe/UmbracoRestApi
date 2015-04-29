@@ -1,15 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using System.Web.OData.Builder;
 using System.Web.OData.Extensions;
 using System.Web.OData.Routing;
-using Microsoft.OData.Core;
-using Microsoft.OData.Core.UriParser;
 using Microsoft.OData.Edm;
 
-namespace Umbraco.Web.Rest.Models
+namespace Umbraco.Web.Rest.Models.OData
 {
     /// <summary>
     /// Helper class to build the EdmModels by either explicit or implicit method.
@@ -43,8 +40,7 @@ namespace Umbraco.Web.Rest.Models
 
             //do declarations
 
-            
-
+            builder.Namespace = typeof(ContentItem).Namespace;
             builder.EntitySet<ContentItem>("Content");
             builder.ComplexType<ContentItemProperty>()
                 .Ignore(property => property.PropertyType);

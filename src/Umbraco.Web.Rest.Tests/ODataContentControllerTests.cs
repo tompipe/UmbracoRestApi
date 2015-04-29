@@ -36,39 +36,33 @@ namespace Umbraco.Web.Rest.Tests
 
         }
 
-        //[Test]
-        //public async void Root()
-        //{
-        //    var startup = new ODataTestStartup(
-        //        //This will be invoked before the controller is created so we can modify these mocked services
-        //        (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
-        //        {
-        //            var mockContentService = Mock.Get(contentService);
+        [Test]
+        public async void Root()
+        {
+            //TODO: this should work but it doesn't, not sure if its the way that we have these tests setup or not , or if it's just an issue with the
+            // OData library
 
-        //            mockContentService.Setup(x => x.GetById(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedContent());
+            var startup = new DefaultTestStartup((request, umbCtx, typedContent, contentService, mediaService, memberService) => { });
 
-        //            mockContentService.Setup(x => x.GetChildren(It.IsAny<int>())).Returns(new List<IContent>(new[] { ModelMocks.SimpleMockedContent(789) }));
-        //        });
-
-        //    using (var server = TestServer.Create(builder => startup.Configuration(builder)))
-        //    {
-        //        var request = new HttpRequestMessage()
-        //        {
-        //            RequestUri = new Uri(string.Format("http://testserver/umbraco/rest/v1/odata")),
-        //            Method = HttpMethod.Get,
-        //        };
-        //        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        //        Console.WriteLine(request);
-        //        var result = await server.HttpClient.SendAsync(request);
-        //        Console.WriteLine(result);
-        //        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        //    }
-        //}
+            using (var server = TestServer.Create(builder => startup.Configuration(builder)))
+            {
+                var request = new HttpRequestMessage()
+                {
+                    RequestUri = new Uri(string.Format("http://testserver/umbraco/rest/v1/odata/$metadata")),
+                    Method = HttpMethod.Get,
+                };
+                //request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                Console.WriteLine(request);
+                var result = await server.HttpClient.SendAsync(request);
+                Console.WriteLine(result);
+                Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+            }
+        }
 
         [Test]
         public async void Post_Is_201_Response()
         {
-            var startup = new ODataTestStartup(
+            var startup = new DefaultTestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
                  (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
                  {
@@ -125,7 +119,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Get_Id_Result()
         {
-           var startup = new ODataTestStartup(
+           var startup = new DefaultTestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
                 (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
                 {
@@ -160,7 +154,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Get_Empty_Is_200_Response()
         {
-            var startup = new ODataTestStartup(
+            var startup = new DefaultTestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
                 (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
                 {
@@ -193,7 +187,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Get_Get_Id_MetaData_Result()
         {
-            var startup = new ODataTestStartup(
+            var startup = new DefaultTestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
                  (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
                  {
