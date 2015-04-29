@@ -274,6 +274,7 @@
     <Compile Include="Models\HAL\ContentPropertyRepresentation.cs" />
     <Compile Include="Models\HAL\ContentRepresentation.cs" />
     <Compile Include="Models\HAL\ContentRepresentationMapper.cs" />
+    <Compile Include="Models\HAL\LinkTemplates.cs" />
     <Compile Include="Models\OData\ContentItemMapper.cs" />
     <Compile Include="Models\OData\ContentItemProperties.cs" />
     <Compile Include="Models\OData\ContentItemProperty.cs" />
