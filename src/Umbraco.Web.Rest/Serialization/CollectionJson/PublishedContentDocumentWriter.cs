@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Routing;
 using CollectionJson;
 using Umbraco.Core.Models;
 using Umbraco.Web.Rest.Routing;
 using Umbraco.Web.Routing;
 
-namespace Umbraco.Web.Rest.Serialization
+namespace Umbraco.Web.Rest.Serialization.CollectionJson
 {
     /// <summary>
     /// A writer for IPublishedContent

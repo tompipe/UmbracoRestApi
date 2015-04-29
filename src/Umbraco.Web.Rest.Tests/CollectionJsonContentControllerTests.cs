@@ -20,6 +20,7 @@ using Umbraco.Core.Models;
 using Umbraco.Core.Services;
 using Umbraco.Web.Rest.Routing;
 using Umbraco.Web.Rest.Serialization;
+using Umbraco.Web.Rest.Serialization.CollectionJson;
 using Umbraco.Web.Rest.Tests.TestHelpers;
 using Umbraco.Web.Routing;
 

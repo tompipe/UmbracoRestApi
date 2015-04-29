@@ -9,15 +9,19 @@ using System.Web.Http;
 using System.Web.Http.Routing;
 using System.Web.OData.Builder;
 using System.Web.OData.Extensions;
+using System.Web.OData.Formatter;
+using System.Web.OData.Formatter.Deserialization;
 using System.Web.OData.Routing;
 using System.Web.OData.Routing.Conventions;
 using System.Web.Routing;
+using umbraco.presentation.channels.businesslogic;
 using Umbraco.Core;
 using Umbraco.Web.Rest.Controllers;
 using Umbraco.Web.Rest.Controllers.CollectionJson;
 using Umbraco.Web.Rest.Controllers.OData;
 using Umbraco.Web.Rest.Models;
 using Umbraco.Web.Rest.Routing;
+using Umbraco.Web.Rest.Serialization.OData;
 
 namespace Umbraco.Web.Rest
 {
@@ -39,26 +43,19 @@ namespace Umbraco.Web.Rest
         {
             //OData routes:
 
-            //var builder = new ODataConventionModelBuilder();
-            //builder.EntitySet<GenericContent>("Content");
-
             var builder = new UmbracoContentModelBuilder(config);
 
             var conventions = ODataRoutingConventions.CreateDefault();
-            conventions.Insert(0, new IdInUrlParameterRoutingConvention());
+            //TODO: IF we want any custom routing conventions
+            //conventions.Insert(0, new ExampleRoutingConvention());
 
-            var odataRoute = config.MapODataServiceRoute(
+            config.MapODataServiceRoute(
                 routeName: RouteConstants.PublishedContentRouteName + RouteConstants.ODataPrefix,
                 routePrefix: string.Format("{0}/rest/v1/{1}", UmbracoMvcArea, RouteConstants.ODataPrefix),
                 model: builder.GetEdmModel(),
                 pathHandler: new DefaultODataPathHandler(),
-                routingConventions: conventions);
-
-            //config.CustomMapODataServiceRoute(
-            //    routeName: RouteConstants.PublishedContentRouteName + RouteConstants.ODataPrefix,
-            //    routePrefix: string.Format("{0}/rest/v1/{1}", UmbracoMvcArea, RouteConstants.ODataPrefix),
-            //    model: builder.GetEdmModel(),
-            //    controllers: new[] { typeof(Rest.Controllers.OData.ContentController) });
+                routingConventions: conventions)
+                .WithNamespace(typeof (Umbraco.Web.Rest.Controllers.OData.ContentController).Namespace);
 
             //Collection+Json routes:
 

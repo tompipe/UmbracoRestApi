@@ -11,7 +11,7 @@ using Umbraco.Core.Models;
 using Umbraco.Web.Rest.Routing;
 using Umbraco.Web.Routing;
 
-namespace Umbraco.Web.Rest.Serialization
+namespace Umbraco.Web.Rest.Serialization.CollectionJson
 {
     public abstract class UmbracoDocumentWriterBase
     {

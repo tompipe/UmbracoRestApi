@@ -263,21 +263,24 @@
     <Compile Include="Controllers\CollectionJson\PublishedContentController.cs" />
     <Compile Include="Controllers\CollectionJson\UmbracoCollectionJsonController.cs" />
     <Compile Include="Controllers\OData\ContentController.cs" />
+    <Compile Include="Controllers\OData\UmbracoODataFormatterConfigurationAttribute.cs" />
+    <Compile Include="Models\ODataContentMapper.cs" />
     <Compile Include="Models\UmbracoContentModelBuilder.cs" />
     <Compile Include="Controllers\OData\UmbracoODataController.cs" />
     <Compile Include="FieldNames.cs" />
-    <Compile Include="Models\GenericContent.cs" />
+    <Compile Include="Models\ContentItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadDocumentExtensions.cs" />
     <Compile Include="ReflectionHelper.cs" />
     <Compile Include="RouteExtensions.cs" />
-    <Compile Include="Routing\CompositeKeyRoutingConvention.cs" />
+    <Compile Include="Routing\ExampleRoutingConvention.cs" />
     <Compile Include="Routing\RouteConstants.cs" />
     <Compile Include="Routing\UmbracoRoutePrefix.cs" />
-    <Compile Include="Serialization\ContentDocumentReader.cs" />
-    <Compile Include="Serialization\ContentDocumentWriter.cs" />
-    <Compile Include="Serialization\PublishedContentDocumentWriter.cs" />
-    <Compile Include="Serialization\UmbracoDocumentWriterBase.cs" />
+    <Compile Include="Serialization\CollectionJson\ContentDocumentReader.cs" />
+    <Compile Include="Serialization\CollectionJson\ContentDocumentWriter.cs" />
+    <Compile Include="Serialization\CollectionJson\PublishedContentDocumentWriter.cs" />
+    <Compile Include="Serialization\CollectionJson\UmbracoDocumentWriterBase.cs" />
+    <Compile Include="Serialization\OData\ContentSerializerProvider.cs" />
     <Compile Include="UmbracoRestStartup.cs" />
   </ItemGroup>
   <ItemGroup>

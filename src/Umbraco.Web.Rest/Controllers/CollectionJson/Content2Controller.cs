@@ -7,6 +7,7 @@ using CollectionJson;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
 using Umbraco.Web.Rest.Serialization;
+using Umbraco.Web.Rest.Serialization.CollectionJson;
 
 namespace Umbraco.Web.Rest.Controllers.CollectionJson
 {

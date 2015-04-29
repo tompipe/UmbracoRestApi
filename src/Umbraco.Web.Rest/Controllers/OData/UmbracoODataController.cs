@@ -11,6 +11,7 @@ namespace Umbraco.Web.Rest.Controllers.OData
     [ApiExplorerSettings(IgnoreApi = true)]
     [ODataFormatting]
     [ODataRouting]
+    [UmbracoODataFormatterConfiguration]
     public abstract class UmbracoODataController : UmbracoApiControllerBase
     {
         

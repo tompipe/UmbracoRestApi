@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Web.Http.Routing;
@@ -8,10 +7,9 @@ using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web.Rest.Routing;
 using Umbraco.Web.Routing;
-using UmbracoExamine.DataServices;
 using IContentService = Umbraco.Core.Services.IContentService;
 
-namespace Umbraco.Web.Rest.Serialization
+namespace Umbraco.Web.Rest.Serialization.CollectionJson
 {
     /// <summary>
     /// A writer for IContent

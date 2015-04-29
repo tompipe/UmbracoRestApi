@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using CollectionJson;
 using Newtonsoft.Json.Linq;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
 
-
-namespace Umbraco.Web.Rest.Serialization
+namespace Umbraco.Web.Rest.Serialization.CollectionJson
 {
     public class ContentDocumentReader : ICollectionJsonDocumentReader<IContent>
     {

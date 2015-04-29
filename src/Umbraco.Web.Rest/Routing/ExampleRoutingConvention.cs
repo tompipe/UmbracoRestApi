@@ -6,7 +6,7 @@ using System.Web.OData.Routing.Conventions;
 
 namespace Umbraco.Web.Rest.Routing
 {
-    public class IdInUrlParameterRoutingConvention : EntityRoutingConvention
+    public class ExampleRoutingConvention : EntityRoutingConvention
     {
         public override string SelectAction(ODataPath odataPath, HttpControllerContext controllerContext, ILookup<string, HttpActionDescriptor> actionMap)
         {

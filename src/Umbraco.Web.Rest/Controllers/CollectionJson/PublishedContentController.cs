@@ -6,6 +6,7 @@ using System.Web.Http.Controllers;
 using CollectionJson;
 using Umbraco.Core.Models;
 using Umbraco.Web.Rest.Serialization;
+using Umbraco.Web.Rest.Serialization.CollectionJson;
 
 namespace Umbraco.Web.Rest.Controllers.CollectionJson
 {

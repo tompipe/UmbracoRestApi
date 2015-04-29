@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using AutoMapper;
 using CollectionJson;
 using Microsoft.Owin.Testing;
 using Moq;
@@ -13,6 +14,8 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Models;
+using Umbraco.Core.Persistence.Mappers;
+using Umbraco.Web.Rest.Models;
 using Umbraco.Web.Rest.Routing;
 using Umbraco.Web.Rest.Serialization;
 using Umbraco.Web.Rest.Tests.TestHelpers;
@@ -23,12 +26,13 @@ namespace Umbraco.Web.Rest.Tests
     public class ODataContentControllerTests
     {
         [TestFixtureSetUp]
-        public void TearDown()
+        public void Setup()
         {
             ConfigurationManager.AppSettings.Set("umbracoPath", "~/umbraco");
             ConfigurationManager.AppSettings.Set("umbracoConfigurationStatus", UmbracoVersion.Current.ToString(3));
             var mockSettings = MockUmbracoSettings.GenerateMockSettings();
             UmbracoConfig.For.CallMethod("SetUmbracoSettings", mockSettings);
+
         }
 
         //[Test]
@@ -88,6 +92,39 @@ namespace Umbraco.Web.Rest.Tests
                 var result = await server.HttpClient.SendAsync(request);
                 Console.WriteLine(result);
                 
+                var json = await ((StreamContent)result.Content).ReadAsStringAsync();
+                Console.Write(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), Formatting.Indented));
+
+                Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+            }
+        }
+
+        [Test]
+        public async void Get_Empty_Result()
+        {
+            var startup = new ODataTestStartup(
+                //This will be invoked before the controller is created so we can modify these mocked services
+                (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
+                {
+                    var mockContentService = Mock.Get(contentService);
+                    mockContentService.Setup(x => x.GetRootContent()).Returns(Enumerable.Empty<IContent>());                    
+                });
+
+            
+            using (var server = TestServer.Create(builder => startup.Configuration(builder)))
+            {
+                var request = new HttpRequestMessage()
+                {
+                    RequestUri = new Uri(string.Format("http://testserver/umbraco/rest/v1/odata/{0}", RouteConstants.ContentSegment)),
+                    Method = HttpMethod.Get,
+                };
+
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                Console.WriteLine(request);
+                var result = await server.HttpClient.SendAsync(request);
+                Console.WriteLine(result);
+
                 var json = await ((StreamContent)result.Content).ReadAsStringAsync();
                 Console.Write(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), Formatting.Indented));
 

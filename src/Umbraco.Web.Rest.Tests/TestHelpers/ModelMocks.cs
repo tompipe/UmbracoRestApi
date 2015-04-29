@@ -12,7 +12,7 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
     {
         public static IContent SimpleMockedContent(int id = 123)
         {
-            return Mock.Of<IContent>(
+            var c = Mock.Of<IContent>(
                 content => content.Id == id
                            && content.Published == true
                            && content.CreateDate == DateTime.Now.AddDays(-2)
@@ -40,6 +40,12 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
                                new Property(3, Guid.NewGuid(),
                                    new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty2"), "property value2"),
                            }));
+
+            var mock = Mock.Get(c);
+            mock.Setup(content => content.HasProperty(It.IsAny<string>()))
+                .Returns((string alias) => alias == "testProperty1" || alias == "testProperty2");
+
+            return mock.Object;
         }
     }
 }
