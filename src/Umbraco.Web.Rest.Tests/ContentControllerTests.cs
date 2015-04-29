@@ -18,7 +18,7 @@ using Umbraco.Web.Rest.Tests.TestHelpers;
 namespace Umbraco.Web.Rest.Tests
 {
     [TestFixture]
-    public class HalContentControllerTests
+    public class ContentControllerTests
     {
         [TestFixtureSetUp]
         public void TearDown()

@@ -64,11 +64,12 @@ namespace Umbraco.Web.Rest.Controllers
         } 
 
         public HttpResponseMessage Post(ContentRepresentation content)
-        {
-            if (content == null) return Request.CreateResponse(HttpStatusCode.BadRequest, "content is null");
+        {   
             var result = CreateNew(content);
-            return result == null 
+            return result == null
                 ? Request.CreateResponse(HttpStatusCode.NotImplemented)
+                : content == null
+                ? Request.CreateResponse(HttpStatusCode.BadRequest, "content is null") 
                 : Request.CreateResponse(HttpStatusCode.Created, Mapper.Map<ContentRepresentation>(result));
         }
 
@@ -79,10 +80,11 @@ namespace Umbraco.Web.Rest.Controllers
 
         public HttpResponseMessage Put(TId id, ContentRepresentation content)
         {
-            if (content == null) return Request.CreateResponse(HttpStatusCode.BadRequest, "content is null");
             var result = Update(id, content);
             return result == null
                 ? Request.CreateResponse(HttpStatusCode.NotImplemented)
+                : content == null
+                ? Request.CreateResponse(HttpStatusCode.BadRequest, "content is null") 
                 : Request.CreateResponse(HttpStatusCode.OK, Mapper.Map<ContentRepresentation>(result));
         }
 

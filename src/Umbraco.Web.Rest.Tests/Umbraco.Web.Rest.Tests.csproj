@@ -250,10 +250,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\UmbracoCms.Core.7.3.0-nightly5\lib\UrlRewritingNet.UrlRewriter.dll</HintPath>
     </Reference>
+    <Reference Include="WebApi.Hal, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\WebApi.Hal.2.5.0\lib\net45\WebApi.Hal.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CollectionJsonContentControllerTests.cs" />
-    <Compile Include="HalContentControllerTests.cs" />
+    <Compile Include="CamelCaseTests.cs" />
+    <Compile Include="ContentControllerTests.cs" />
     <Compile Include="TestHelpers\AuthenticateEverythingExtensions.cs" />
     <Compile Include="TestHelpers\AuthenticateEverythingMiddleware.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -262,7 +266,7 @@
     <Compile Include="TestHelpers\DefaultTestControllerActivator.cs" />
     <Compile Include="TestHelpers\DefaultTestStartup.cs" />
     <Compile Include="TestHelpers\ProviderUtilities.cs" />
-    <Compile Include="HalPublishedContentControllerTests.cs" />
+    <Compile Include="PublishedContentControllerTests.cs" />
     <Compile Include="TestHelpers\TestControllerActivatorBase.cs" />
     <Compile Include="TestHelpers\TestWebApiResolver.cs" />
   </ItemGroup>

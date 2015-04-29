@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 using Umbraco.Core.Models;
+using Umbraco.Web.Rest.Serialization;
 using WebApi.Hal;
 
 namespace Umbraco.Web.Rest.Models
@@ -37,9 +39,9 @@ namespace Umbraco.Web.Rest.Models
         public string Url { get; set; }
         public PublishedItemType ItemType { get; set; }
 
+        [JsonConverter(typeof(ContentPropertyAliasJsonConverter))]
         public IDictionary<string, ContentPropertyRepresentation> Properties { get; set; }
-
-
+        
         public override string Rel
         {
             get { return LinkTemplates.Content.ContentItem.Rel; }
