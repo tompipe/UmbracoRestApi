@@ -241,6 +241,8 @@
     <Compile Include="Controllers\UmbracoHalController.cs" />
     <Compile Include="Controllers\HalFormatterConfigurationAttribute.cs" />
     <Compile Include="Models\ContentListRepresentation.cs" />
+    <Compile Include="Models\ValidationError.cs" />
+    <Compile Include="Models\ValidationResponse.cs" />
     <Compile Include="Serialization\ContentPropertyAliasJsonConverter.cs" />
     <Compile Include="Models\ContentPropertyRepresentation.cs" />
     <Compile Include="Models\ContentRepresentation.cs" />
@@ -253,6 +255,7 @@
     <Compile Include="RouteExtensions.cs" />
     <Compile Include="Routing\RouteConstants.cs" />
     <Compile Include="Routing\UmbracoRoutePrefix.cs" />
+    <Compile Include="Serialization\ErrorMessageJsonConverter.cs" />
     <Compile Include="UmbracoRestStartup.cs" />
   </ItemGroup>
   <ItemGroup>

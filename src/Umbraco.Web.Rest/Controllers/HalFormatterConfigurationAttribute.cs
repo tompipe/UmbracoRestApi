@@ -14,7 +14,6 @@ namespace Umbraco.Web.Rest.Controllers
             {
                 SerializerSettings =
                 {
-                    //TODO: We don't want camel case the property aliases!! So we'll have to modify this a little
                     ContractResolver = new CamelCasePropertyNamesContractResolver()
                 }
             };

@@ -12,11 +12,7 @@ namespace Umbraco.Web.Rest.Serialization
     {
         public override bool CanConvert(Type objectType)
         {
-            if (objectType == typeof(IDictionary<string, ContentPropertyRepresentation>))
-            {
-                return true;
-            }
-            return false;
+            return objectType == typeof(IDictionary<string, ContentPropertyRepresentation>);
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
@@ -36,6 +32,5 @@ namespace Umbraco.Web.Rest.Serialization
 
             writer.WriteEndObject();
         }
-        
     }
 }

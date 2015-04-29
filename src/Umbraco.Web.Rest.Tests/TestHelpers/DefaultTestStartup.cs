@@ -35,7 +35,10 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
 
         public void Configuration(IAppBuilder app)
         {
+
             var httpConfig = new HttpConfiguration();
+
+            httpConfig.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
 
             httpConfig.Services.Replace(typeof(IAssembliesResolver), new TestWebApiResolver());
             httpConfig.Services.Replace(typeof(IHttpControllerActivator), new DefaultTestControllerActivator(Activator));
@@ -49,6 +52,7 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
             UmbracoRestStartup.CreateRoutes(httpConfig);
 
             app.UseWebApi(httpConfig);
+
         }
     }
 

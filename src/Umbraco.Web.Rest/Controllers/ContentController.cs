@@ -1,11 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Controllers;
 using AutoMapper;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
 using Umbraco.Web.Rest.Models;
+using Umbraco.Web.WebApi;
 
 namespace Umbraco.Web.Rest.Controllers
 {
@@ -48,8 +52,12 @@ namespace Umbraco.Web.Rest.Controllers
 
         protected override IContent CreateNew(ContentRepresentation content)
         {
-            //TODO: Perform validation!!!
-            // look into this format: http://soabits.blogspot.dk/2013/05/error-handling-considerations-and-best.html
+            if (!ModelState.IsValid)
+            {
+                throw ValidationException(ModelState);
+            }
+
+            //TODO: Perform property validation!!!
 
             var created = ContentService.CreateContent(content.Name, content.ParentId, content.ContentTypeAlias, Security.CurrentUser.Id);
 
