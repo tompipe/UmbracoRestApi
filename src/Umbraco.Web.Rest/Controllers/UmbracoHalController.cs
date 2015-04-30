@@ -126,7 +126,7 @@ namespace Umbraco.Web.Rest.Controllers
         /// <returns></returns>
         protected ContentListRepresentation CreateContentRepresentation(IEnumerable<TEntity> entities)
         {
-            return new ContentListRepresentation(entities.Select(CreateContentRepresentation).ToList());
+            return new ContentListRepresentation(entities.Select(CreateContentRepresentation).ToList(), LinkTemplate);
         }
 
         /// <summary>

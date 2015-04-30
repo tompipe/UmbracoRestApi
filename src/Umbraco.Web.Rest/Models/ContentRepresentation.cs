@@ -11,8 +11,7 @@ namespace Umbraco.Web.Rest.Models
 {
     public class ContentRepresentation : Representation
     {
-        [JsonIgnore]
-        public IContentLinkTemplate LinkTemplate { get; set; }
+        private readonly IContentLinkTemplate _linkTemplate;       
 
         public ContentRepresentation()
         {
@@ -21,7 +20,7 @@ namespace Umbraco.Web.Rest.Models
 
         public ContentRepresentation(IContentLinkTemplate linkTemplate)
         {
-            LinkTemplate = linkTemplate;
+            _linkTemplate = linkTemplate;
         }
 
         public int Id { get; set; }
@@ -55,8 +54,8 @@ namespace Umbraco.Web.Rest.Models
         {
             get
             {
-                if (LinkTemplate == null) throw new NullReferenceException("LinkTemplate is null");
-                return LinkTemplate.ContentItem.Rel;
+                if (_linkTemplate == null) throw new NullReferenceException("LinkTemplate is null");
+                return _linkTemplate.ContentItem.Rel;
             }
             set { }
         }
@@ -65,26 +64,26 @@ namespace Umbraco.Web.Rest.Models
         {
             get
             {
-                if (LinkTemplate == null) throw new NullReferenceException("LinkTemplate is null");
-                return LinkTemplate.ContentItem.CreateLink(new { id = Id }).Href;
+                if (_linkTemplate == null) throw new NullReferenceException("LinkTemplate is null");
+                return _linkTemplate.ContentItem.CreateLink(new { id = Id }).Href;
             }
             set { }
         }
 
         protected override void CreateHypermedia()
         {
-            if (LinkTemplate == null) throw new NullReferenceException("LinkTemplate is null");
+            if (_linkTemplate == null) throw new NullReferenceException("LinkTemplate is null");
 
-            Links.Add(LinkTemplate.RootContent.CreateLink());
+            Links.Add(_linkTemplate.RootContent.CreateLink());
 
             if (HasChildren)
             {
-                Links.Add(LinkTemplate.ChildContent.CreateLink(new { id = Id }));
+                Links.Add(_linkTemplate.ChildContent.CreateLink(new { id = Id }));
             }
 
             if (ParentId > 0)
             {
-                Links.Add(LinkTemplate.ParentContent.CreateLink(new { parentId = ParentId }));
+                Links.Add(_linkTemplate.ParentContent.CreateLink(new { parentId = ParentId }));
             }
         }
     }

@@ -108,14 +108,18 @@ namespace Umbraco.Web.Rest.Tests
         }
 
         [Test]
-        public async void Get_Empty_Is_200_Response()
+        public async void Get_Root_Result()
         {
             var startup = new DefaultTestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services,
                 (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
                 {
                     var mockTypedContent = Mock.Get(typedContent);
-                    mockTypedContent.Setup(x => x.TypedContentAtRoot()).Returns(Enumerable.Empty<IPublishedContent>());
+                    mockTypedContent.Setup(x => x.TypedContentAtRoot()).Returns(new[]
+                    {
+                        ModelMocks.SimpleMockedPublishedContent(123, -1, 789),
+                        ModelMocks.SimpleMockedPublishedContent(456, -1, 321)
+                    });
                 });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -135,7 +139,14 @@ namespace Umbraco.Web.Rest.Tests
                 var json = await ((StreamContent)result.Content).ReadAsStringAsync();
                 Console.Write(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), Formatting.Indented));
 
-                Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);                
+                Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+                var djson = JsonConvert.DeserializeObject<JObject>(json);
+
+                Assert.AreEqual("/umbraco/rest/v1/content/published", djson["_links"]["root"]["href"].Value<string>());
+                Assert.AreEqual(2, djson["totalResults"].Value<int>());
+                Assert.AreEqual(2, djson["_links"]["content"].Count());
+                Assert.AreEqual(2, djson["_embedded"]["content"].Count()); 
             }
         }
 

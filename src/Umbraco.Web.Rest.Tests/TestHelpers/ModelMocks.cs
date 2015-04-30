@@ -10,7 +10,7 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
 {
     public class ModelMocks
     {
-        public static IContent SimpleMockedContent(int id = 123)
+        public static IContent SimpleMockedContent(int id = 123, int parentId = 456)
         {
             var c = Mock.Of<IContent>(
                 content => content.Id == id
@@ -23,7 +23,7 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
                            && content.Level == 1
                            && content.Name == "Home"
                            && content.Path == "-1,123"
-                           && content.ParentId == 456
+                           && content.ParentId == parentId
                            && content.SortOrder == 1
                            && content.Template == Mock.Of<ITemplate>(te => te.Id == 9 && te.Alias == "home")
                            && content.UpdateDate == DateTime.Now.AddDays(-1)

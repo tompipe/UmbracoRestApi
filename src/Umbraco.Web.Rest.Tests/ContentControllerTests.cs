@@ -33,14 +33,21 @@ namespace Umbraco.Web.Rest.Tests
 
 
         [Test]
-        public async void Get_Empty_Is_200_Response()
+        public async void Get_Root_Result()
         {
             var startup = new DefaultTestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services,
                 (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
                 {
                     var mockContentService = Mock.Get(contentService);
-                    mockContentService.Setup(x => x.GetRootContent()).Returns(Enumerable.Empty<IContent>());
+                    mockContentService.Setup(x => x.GetRootContent()).Returns(new[]
+                    {
+                        ModelMocks.SimpleMockedContent(123, -1),
+                        ModelMocks.SimpleMockedContent(456, -1)
+                    });
+
+                    mockContentService.Setup(x => x.GetChildren(123)).Returns(new[] { ModelMocks.SimpleMockedContent(789, 123) });
+                    mockContentService.Setup(x => x.GetChildren(456)).Returns(new[] { ModelMocks.SimpleMockedContent(321, 456) });
                 });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -55,7 +62,18 @@ namespace Umbraco.Web.Rest.Tests
                 Console.WriteLine(request);
                 var result = await server.HttpClient.SendAsync(request);
                 Console.WriteLine(result);
+
+                var json = await ((StreamContent)result.Content).ReadAsStringAsync();
+                Console.Write(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), Formatting.Indented));
+
                 Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+                var djson = JsonConvert.DeserializeObject<JObject>(json);
+
+                Assert.AreEqual("/umbraco/rest/v1/content", djson["_links"]["root"]["href"].Value<string>());
+                Assert.AreEqual(2, djson["totalResults"].Value<int>());
+                Assert.AreEqual(2, djson["_links"]["content"].Count());
+                Assert.AreEqual(2, djson["_embedded"]["content"].Count()); 
             }
         }
 
