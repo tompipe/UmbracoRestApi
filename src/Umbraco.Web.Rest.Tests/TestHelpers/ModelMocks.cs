@@ -30,13 +30,13 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
                            && content.WriterId == 1
                            && content.PropertyTypes == new List<PropertyType>(new[]
                            {
-                               new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty1") {Name = "Test Property1", Mandatory = true, ValidationRegExp = ""},
+                               new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "TestProperty1") {Name = "Test Property1", Mandatory = true, ValidationRegExp = ""},
                                new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty2") {Name = "Test Property2", Mandatory = false, ValidationRegExp = "zyxw"}
                            })
                            && content.Properties == new PropertyCollection(new[]
                            {
                                new Property(3, Guid.NewGuid(),
-                                   new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty1"), "property value1"),
+                                   new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "TestProperty1"), "property value1"),
                                new Property(3, Guid.NewGuid(),
                                    new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty2"), "property value2"),
                            }));

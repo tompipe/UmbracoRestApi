@@ -1,6 +1,6 @@
 namespace Umbraco.Web.Rest.Models
 {
-    public class FieldInfo
+    public class ContentPropertyInfo
     {
         public string Label { get; set; }
         

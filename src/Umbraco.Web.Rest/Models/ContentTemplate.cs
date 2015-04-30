@@ -14,7 +14,7 @@ namespace Umbraco.Web.Rest.Models
         public int TemplateId { get; set; }
         public string Name { get; set; }
 
-        [JsonConverter(typeof(ContentPropertyAliasJsonConverter))]
+        [JsonConverter(typeof(ExplicitlyCasedDictionaryKeyJsonConverter<object>))]
         public IDictionary<string, object> Properties { get; set; }
     }
 }

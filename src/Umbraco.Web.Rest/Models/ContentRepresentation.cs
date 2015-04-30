@@ -47,7 +47,7 @@ namespace Umbraco.Web.Rest.Models
         public string Url { get; set; }
         public PublishedItemType ItemType { get; set; }
 
-        [JsonConverter(typeof(ContentPropertyAliasJsonConverter))]
+        [JsonConverter(typeof(ExplicitlyCasedDictionaryKeyJsonConverter<object>))]
         public IDictionary<string, object> Properties { get; set; }
         
         public override string Rel

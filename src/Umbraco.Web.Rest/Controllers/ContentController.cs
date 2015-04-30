@@ -49,6 +49,7 @@ namespace Umbraco.Web.Rest.Controllers
             var result = new ContentMetadataRepresentation(LinkTemplate, id)
             {
                 Fields = GetDefaultFieldMetaData(),
+                Properties = Mapper.Map<IDictionary<string, ContentPropertyInfo>>(found),
                 CreateTemplate = Mapper.Map<ContentTemplate>(found)
             };
             return result;

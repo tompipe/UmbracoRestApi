@@ -203,29 +203,29 @@ namespace Umbraco.Web.Rest.Controllers
         }
 
 
-        public IDictionary<string, FieldInfo> GetDefaultFieldMetaData()
+        public IDictionary<string, ContentPropertyInfo> GetDefaultFieldMetaData()
         {
-            return new Dictionary<string, FieldInfo>
+            return new Dictionary<string, ContentPropertyInfo>
             {
-                {"id", new FieldInfo{Label = "Id"}},
-                {"key", new FieldInfo{Label = "Key"}},
-                {"contentTypeAlias", new FieldInfo{Label = TextService.Localize("content/documentType", UserCulture)}},
-                {"parentId", new FieldInfo{Label = "Parent Id"}},
-                {"hasChildren", new FieldInfo{Label = "Has Children"}},
-                {"templateId", new FieldInfo{Label = TextService.Localize("template/template", UserCulture) + " Id"}},
-                {"sortOrder", new FieldInfo{Label = TextService.Localize("general/sort", UserCulture)}},
-                {"name", new FieldInfo{Label = TextService.Localize("general/name", UserCulture)}},
-                {"urlName", new FieldInfo{Label = TextService.Localize("general/url", UserCulture) + " " + TextService.Localize("general/name", UserCulture)}},
-                {"writerName", new FieldInfo{Label = TextService.Localize("content/updatedBy", UserCulture)}},
-                {"creatorName", new FieldInfo{Label = TextService.Localize("content/createBy", UserCulture)}},
-                {"writerId", new FieldInfo{Label = "Writer Id"}},
-                {"creatorId", new FieldInfo{Label = "Creator Id"}},
-                {"path", new FieldInfo{Label = TextService.Localize("general/path", UserCulture)}},
-                {"createDate", new FieldInfo{Label = TextService.Localize("content/createDate", UserCulture)}},
-                {"updateDate", new FieldInfo{Label = TextService.Localize("content/updateDate", UserCulture)}},
-                {"level", new FieldInfo{Label = "Level"}},
-                {"url", new FieldInfo{Label = TextService.Localize("general/url", UserCulture)}},
-                {"ItemType", new FieldInfo{Label = TextService.Localize("general/type", UserCulture)}}
+                {"id", new ContentPropertyInfo{Label = "Id", ValidationRequired = true}},
+                {"key", new ContentPropertyInfo{Label = "Key", ValidationRequired = true}},
+                {"contentTypeAlias", new ContentPropertyInfo{Label = TextService.Localize("content/documentType", UserCulture), ValidationRequired = true}},
+                {"parentId", new ContentPropertyInfo{Label = "Parent Id", ValidationRequired = true}},
+                {"hasChildren", new ContentPropertyInfo{Label = "Has Children"}},
+                {"templateId", new ContentPropertyInfo{Label = TextService.Localize("template/template", UserCulture) + " Id", ValidationRequired = true}},
+                {"sortOrder", new ContentPropertyInfo{Label = TextService.Localize("general/sort", UserCulture)}},
+                {"name", new ContentPropertyInfo{Label = TextService.Localize("general/name", UserCulture), ValidationRequired = true}},
+                {"urlName", new ContentPropertyInfo{Label = TextService.Localize("general/url", UserCulture) + " " + TextService.Localize("general/name", UserCulture)}},
+                {"writerName", new ContentPropertyInfo{Label = TextService.Localize("content/updatedBy", UserCulture)}},
+                {"creatorName", new ContentPropertyInfo{Label = TextService.Localize("content/createBy", UserCulture)}},
+                {"writerId", new ContentPropertyInfo{Label = "Writer Id"}},
+                {"creatorId", new ContentPropertyInfo{Label = "Creator Id"}},
+                {"path", new ContentPropertyInfo{Label = TextService.Localize("general/path", UserCulture)}},
+                {"createDate", new ContentPropertyInfo{Label = TextService.Localize("content/createDate", UserCulture)}},
+                {"updateDate", new ContentPropertyInfo{Label = TextService.Localize("content/updateDate", UserCulture)}},
+                {"level", new ContentPropertyInfo{Label = "Level"}},
+                {"url", new ContentPropertyInfo{Label = TextService.Localize("general/url", UserCulture)}},
+                {"ItemType", new ContentPropertyInfo{Label = TextService.Localize("general/type", UserCulture)}}
             };
         }
 

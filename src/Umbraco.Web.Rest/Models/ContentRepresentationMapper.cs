@@ -36,6 +36,21 @@ namespace Umbraco.Web.Rest.Models
                     return content.PropertyTypes.ToDictionary<PropertyType, string, object>(propertyType => propertyType.Alias, propertyType => "");
                 }));
 
+            config.CreateMap<IContent, IDictionary<string, ContentPropertyInfo>>()
+                .ConstructUsing(content =>
+                {
+                    var result = new Dictionary<string, ContentPropertyInfo>();
+                    foreach (var propertyType in content.PropertyTypes)
+                    {
+                        result[propertyType.Alias] = new ContentPropertyInfo
+                        {
+                            Label = propertyType.Name,
+                            ValidationRegexExp = propertyType.ValidationRegExp,
+                            ValidationRequired = propertyType.Mandatory
+                        };
+                    }
+                    return result;
+                });
 
             config.CreateMap<ContentRepresentation, IContent>()
                 .IgnoreAllUnmapped()

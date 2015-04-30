@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Umbraco.Web.Rest.Models;
@@ -6,25 +7,25 @@ using Umbraco.Web.Rest.Models;
 namespace Umbraco.Web.Rest.Serialization
 {
     /// <summary>
-    /// Custom converter to ensure that property aliases don't get camelcased
+    /// Custom converter to ensure that key for the dictionary doesn't get camelcased
     /// </summary>
-    public class ContentPropertyAliasJsonConverter : JsonConverter
+    public class ExplicitlyCasedDictionaryKeyJsonConverter<TVal> : JsonConverter
     {
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(IDictionary<string, object>);
+            return objectType == typeof(IDictionary<string, TVal>);
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            return serializer.Deserialize<IDictionary<string, object>>(reader);
+            return serializer.Deserialize<IDictionary<string, TVal>>(reader);
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             writer.WriteStartObject();
 
-            foreach (var property in (IDictionary<string, object>)value)
+            foreach (var property in (IDictionary<string, TVal>)value)
             {
                 writer.WritePropertyName(property.Key);
                 serializer.Serialize(writer, property.Value);

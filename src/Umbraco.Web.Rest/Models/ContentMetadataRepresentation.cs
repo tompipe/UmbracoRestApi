@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using Umbraco.Web.Rest.Links;
+using Umbraco.Web.Rest.Serialization;
 using WebApi.Hal;
 
 namespace Umbraco.Web.Rest.Models
@@ -13,8 +15,8 @@ namespace Umbraco.Web.Rest.Models
         {
             _linkTemplate = linkTemplate;
             Id = id;
-            Fields = new Dictionary<string, FieldInfo>();
-            Properties = new Dictionary<string, FieldInfo>();
+            Fields = new Dictionary<string, ContentPropertyInfo>();
+            Properties = new Dictionary<string, ContentPropertyInfo>();
         }
 
         public int Id { get; set; }
@@ -25,8 +27,10 @@ namespace Umbraco.Web.Rest.Models
         /// </summary>
         public ContentTemplate CreateTemplate { get; set; }
 
-        public IDictionary<string, FieldInfo> Fields { get; set; }
-        public IDictionary<string, FieldInfo> Properties { get; set; }
+        public IDictionary<string, ContentPropertyInfo> Fields { get; set; }
+
+        [JsonConverter(typeof(ExplicitlyCasedDictionaryKeyJsonConverter<ContentPropertyInfo>))]
+        public IDictionary<string, ContentPropertyInfo> Properties { get; set; }
 
         public override string Rel
         {
