@@ -13,11 +13,11 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
     /// <summary>
     /// OWIN startup class for the self-hosted web server
     /// </summary>
-    public class DefaultTestStartup
+    public class TestStartup
     {
         private readonly Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, ServiceContext> _activator;
 
-        public DefaultTestStartup(Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, ServiceContext> activator)
+        public TestStartup(Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, ServiceContext> activator)
         {
             _activator = activator;
         }
@@ -41,7 +41,7 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
             httpConfig.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
 
             httpConfig.Services.Replace(typeof(IAssembliesResolver), new TestWebApiResolver());
-            httpConfig.Services.Replace(typeof(IHttpControllerActivator), new DefaultTestControllerActivator(Activator));
+            httpConfig.Services.Replace(typeof(IHttpControllerActivator), new TestControllerActivator(Activator));
             httpConfig.Services.Replace(typeof(IHttpControllerSelector), new NamespaceHttpControllerSelector(httpConfig));
 
             //auth everything

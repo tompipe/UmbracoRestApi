@@ -5,11 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 using Moq;
 using Umbraco.Core.Models;
+using Umbraco.Core.PropertyEditors;
 
 namespace Umbraco.Web.Rest.Tests.TestHelpers
 {
     public class ModelMocks
     {
+        [PropertyEditorAttribute("simple", "Simple", "STRING", "simple")]
+        public class SimplePropertyEditor : PropertyEditor
+        {
+            
+        }
+
         public static IContent SimpleMockedContent(int id = 123, int parentId = 456)
         {
             var c = Mock.Of<IContent>(
@@ -31,7 +38,7 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
                            && content.PropertyTypes == new List<PropertyType>(new[]
                            {
                                new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "TestProperty1") {Name = "Test Property1", Mandatory = true, ValidationRegExp = ""},
-                               new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty2") {Name = "Test Property2", Mandatory = false, ValidationRegExp = "zyxw"}
+                               new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty2") {Name = "Test Property2", Mandatory = false, ValidationRegExp = ""}
                            })
                            && content.Properties == new PropertyCollection(new[]
                            {
@@ -43,9 +50,15 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
 
             var mock = Mock.Get(c);
             mock.Setup(content => content.HasProperty(It.IsAny<string>()))
-                .Returns((string alias) => alias == "testProperty1" || alias == "testProperty2");
+                .Returns((string alias) => alias == "TestProperty1" || alias == "testProperty2");
 
             return mock.Object;
+        }
+
+        public static IContentType SimpleMockedContentType()
+        {
+            var ct = Mock.Of<IContentType>();
+            return ct;
         }
 
         public static IPublishedContent SimpleMockedPublishedContent(int id = 123, int? parentId = null, int? childId = null)
@@ -72,7 +85,7 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
                            && content.Properties == new List<IPublishedProperty>(new[]
                            {
                                Mock.Of<IPublishedProperty>(property => property.HasValue == true
-                                                                       && property.PropertyTypeAlias == "testProperty1"
+                                                                       && property.PropertyTypeAlias == "TestProperty1"
                                                                        && property.DataValue == "raw value"
                                                                        && property.Value == "Property Value"),
                                Mock.Of<IPublishedProperty>(property => property.HasValue == true

@@ -37,11 +37,15 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
                 // before passing these services to the main container objects
                 var mockedTypedContent = Mock.Of<ITypedPublishedContentQuery>();
                 var mockedContentService = Mock.Of<IContentService>();
+                var mockedContentTypeService = Mock.Of<IContentTypeService>();
                 var mockedMediaService = Mock.Of<IMediaService>();
                 var mockedMemberService = Mock.Of<IMemberService>();
                 var mockedTextService = Mock.Of<ILocalizedTextService>();
+                var mockedDataTypeService = Mock.Of<IDataTypeService>();
 
                 var serviceContext = new ServiceContext(
+                    dataTypeService:mockedDataTypeService,
+                    contentTypeService:mockedContentTypeService,
                     contentService: mockedContentService, 
                     mediaService: mockedMediaService, 
                     memberService: mockedMemberService, 

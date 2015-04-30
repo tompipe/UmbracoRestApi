@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 using System.Web.Http;
+using AutoMapper;
 using Umbraco.Core.Models;
 using Umbraco.Web.Rest.Links;
 using Umbraco.Web.Rest.Models;
@@ -46,7 +47,11 @@ namespace Umbraco.Web.Rest.Controllers
 
             var result = new ContentMetadataRepresentation(LinkTemplate, id)
             {
-                Fields = GetDefaultFieldMetaData()
+                Fields = GetDefaultFieldMetaData(),
+                // NOTE: we cannot determine this from IPublishedContent
+                Properties = null, 
+                // NOTE: null because IPublishedContent is readonly
+                CreateTemplate = null
             };
             return result;
         }

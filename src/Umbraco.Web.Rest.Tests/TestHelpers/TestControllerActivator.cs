@@ -5,11 +5,11 @@ using Umbraco.Core.Services;
 
 namespace Umbraco.Web.Rest.Tests.TestHelpers
 {
-    public class DefaultTestControllerActivator : TestControllerActivatorBase
+    public class TestControllerActivator : TestControllerActivatorBase
     {
         private readonly Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, ServiceContext> _onServicesCreated;
 
-        public DefaultTestControllerActivator(Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, ServiceContext> onServicesCreated)
+        public TestControllerActivator(Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, ServiceContext> onServicesCreated)
         {
             _onServicesCreated = onServicesCreated;
         }

@@ -11,13 +11,18 @@ namespace Umbraco.Web.Rest.Models
 
         public override string Rel
         {
-            get { return "about"; }
+            get { return "errors"; }
             set { }
         }
 
         public override string Href
         {
-            get { return "http://our.umbraco.org/documentation/"; }
+            get
+            {
+                //TODO: We could make this dynamic in a way that supplies a different link
+                // for different error types (i.e. fields vs properties)
+                return "http://our.umbraco.org/documentation/";
+            }
             set { }
         }
     }

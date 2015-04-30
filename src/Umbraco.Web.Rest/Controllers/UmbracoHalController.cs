@@ -10,8 +10,10 @@ using System.Web.Http.ModelBinding;
 using AutoMapper;
 using MySql.Data.MySqlClient.Authentication;
 using umbraco;
+using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
+using Umbraco.Core.Strings;
 using Umbraco.Web.Rest.Links;
 using Umbraco.Web.Rest.Models;
 using Umbraco.Web.WebApi;
@@ -176,16 +178,46 @@ namespace Umbraco.Web.Rest.Controllers
         /// Used to throw validation exceptions
         /// </summary>
         /// <param name="modelState"></param>
+        /// <param name="content"></param>
         /// <param name="message"></param>
         /// <param name="id"></param>
         /// <param name="errors"></param>
         /// <returns></returns>
-        protected ModelValidationException ValidationException(ModelStateDictionary modelState, string message = null, int? id = null, params string[] errors)
+        protected ModelValidationException ValidationException(
+            ModelStateDictionary modelState, 
+            ContentRepresentation content,
+            string message = null, int? id = null, params string[] errors)
         {
-            var errorList = (from ms in modelState
-                from error in ms.Value.Errors
-                select new ValidationErrorRepresentation {LogRef = ms.Key, Message = error.ErrorMessage})
-                .ToList();
+            var metaDataProvider = this.Configuration.Services.GetModelMetadataProvider();
+            
+            var errorList = new List<ValidationErrorRepresentation>();
+            foreach (KeyValuePair<string, ModelState> ms in modelState)
+            {
+                foreach (var error in ms.Value.Errors)
+                {
+                    //hack - because webapi doesn't seem to support an easy way to change the model metadata for a class, we have to manually
+                    // go get the 'display' name from the metadata for the property and use that for the logref otherwise we end up with the c#
+                    // property name (i.e. contentTypeAlias vs ContentTypeAlias). I'm sure there's some webapi way to achieve 
+                    // this by customizing the model metadata but it's not as clear as with MVC which has IMetadataAware attribute
+                    var logRef = ms.Key;
+                    var parts = ms.Key.Split('.');
+                    var isContentField = parts.Length == 2 && parts[0] == "content";
+                    if (isContentField)
+                    {
+                        parts[1] = metaDataProvider.GetMetadataForProperty(() => content, typeof (ContentRepresentation), parts[1])
+                                    .GetDisplayName();
+                        logRef = string.Join(".", parts);
+                    }
+
+                    errorList.Add(new ValidationErrorRepresentation
+                    {
+                        LogRef = logRef,
+                        Message = error.ErrorMessage
+                    });
+                }
+                    
+            }
+                
 
             //add additional messages
             foreach (var error in errors)
@@ -205,6 +237,9 @@ namespace Umbraco.Web.Rest.Controllers
 
         public IDictionary<string, ContentPropertyInfo> GetDefaultFieldMetaData()
         {
+            //TODO: This shouldn't actually localize based on the current user!!!
+            // this should localize based on the current request's Accept-Language and Content-Language headers
+
             return new Dictionary<string, ContentPropertyInfo>
             {
                 {"id", new ContentPropertyInfo{Label = "Id", ValidationRequired = true}},

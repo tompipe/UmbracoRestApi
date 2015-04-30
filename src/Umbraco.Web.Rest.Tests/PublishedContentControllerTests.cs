@@ -31,7 +31,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Get_Children_Is_200_Response()
         {
-            var startup = new DefaultTestStartup(
+            var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
                 (request, umbCtx, typedContent, serviceContext) =>
                 {
@@ -63,7 +63,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Get_Id_Result()
         {
-            var startup = new DefaultTestStartup(
+            var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
                 (request, umbCtx, typedContent, serviceContext) =>
                 {
@@ -103,14 +103,16 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.AreEqual("/umbraco/rest/v1/content/published", djson["_links"]["root"]["href"].Value<string>());
 
                 var properties = djson["properties"].ToObject<IDictionary<string, object>>();
-                Assert.AreEqual(2, properties.Count());                
+                Assert.AreEqual(2, properties.Count());
+                Assert.IsTrue(properties.ContainsKey("TestProperty1"));
+                Assert.IsTrue(properties.ContainsKey("testProperty2"));
             }
         }
 
         [Test]
         public async void Get_Root_Result()
         {
-            var startup = new DefaultTestStartup(
+            var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services,
                 (request, umbCtx, typedContent, serviceContext) =>
                 {
@@ -153,7 +155,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Post_Is_501_Response()
         {
-            var startup = new DefaultTestStartup((request, umbCtx, typedContent, serviceContext) => { });
+            var startup = new TestStartup((request, umbCtx, typedContent, serviceContext) => { });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
             {
@@ -180,7 +182,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Put_Is_501_Response()
         {
-            var startup = new DefaultTestStartup((request, umbCtx, typedContent, serviceContext) => { });
+            var startup = new TestStartup((request, umbCtx, typedContent, serviceContext) => { });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
             {
@@ -207,7 +209,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Delete_Is_501_Response()
         {
-            var startup = new DefaultTestStartup((request, umbCtx, typedContent, serviceContext) => { });
+            var startup = new TestStartup((request, umbCtx, typedContent, serviceContext) => { });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
             {

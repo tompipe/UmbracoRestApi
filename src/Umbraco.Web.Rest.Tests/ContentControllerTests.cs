@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
@@ -12,8 +13,12 @@ using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using Umbraco.Core;
 using Umbraco.Core.Configuration;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.PropertyEditors;
+using Umbraco.Core.Services;
 using Umbraco.Web.Rest.Models;
 using Umbraco.Web.Rest.Routing;
 using Umbraco.Web.Rest.Tests.TestHelpers;
@@ -24,7 +29,7 @@ namespace Umbraco.Web.Rest.Tests
     public class ContentControllerTests
     {
         [TestFixtureSetUp]
-        public void TearDown()
+        public void FixtureSetUp()
         {
             ConfigurationManager.AppSettings.Set("umbracoPath", "~/umbraco");
             ConfigurationManager.AppSettings.Set("umbracoConfigurationStatus", UmbracoVersion.Current.ToString(3));
@@ -32,11 +37,17 @@ namespace Umbraco.Web.Rest.Tests
             UmbracoConfig.For.CallMethod("SetUmbracoSettings", mockSettings);
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            //Hack - because Reset is internal
+            typeof (PropertyEditorResolver).CallStaticMethod("Reset", true);
+        }
 
         [Test]
         public async void Get_Root_Result()
         {
-            var startup = new DefaultTestStartup(
+            var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services,
                 (request, umbCtx, typedContent, serviceContext) =>
                 {
@@ -81,7 +92,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Get_Id_Result()
         {
-            var startup = new DefaultTestStartup(
+            var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
                  (request, umbCtx, typedContent, serviceContext) =>
                  {
@@ -113,8 +124,6 @@ namespace Umbraco.Web.Rest.Tests
 
                 Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
 
-                //TODO: Assert values!
-
                 var djson = JsonConvert.DeserializeObject<JObject>(json);
 
                 Assert.AreEqual("/umbraco/rest/v1/content/123", djson["_links"]["self"]["href"].Value<string>());
@@ -123,14 +132,16 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.AreEqual("/umbraco/rest/v1/content", djson["_links"]["root"]["href"].Value<string>());
 
                 var properties = djson["properties"].ToObject<IDictionary<string, object>>();
-                Assert.AreEqual(2, properties.Count()); 
+                Assert.AreEqual(2, properties.Count());
+                Assert.IsTrue(properties.ContainsKey("TestProperty1"));
+                Assert.IsTrue(properties.ContainsKey("testProperty2"));
             }
         }
 
         [Test]
         public async void Get_Metadata_Result()
         {
-            var startup = new DefaultTestStartup(
+            var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
                  (request, umbCtx, typedContent, serviceContext) =>
                  {
@@ -174,7 +185,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Get_Children_Is_200_Response()
         {
-            var startup = new DefaultTestStartup(
+            var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
                 (request, umbCtx, typedContent, serviceContext) =>
                 {
@@ -211,20 +222,11 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Post_Is_201_Response()
         {
-            var startup = new DefaultTestStartup(
+            var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
                 (request, umbCtx, typedContent, serviceContext) =>
                 {
-                    var mockContentService = Mock.Get(serviceContext.ContentService);
-
-                    mockContentService.Setup(x => x.GetById(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedContent());
-
-                    mockContentService.Setup(x => x.GetChildren(It.IsAny<int>())).Returns(new List<IContent>(new[] { ModelMocks.SimpleMockedContent(789) }));
-
-                    mockContentService.Setup(x => x.HasChildren(It.IsAny<int>())).Returns(true);
-
-                    mockContentService.Setup(x => x.CreateContent(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
-                        .Returns(() => ModelMocks.SimpleMockedContent(8888));
+                    SetupMocksForPost(serviceContext);
                 });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -242,12 +244,8 @@ namespace Umbraco.Web.Rest.Tests
   ""templateId"": 9,
   ""name"": ""Home"",
   ""properties"": {
-    ""testProperty1"": {
-      ""value"": ""property value1""
-    },
-    ""testProperty2"": {
-      ""value"": ""property value2""
-    }
+    ""TestProperty1"": ""property value1"",
+    ""testProperty2"": ""property value2""
   }
 }", Encoding.UTF8, "application/json");
 
@@ -263,22 +261,13 @@ namespace Umbraco.Web.Rest.Tests
         }
 
         [Test]
-        public async void Post_Is_400_Validation_Error()
+        public async void Post_Is_400_Validation_Required_Fields()
         {
-            var startup = new DefaultTestStartup(
+            var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
                 (request, umbCtx, typedContent, serviceContext) =>
                 {
-                    var mockContentService = Mock.Get(serviceContext.ContentService);
-
-                    mockContentService.Setup(x => x.GetById(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedContent());
-
-                    mockContentService.Setup(x => x.GetChildren(It.IsAny<int>())).Returns(new List<IContent>(new[] { ModelMocks.SimpleMockedContent(789) }));
-
-                    mockContentService.Setup(x => x.HasChildren(It.IsAny<int>())).Returns(true);
-
-                    mockContentService.Setup(x => x.CreateContent(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
-                        .Returns(() => ModelMocks.SimpleMockedContent(8888));
+                    SetupMocksForPost(serviceContext);
                 });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -290,18 +279,15 @@ namespace Umbraco.Web.Rest.Tests
                 };
 
                 request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/hal+json"));
+                //NOTE: it is missing
                 request.Content = new StringContent(@"{
   ""contentTypeAlias"": """",
   ""parentId"": 456,
   ""templateId"": 9,
   ""name"": """",
   ""properties"": {
-    ""testProperty1"": {
-      ""value"": ""property value1""
-    },
-    ""testProperty2"": {
-      ""value"": ""property value2""
-    }
+    ""TestProperty1"": ""property value1"",
+    ""testProperty2"": ""property value2""
   }
 }", Encoding.UTF8, "application/json");
 
@@ -313,23 +299,123 @@ namespace Umbraco.Web.Rest.Tests
                 Console.Write(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), Formatting.Indented));
 
                 Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+
+                var djson = JsonConvert.DeserializeObject<JObject>(json);
+
+                Assert.AreEqual(2, djson["totalResults"].Value<int>());
+                Assert.AreEqual("content.contentTypeAlias", djson["_embedded"]["errors"][0]["logRef"].Value<string>());
+                Assert.AreEqual("content.name", djson["_embedded"]["errors"][1]["logRef"].Value<string>());
+
+            }
+        }
+
+        [Test]
+        public async void Post_Is_400_Validation_Property_Missing()
+        {
+            var startup = new TestStartup(
+                //This will be invoked before the controller is created so we can modify these mocked services
+                (request, umbCtx, typedContent, serviceContext) =>
+                {
+                    SetupMocksForPost(serviceContext);
+                });
+
+            using (var server = TestServer.Create(builder => startup.Configuration(builder)))
+            {
+                var request = new HttpRequestMessage()
+                {
+                    RequestUri = new Uri(string.Format("http://testserver/umbraco/rest/v1/{0}", RouteConstants.ContentSegment)),
+                    Method = HttpMethod.Post,
+                };
+
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/hal+json"));
+                //NOTE: it is missing
+                request.Content = new StringContent(@"{
+    ""name"": ""test"",  
+    ""contentTypeAlias"": ""test"",
+  ""parentId"": 456,
+  ""templateId"": 9,
+  ""properties"": {
+    ""thisDoesntExist"": ""property value1"",
+    ""testProperty2"": ""property value2""
+  }
+}", Encoding.UTF8, "application/json");
+
+                Console.WriteLine(request);
+                var result = await server.HttpClient.SendAsync(request);
+                Console.WriteLine(result);
+
+                var json = await ((StreamContent)result.Content).ReadAsStringAsync();
+                Console.Write(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), Formatting.Indented));
+
+                Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+
+                var djson = JsonConvert.DeserializeObject<JObject>(json);
+
+                Assert.AreEqual(1, djson["totalResults"].Value<int>());
+                Assert.AreEqual("content.properties.thisDoesntExist", djson["_embedded"]["errors"][0]["logRef"].Value<string>());
+
+            }
+        }
+
+        [Test]
+        public async void Post_Is_400_Validation_Property_Required()
+        {
+            var startup = new TestStartup(
+                //This will be invoked before the controller is created so we can modify these mocked services
+                (request, umbCtx, typedContent, serviceContext) =>
+                {
+                    SetupMocksForPost(serviceContext);
+
+                    var mockPropertyEditor = Mock.Get(PropertyEditorResolver.Current);
+                    mockPropertyEditor.Setup(x => x.GetByAlias("testEditor")).Returns(new ModelMocks.SimplePropertyEditor());
+                });
+
+            using (var server = TestServer.Create(builder => startup.Configuration(builder)))
+            {
+                var request = new HttpRequestMessage()
+                {
+                    RequestUri = new Uri(string.Format("http://testserver/umbraco/rest/v1/{0}", RouteConstants.ContentSegment)),
+                    Method = HttpMethod.Post,
+                };
+
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/hal+json"));
+                //NOTE: it is missing
+                request.Content = new StringContent(@"{
+    ""name"": ""test"",  
+    ""contentTypeAlias"": ""test"",
+  ""parentId"": 456,
+  ""templateId"": 9,
+  ""properties"": {
+    ""TestProperty1"": """",
+    ""testProperty2"": ""property value2""
+  }
+}", Encoding.UTF8, "application/json");
+
+                Console.WriteLine(request);
+                var result = await server.HttpClient.SendAsync(request);
+                Console.WriteLine(result);
+
+                var json = await ((StreamContent)result.Content).ReadAsStringAsync();
+                Console.Write(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), Formatting.Indented));
+
+                Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+
+                var djson = JsonConvert.DeserializeObject<JObject>(json);
+
+                Assert.AreEqual(1, djson["totalResults"].Value<int>());
+                Assert.AreEqual("content.properties.TestProperty1.value", djson["_embedded"]["errors"][0]["logRef"].Value<string>());
+
             }
         }
 
         [Test]
         public async void Put_Is_200_Response()
         {
-            var startup = new DefaultTestStartup(
+            var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
                 (request, umbCtx, typedContent, serviceContext) =>
                 {
-                    var mockContentService = Mock.Get(serviceContext.ContentService);
-
-                    mockContentService.Setup(x => x.GetById(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedContent());
-
-                    mockContentService.Setup(x => x.GetChildren(It.IsAny<int>())).Returns(new List<IContent>(new[] { ModelMocks.SimpleMockedContent(789) }));
-
-                    mockContentService.Setup(x => x.HasChildren(It.IsAny<int>())).Returns(true);
+                    SetupMocksForPost(serviceContext);
                 });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -347,12 +433,8 @@ namespace Umbraco.Web.Rest.Tests
   ""templateId"": 9,
   ""name"": ""Home"",
   ""properties"": {
-    ""testProperty1"": {
-      ""value"": ""property value1""
-    },
-    ""testProperty2"": {
-      ""value"": ""property value2""
-    }
+    ""TestProperty1"": ""property value1"",
+    ""testProperty2"": ""property value2""
   }
 }", Encoding.UTF8, "application/json");
 
@@ -366,5 +448,35 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
             }
         }
+
+        private void SetupMocksForPost(ServiceContext serviceContext)
+        {
+            var mockContentService = Mock.Get(serviceContext.ContentService);
+            mockContentService.Setup(x => x.GetById(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedContent());
+            mockContentService.Setup(x => x.GetChildren(It.IsAny<int>())).Returns(new List<IContent>(new[] { ModelMocks.SimpleMockedContent(789) }));
+            mockContentService.Setup(x => x.HasChildren(It.IsAny<int>())).Returns(true);
+            mockContentService.Setup(x => x.CreateContent(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+                .Returns(() => ModelMocks.SimpleMockedContent(8888));
+
+            var mockContentTypeService = Mock.Get(serviceContext.ContentTypeService);
+            mockContentTypeService.Setup(x => x.GetContentType(It.IsAny<string>())).Returns(ModelMocks.SimpleMockedContentType());
+
+            var mockDataTypeService = Mock.Get(serviceContext.DataTypeService);
+            mockDataTypeService.Setup(x => x.GetPreValuesCollectionByDataTypeId(It.IsAny<int>())).Returns(new PreValueCollection(Enumerable.Empty<PreValue>()));
+
+            var mockServiceProvider = new Mock<IServiceProvider>();
+            mockServiceProvider.Setup(x => x.GetService(It.IsAny<Type>())).Returns(new ModelMocks.SimplePropertyEditor());
+
+            Func<IEnumerable<Type>> producerList = Enumerable.Empty<Type>;
+            var mockPropertyEditorResolver = new Mock<PropertyEditorResolver>(
+                Mock.Of<IServiceProvider>(),
+                Mock.Of<ILogger>(),
+                producerList);
+
+            mockPropertyEditorResolver.Setup(x => x.PropertyEditors).Returns(new[] { new ModelMocks.SimplePropertyEditor() });
+
+            PropertyEditorResolver.Current = mockPropertyEditorResolver.Object;
+        }
     }
+
 }

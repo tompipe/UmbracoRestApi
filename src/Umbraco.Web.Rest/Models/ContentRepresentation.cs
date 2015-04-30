@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Umbraco.Core.Models;
 using Umbraco.Web.Rest.Links;
@@ -25,15 +26,20 @@ namespace Umbraco.Web.Rest.Models
 
         public int Id { get; set; }
         public Guid Key { get; set; }
+        
         [Required]
+        [Display(Name = "contentTypeAlias")]  
         public string ContentTypeAlias { get; set; }
         [Required]
+        [Display(Name = "parentId")]
         public int ParentId { get; set; }
         public bool HasChildren { get; set; }
         [Required]
+        [Display(Name = "templateId")]
         public int TemplateId { get; set; }
         public int SortOrder { get; set; }
         [Required]
+        [Display(Name = "name")]
         public string Name { get; set; }
         public string UrlName { get; set; }
         public string WriterName { get; set; }

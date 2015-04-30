@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Controllers;
+using System.Web.Http.Filters;
 using AutoMapper;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
@@ -67,14 +68,30 @@ namespace Umbraco.Web.Rest.Controllers
 
         protected override IContent CreateNew(ContentRepresentation content)
         {
+            //we cannot continue here if the mandatory items are empty (i.e. name, etc...)
             if (!ModelState.IsValid)
             {
-                throw ValidationException(ModelState);
+                throw ValidationException(ModelState, content);
             }
 
-            //TODO: Perform property validation!!!
+            var contentType = Services.ContentTypeService.GetContentType(content.ContentTypeAlias);
+            if (contentType == null)
+            {
+                ModelState.AddModelError("content.contentTypeAlias", "No content type found with alias " + content.ContentTypeAlias);
+                throw ValidationException(ModelState, content);
+            }
 
+            //create an item before persisting of the correct content type
             var created = ContentService.CreateContent(content.Name, content.ParentId, content.ContentTypeAlias, Security.CurrentUser.Id);
+
+            //Validate properties
+            var validator = new ContentPropertyValidator<IContent>(ModelState, Services.DataTypeService);
+            validator.ValidateItem(content, created);
+
+            if (!ModelState.IsValid)
+            {
+                throw ValidationException(ModelState, content);
+            }
 
             Mapper.Map(content, created);
             
@@ -85,15 +102,17 @@ namespace Umbraco.Web.Rest.Controllers
 
         protected override IContent Update(int id, ContentRepresentation content)
         {
-            if (!ModelState.IsValid)
-            {
-                throw ValidationException(ModelState, id: id);
-            }
-
-            //TODO: Perform property validation!!!
-
             var found = ContentService.GetById(id);
             if (found == null) throw new HttpResponseException(HttpStatusCode.NotFound);
+
+            //Validate properties
+            var validator = new ContentPropertyValidator<IContent>(ModelState, Services.DataTypeService);
+            validator.ValidateItem(content, found);
+
+            if (!ModelState.IsValid)
+            {
+                throw ValidationException(ModelState, content, id: id);
+            }
 
             Mapper.Map(content, found);
 
@@ -112,4 +131,5 @@ namespace Umbraco.Web.Rest.Controllers
             get { return ApplicationContext.Services.ContentService; }
         }
     }
+   
 }
