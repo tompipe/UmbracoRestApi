@@ -9,6 +9,9 @@ namespace Umbraco.Web.Rest.Controllers
     {
         public virtual void Initialize(HttpControllerSettings controllerSettings, HttpControllerDescriptor controllerDescriptor)
         {
+
+            
+
             controllerSettings.Formatters.Insert(0, new XmlHalMediaTypeFormatter());
             var jsonFormatter = new JsonHalMediaTypeFormatter
             {

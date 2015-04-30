@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Controllers;
+using System.Web.Http.Cors;
 using System.Web.Http.Filters;
 using AutoMapper;
 using Umbraco.Core.Models;
@@ -15,6 +16,7 @@ using Umbraco.Web.WebApi;
 
 namespace Umbraco.Web.Rest.Controllers
 {
+    
     public class ContentController : UmbracoHalController<int, IContent>
     {
 

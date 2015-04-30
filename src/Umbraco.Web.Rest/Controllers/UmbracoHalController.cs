@@ -20,6 +20,12 @@ using Umbraco.Web.WebApi;
 
 namespace Umbraco.Web.Rest.Controllers
 {
+    //TODO: Setup CORS policies, but we need to do this dynamically. We should share how this is done dynamically with the 
+    // CORS policies for the auth token provider in the core. 
+    // Here's an article on applying policies dynamically: http://blogs.msdn.com/b/webdev/archive/2013/07/02/manage-cors-policy-dynamically.aspx
+    // we will do this based on startup code though with some options and can probably use the OwinContext and a per request lifetime options
+    // object so we can easily access it in the controllers.
+
     [UmbracoAuthorize]
     [IsBackOffice]
     [HalFormatterConfiguration]
