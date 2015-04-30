@@ -243,8 +243,9 @@
     <Compile Include="Links\IContentLinkTemplate.cs" />
     <Compile Include="Links\PublishedContentLinkTemplate.cs" />
     <Compile Include="Models\ContentListRepresentation.cs" />
-    <Compile Include="Models\ValidationError.cs" />
-    <Compile Include="Models\ValidationResponse.cs" />
+    <Compile Include="Models\ValidationErrorRepresentation.cs" />
+    <Compile Include="Models\ValidationErrorListRepresentation.cs" />
+    <Compile Include="ModelValidationException.cs" />
     <Compile Include="Serialization\ContentPropertyAliasJsonConverter.cs" />
     <Compile Include="Models\ContentPropertyRepresentation.cs" />
     <Compile Include="Models\ContentRepresentation.cs" />

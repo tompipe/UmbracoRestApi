@@ -73,7 +73,7 @@ namespace Umbraco.Web.Rest.Controllers
         {
             if (!ModelState.IsValid)
             {
-                throw ValidationException(ModelState);
+                throw ValidationException(ModelState, id: id);
             }
 
             //TODO: Perform property validation!!!

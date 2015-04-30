@@ -59,22 +59,36 @@ namespace Umbraco.Web.Rest.Controllers
 
         public HttpResponseMessage Post(ContentRepresentation content)
         {
-            var result = CreateNew(content);
-            return result == null
-                ? Request.CreateResponse(HttpStatusCode.NotImplemented)
-                : content == null
-                ? Request.CreateResponse(HttpStatusCode.BadRequest, "content is null")
-                : Request.CreateResponse(HttpStatusCode.Created, CreateContentRepresentation(result));
+            try
+            {
+                var result = CreateNew(content);
+                return result == null
+                    ? Request.CreateResponse(HttpStatusCode.NotImplemented)
+                    : content == null
+                    ? Request.CreateResponse(HttpStatusCode.BadRequest, "content is null")
+                    : Request.CreateResponse(HttpStatusCode.Created, CreateContentRepresentation(result));
+            }
+            catch (ModelValidationException exception)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, exception.Errors);
+            }
         }
 
         public HttpResponseMessage Put(TId id, ContentRepresentation content)
         {
-            var result = Update(id, content);
-            return result == null
-                ? Request.CreateResponse(HttpStatusCode.NotImplemented)
-                : content == null
-                ? Request.CreateResponse(HttpStatusCode.BadRequest, "content is null")
-                : Request.CreateResponse(HttpStatusCode.OK, CreateContentRepresentation(result));
+            try
+            {
+                var result = Update(id, content);
+                return result == null
+                    ? Request.CreateResponse(HttpStatusCode.NotImplemented)
+                    : content == null
+                    ? Request.CreateResponse(HttpStatusCode.BadRequest, "content is null")
+                    : Request.CreateResponse(HttpStatusCode.OK, CreateContentRepresentation(result));
+            }
+            catch (ModelValidationException exception)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, exception.Errors);
+            }
         }
 
         public virtual HttpResponseMessage Delete(int id)
@@ -141,28 +155,26 @@ namespace Umbraco.Web.Rest.Controllers
             return Mapper.Map(entity, representation);
         }
 
-        protected HttpResponseException ValidationException(ModelStateDictionary modelState, string message = null, params string[] errors)
+        protected ModelValidationException ValidationException(ModelStateDictionary modelState, string message = null, int? id = null, params string[] errors)
         {
             var errorList = (from ms in modelState
                 from error in ms.Value.Errors
-                select new ValidationError {Field = ms.Key, Message = error.ErrorMessage})
+                select new ValidationErrorRepresentation {LogRef = ms.Key, Message = error.ErrorMessage})
                 .ToList();
 
             //add additional messages
             foreach (var error in errors)
             {
-                errorList.Add(new ValidationError {Message = error});
+                errorList.Add(new ValidationErrorRepresentation {Message = error});
             }
 
-            var errorModel = new ValidationResponse
+            var errorModel = new ValidationErrorListRepresentation(errorList, LinkTemplate, id)
             {
-                HttpStatusCode = (int) HttpStatusCode.BadRequest,
-                Message = message ?? "Validation error occurred",
-                Errors = errorList,
-                Time = DateTime.Now
+                HttpStatus = (int) HttpStatusCode.BadRequest,
+                Message = message ?? "Validation errors occurred"                
             };
 
-            return new HttpResponseException(Request.CreateResponse(HttpStatusCode.BadRequest, errorModel));
+            return new ModelValidationException(errorModel);
         }
 
         ///// <summary>
