@@ -8,5 +8,6 @@ namespace Umbraco.Web.Rest.Links
         Link ContentItem { get; }
         Link ParentContent { get; }
         Link ChildContent { get; }
+        Link ContentMetaData { get; }
     }
 }

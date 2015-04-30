@@ -12,19 +12,19 @@ namespace Umbraco.Web.Rest.Serialization
     {
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(IDictionary<string, ContentPropertyRepresentation>);
+            return objectType == typeof(IDictionary<string, object>);
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            return serializer.Deserialize<IDictionary<string, ContentPropertyRepresentation>>(reader);
+            return serializer.Deserialize<IDictionary<string, object>>(reader);
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             writer.WriteStartObject();
 
-            foreach (var property in (IDictionary<string, ContentPropertyRepresentation>)value)
+            foreach (var property in (IDictionary<string, object>)value)
             {
                 writer.WritePropertyName(property.Key);
                 serializer.Serialize(writer, property.Value);

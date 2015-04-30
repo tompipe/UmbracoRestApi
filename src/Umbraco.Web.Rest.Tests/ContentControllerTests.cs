@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -37,9 +38,9 @@ namespace Umbraco.Web.Rest.Tests
         {
             var startup = new DefaultTestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services,
-                (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
+                (request, umbCtx, typedContent, serviceContext) =>
                 {
-                    var mockContentService = Mock.Get(contentService);
+                    var mockContentService = Mock.Get(serviceContext.ContentService);
                     mockContentService.Setup(x => x.GetRootContent()).Returns(new[]
                     {
                         ModelMocks.SimpleMockedContent(123, -1),
@@ -82,9 +83,9 @@ namespace Umbraco.Web.Rest.Tests
         {
             var startup = new DefaultTestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
-                 (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
+                 (request, umbCtx, typedContent, serviceContext) =>
                  {
-                     var mockContentService = Mock.Get(contentService);
+                     var mockContentService = Mock.Get(serviceContext.ContentService);
 
                      mockContentService.Setup(x => x.GetById(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedContent());
 
@@ -121,8 +122,52 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.AreEqual("/umbraco/rest/v1/content/123/children", djson["_links"]["children"]["href"].Value<string>());
                 Assert.AreEqual("/umbraco/rest/v1/content", djson["_links"]["root"]["href"].Value<string>());
 
-                var properties = djson["properties"].ToObject<IDictionary<string, ContentPropertyRepresentation>>();
+                var properties = djson["properties"].ToObject<IDictionary<string, object>>();
                 Assert.AreEqual(2, properties.Count()); 
+            }
+        }
+
+        [Test]
+        public async void Get_Metadata_Result()
+        {
+            var startup = new DefaultTestStartup(
+                //This will be invoked before the controller is created so we can modify these mocked services
+                 (request, umbCtx, typedContent, serviceContext) =>
+                 {
+                     var mockContentService = Mock.Get(serviceContext.ContentService);
+
+                     mockContentService.Setup(x => x.GetById(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedContent());
+                     mockContentService.Setup(x => x.GetChildren(It.IsAny<int>())).Returns(new List<IContent>(new[] { ModelMocks.SimpleMockedContent(789) }));
+                     mockContentService.Setup(x => x.HasChildren(It.IsAny<int>())).Returns(true);
+
+                     var mockTextService = Mock.Get(serviceContext.TextService);
+
+                     mockTextService.Setup(x => x.Localize(It.IsAny<string>(), It.IsAny<CultureInfo>(), It.IsAny<IDictionary<string, string>>()))
+                         .Returns((string input, CultureInfo culture, IDictionary<string, string> tokens) => input);
+                 });
+
+            using (var server = TestServer.Create(builder => startup.Configuration(builder)))
+            {
+                var request = new HttpRequestMessage()
+                {
+                    RequestUri = new Uri(string.Format("http://testserver/umbraco/rest/v1/{0}/123/meta", RouteConstants.ContentSegment)),
+                    Method = HttpMethod.Get,
+                };
+
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/hal+json"));
+
+                Console.WriteLine(request);
+                var result = await server.HttpClient.SendAsync(request);
+                Console.WriteLine(result);
+
+                var json = await ((StreamContent)result.Content).ReadAsStringAsync();
+                Console.Write(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), Formatting.Indented));
+
+                Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+                //TODO: Assert values!
+
+               
             }
         }
 
@@ -131,9 +176,9 @@ namespace Umbraco.Web.Rest.Tests
         {
             var startup = new DefaultTestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
-                (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
+                (request, umbCtx, typedContent, serviceContext) =>
                 {
-                    var mockContentService = Mock.Get(contentService);
+                    var mockContentService = Mock.Get(serviceContext.ContentService);
 
                     mockContentService.Setup(x => x.GetById(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedContent());
 
@@ -168,9 +213,9 @@ namespace Umbraco.Web.Rest.Tests
         {
             var startup = new DefaultTestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
-                (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
+                (request, umbCtx, typedContent, serviceContext) =>
                 {
-                    var mockContentService = Mock.Get(contentService);
+                    var mockContentService = Mock.Get(serviceContext.ContentService);
 
                     mockContentService.Setup(x => x.GetById(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedContent());
 
@@ -222,9 +267,9 @@ namespace Umbraco.Web.Rest.Tests
         {
             var startup = new DefaultTestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
-                (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
+                (request, umbCtx, typedContent, serviceContext) =>
                 {
-                    var mockContentService = Mock.Get(contentService);
+                    var mockContentService = Mock.Get(serviceContext.ContentService);
 
                     mockContentService.Setup(x => x.GetById(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedContent());
 
@@ -276,9 +321,9 @@ namespace Umbraco.Web.Rest.Tests
         {
             var startup = new DefaultTestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
-                (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
+                (request, umbCtx, typedContent, serviceContext) =>
                 {
-                    var mockContentService = Mock.Get(contentService);
+                    var mockContentService = Mock.Get(serviceContext.ContentService);
 
                     mockContentService.Setup(x => x.GetById(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedContent());
 

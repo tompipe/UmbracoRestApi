@@ -15,16 +15,16 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
     /// </summary>
     public class DefaultTestStartup
     {
-        private readonly Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService> _activator;
+        private readonly Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, ServiceContext> _activator;
 
-        public DefaultTestStartup(Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService> activator)
+        public DefaultTestStartup(Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, ServiceContext> activator)
         {
             _activator = activator;
         }
 
-        private void Activator(HttpRequestMessage httpRequestMessage, UmbracoContext umbracoContext, ITypedPublishedContentQuery arg3, IContentService arg4, IMediaService arg5, IMemberService arg6)
+        private void Activator(HttpRequestMessage httpRequestMessage, UmbracoContext umbracoContext, ITypedPublishedContentQuery arg3, ServiceContext serviceContext)
         {
-            _activator(httpRequestMessage, umbracoContext, arg3, arg4, arg5, arg6);
+            _activator(httpRequestMessage, umbracoContext, arg3, serviceContext);
 
             Mapper.Initialize(configuration =>
             {

@@ -7,16 +7,16 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
 {
     public class DefaultTestControllerActivator : TestControllerActivatorBase
     {
-        private readonly Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService> _onServicesCreated;
+        private readonly Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, ServiceContext> _onServicesCreated;
 
-        public DefaultTestControllerActivator(Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, IContentService, IMediaService, IMemberService> onServicesCreated)
+        public DefaultTestControllerActivator(Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, ServiceContext> onServicesCreated)
         {
             _onServicesCreated = onServicesCreated;
         }
 
-        protected override ApiController CreateController(Type controllerType, HttpRequestMessage msg, UmbracoHelper helper, ITypedPublishedContentQuery qry, IContentService contentService, IMediaService mediaService, IMemberService memberService)
+        protected override ApiController CreateController(Type controllerType, HttpRequestMessage msg, UmbracoHelper helper, ITypedPublishedContentQuery qry, ServiceContext serviceContext)
         {
-            _onServicesCreated(msg, helper.UmbracoContext, qry, contentService, mediaService, memberService);
+            _onServicesCreated(msg, helper.UmbracoContext, qry, serviceContext);
 
             //Create the controller with all dependencies
             var ctor = controllerType.GetConstructor(new[]

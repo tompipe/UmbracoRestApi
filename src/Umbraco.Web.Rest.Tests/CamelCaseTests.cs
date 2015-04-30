@@ -16,10 +16,10 @@ namespace Umbraco.Web.Rest.Tests
         {
             var obj = new ContentRepresentation()
             {
-                Properties = new Dictionary<string, ContentPropertyRepresentation>
+                Properties = new Dictionary<string, object>
                 {
-                    {"Property1", new ContentPropertyRepresentation() {Value = "value 1", Label = "Hello"}},
-                    {"property 2", new ContentPropertyRepresentation() {Value = "value 2", Label = "World"}}
+                    {"Property1", "value 1"},
+                    {"property 2","value 2"}
                 }
             };
             

@@ -41,6 +41,19 @@ namespace Umbraco.Web.Rest.Controllers
             return ContentService.GetRootContent();
         }
 
+        protected override ContentMetadataRepresentation GetMetadataForItem(int id)
+        {
+            var found = ContentService.GetById(id);     
+            if (found == null) throw new HttpResponseException(HttpStatusCode.NotFound);
+
+            var result = new ContentMetadataRepresentation(LinkTemplate, id)
+            {
+                Fields = GetDefaultFieldMetaData(),
+                CreateTemplate = Mapper.Map<ContentTemplate>(found)
+            };
+            return result;
+        }
+
         protected override IContent GetItem(int id)
         {
             return ContentService.GetById(id);                       

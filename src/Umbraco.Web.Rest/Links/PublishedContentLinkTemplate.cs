@@ -31,5 +31,10 @@ namespace Umbraco.Web.Rest.Links
         {
             get { return new Link("children", string.Format("~/{0}/{1}/{2}/{{id}}/children", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment)); }
         }
+
+        public Link ContentMetaData
+        {
+            get { return new Link("meta", string.Format("~/{0}/{1}/{2}/{{id}}/meta", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment)); }
+        }
     }
 }

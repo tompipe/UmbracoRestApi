@@ -17,22 +17,25 @@ namespace Umbraco.Web.Rest.Models
                     applicationContext.Services.ContentService.HasChildren(content.Id)))
                 .ForMember(representation => representation.Properties, expression => expression.ResolveUsing(content =>
                 {
-                    var d = new Dictionary<string, ContentPropertyRepresentation>();
+                    var d = new Dictionary<string, object>();
                     foreach (var propertyType in content.PropertyTypes)
-                    {
+                    {                        
                         var prop = content.HasProperty(propertyType.Alias) ? content.Properties[propertyType.Alias] : null;
                         if (prop != null)
                         {
-                            d.Add(propertyType.Alias, new ContentPropertyRepresentation
-                            {
-                                Value = prop.Value,
-                                Label = propertyType.Name,
-                                //TODO: Validation
-                            });
+                            d.Add(propertyType.Alias, prop.Value);
                         }
                     }
                     return d;
                 }));
+
+            config.CreateMap<IContent, ContentTemplate>()
+                .IgnoreAllUnmapped()
+                .ForMember(representation => representation.Properties, expression => expression.ResolveUsing(content =>
+                {
+                    return content.PropertyTypes.ToDictionary<PropertyType, string, object>(propertyType => propertyType.Alias, propertyType => "");
+                }));
+
 
             config.CreateMap<ContentRepresentation, IContent>()
                 .IgnoreAllUnmapped()
@@ -50,7 +53,7 @@ namespace Umbraco.Web.Rest.Models
                         var found = content.HasProperty(propertyRepresentation.Key) ? content.Properties[propertyRepresentation.Key] : null;
                         if (found != null)
                         {
-                            found.Value = propertyRepresentation.Value.Value;
+                            found.Value = found.Value;
                         }
                     }
                 });
@@ -60,10 +63,7 @@ namespace Umbraco.Web.Rest.Models
                 .ForMember(representation => representation.Properties, expression => expression.ResolveUsing(content =>
                 {
                     return content.Properties.ToDictionary(property => property.PropertyTypeAlias,
-                        property => new ContentPropertyRepresentation
-                        {
-                            Value = property.Value
-                        });
+                        property => property.Value);
                 }));
         }
     }

@@ -33,7 +33,7 @@ namespace Umbraco.Web.Rest.Tests
         {
             var startup = new DefaultTestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
-                (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
+                (request, umbCtx, typedContent, serviceContext) =>
                 {
                     var mockTypedContent = Mock.Get(typedContent);
                     mockTypedContent.Setup(x => x.TypedContent(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedPublishedContent(123, 456, 789));
@@ -65,7 +65,7 @@ namespace Umbraco.Web.Rest.Tests
         {
             var startup = new DefaultTestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
-                (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
+                (request, umbCtx, typedContent, serviceContext) =>
                 {
                     var mockTypedContent = Mock.Get(typedContent);
                     mockTypedContent.Setup(x => x.TypedContent(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedPublishedContent(123, 456, 789));
@@ -102,7 +102,7 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.AreEqual("/umbraco/rest/v1/content/published/123/children", djson["_links"]["children"]["href"].Value<string>());
                 Assert.AreEqual("/umbraco/rest/v1/content/published", djson["_links"]["root"]["href"].Value<string>());
 
-                var properties = djson["properties"].ToObject<IDictionary<string, ContentPropertyRepresentation>>();
+                var properties = djson["properties"].ToObject<IDictionary<string, object>>();
                 Assert.AreEqual(2, properties.Count());                
             }
         }
@@ -112,7 +112,7 @@ namespace Umbraco.Web.Rest.Tests
         {
             var startup = new DefaultTestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services,
-                (request, umbCtx, typedContent, contentService, mediaService, memberService) =>
+                (request, umbCtx, typedContent, serviceContext) =>
                 {
                     var mockTypedContent = Mock.Get(typedContent);
                     mockTypedContent.Setup(x => x.TypedContentAtRoot()).Returns(new[]
@@ -153,7 +153,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Post_Is_501_Response()
         {
-            var startup = new DefaultTestStartup((request, umbCtx, typedContent, contentService, mediaService, memberService) => { });
+            var startup = new DefaultTestStartup((request, umbCtx, typedContent, serviceContext) => { });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
             {
@@ -180,7 +180,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Put_Is_501_Response()
         {
-            var startup = new DefaultTestStartup((request, umbCtx, typedContent, contentService, mediaService, memberService) => { });
+            var startup = new DefaultTestStartup((request, umbCtx, typedContent, serviceContext) => { });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
             {
@@ -207,7 +207,7 @@ namespace Umbraco.Web.Rest.Tests
         [Test]
         public async void Delete_Is_501_Response()
         {
-            var startup = new DefaultTestStartup((request, umbCtx, typedContent, contentService, mediaService, memberService) => { });
+            var startup = new DefaultTestStartup((request, umbCtx, typedContent, serviceContext) => { });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
             {

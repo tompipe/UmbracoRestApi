@@ -243,6 +243,9 @@
     <Compile Include="Links\IContentLinkTemplate.cs" />
     <Compile Include="Links\PublishedContentLinkTemplate.cs" />
     <Compile Include="Models\ContentListRepresentation.cs" />
+    <Compile Include="Models\ContentMetadataRepresentation.cs" />
+    <Compile Include="Models\ContentTemplate.cs" />
+    <Compile Include="Models\FieldInfo.cs" />
     <Compile Include="Models\ValidationErrorRepresentation.cs" />
     <Compile Include="Models\ValidationErrorListRepresentation.cs" />
     <Compile Include="ModelValidationException.cs" />

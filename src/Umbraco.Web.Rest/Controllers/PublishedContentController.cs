@@ -3,6 +3,7 @@ using System.Net;
 using System.Web.Http;
 using Umbraco.Core.Models;
 using Umbraco.Web.Rest.Links;
+using Umbraco.Web.Rest.Models;
 
 namespace Umbraco.Web.Rest.Controllers
 {
@@ -36,6 +37,18 @@ namespace Umbraco.Web.Rest.Controllers
         protected override IEnumerable<IPublishedContent> GetRootContent()
         {
             return Umbraco.TypedContentAtRoot();
+        }
+
+        protected override ContentMetadataRepresentation GetMetadataForItem(int id)
+        {
+            var found = Umbraco.TypedContent(id);
+            if (found == null) throw new HttpResponseException(HttpStatusCode.NotFound);
+
+            var result = new ContentMetadataRepresentation(LinkTemplate, id)
+            {
+                Fields = GetDefaultFieldMetaData()
+            };
+            return result;
         }
 
         protected override IPublishedContent GetItem(int id)

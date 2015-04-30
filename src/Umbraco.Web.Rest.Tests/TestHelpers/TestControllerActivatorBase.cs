@@ -39,12 +39,19 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
                 var mockedContentService = Mock.Of<IContentService>();
                 var mockedMediaService = Mock.Of<IMediaService>();
                 var mockedMemberService = Mock.Of<IMemberService>();
+                var mockedTextService = Mock.Of<ILocalizedTextService>();
+
+                var serviceContext = new ServiceContext(
+                    contentService: mockedContentService, 
+                    mediaService: mockedMediaService, 
+                    memberService: mockedMemberService, 
+                    localizedTextService: mockedTextService);
 
                 //new app context
                 var appCtx = ApplicationContext.EnsureContext(
                     new DatabaseContext(Mock.Of<IDatabaseFactory>(), Mock.Of<ILogger>(), Mock.Of<ISqlSyntaxProvider>(), "test"),
                     //pass in mocked services
-                    new ServiceContext(contentService: mockedContentService, mediaService: mockedMediaService, memberService: mockedMemberService),
+                    serviceContext,
                     CacheHelper.CreateDisabledCacheHelper(),
                     new ProfilingLogger(Mock.Of<ILogger>(), Mock.Of<IProfiler>()),
                     true);
@@ -104,12 +111,12 @@ namespace Umbraco.Web.Rest.Tests.TestHelpers
                     Mock.Of<IUmbracoComponentRenderer>(),
                     membershipHelper);
 
-                return CreateController(controllerType, request, umbHelper, mockedTypedContent, mockedContentService, mockedMediaService, mockedMemberService);
+                return CreateController(controllerType, request, umbHelper, mockedTypedContent, serviceContext);
             }
             //default
             return base.Create(request, controllerDescriptor, controllerType);
         }
 
-        protected abstract ApiController CreateController(Type controllerType, HttpRequestMessage msg, UmbracoHelper helper, ITypedPublishedContentQuery qry, IContentService contentService, IMediaService mediaService, IMemberService memberService);
+        protected abstract ApiController CreateController(Type controllerType, HttpRequestMessage msg, UmbracoHelper helper, ITypedPublishedContentQuery qry, ServiceContext serviceContext);
     }
 }

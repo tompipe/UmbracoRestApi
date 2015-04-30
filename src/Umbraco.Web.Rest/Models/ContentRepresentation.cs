@@ -15,7 +15,7 @@ namespace Umbraco.Web.Rest.Models
 
         public ContentRepresentation()
         {
-            Properties = new Dictionary<string, ContentPropertyRepresentation>();
+            Properties = new Dictionary<string, object>();
         }
 
         public ContentRepresentation(IContentLinkTemplate linkTemplate)
@@ -48,7 +48,7 @@ namespace Umbraco.Web.Rest.Models
         public PublishedItemType ItemType { get; set; }
 
         [JsonConverter(typeof(ContentPropertyAliasJsonConverter))]
-        public IDictionary<string, ContentPropertyRepresentation> Properties { get; set; }
+        public IDictionary<string, object> Properties { get; set; }
         
         public override string Rel
         {
@@ -75,6 +75,7 @@ namespace Umbraco.Web.Rest.Models
             if (_linkTemplate == null) throw new NullReferenceException("LinkTemplate is null");
 
             Links.Add(_linkTemplate.RootContent.CreateLink());
+            Links.Add(_linkTemplate.ContentMetaData.CreateLink(new { id = Id }));
 
             if (HasChildren)
             {

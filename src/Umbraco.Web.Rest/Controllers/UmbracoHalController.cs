@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -7,6 +8,10 @@ using System.Text.RegularExpressions;
 using System.Web.Http;
 using System.Web.Http.ModelBinding;
 using AutoMapper;
+using MySql.Data.MySqlClient.Authentication;
+using umbraco;
+using Umbraco.Core.Models;
+using Umbraco.Core.Services;
 using Umbraco.Web.Rest.Links;
 using Umbraco.Web.Rest.Models;
 using Umbraco.Web.WebApi;
@@ -57,6 +62,16 @@ namespace Umbraco.Web.Rest.Controllers
                 : Request.CreateResponse(HttpStatusCode.OK, CreateContentRepresentation(result));
         }
 
+        [HttpGet]
+        [ActionName("meta")]
+        public virtual HttpResponseMessage GetMetadata(TId id)
+        {
+            var result = GetMetadataForItem(id);
+            return result == null
+                ? Request.CreateResponse(HttpStatusCode.NotImplemented)
+                : Request.CreateResponse(HttpStatusCode.OK, result);
+        }
+
         public HttpResponseMessage Post(ContentRepresentation content)
         {
             try
@@ -98,6 +113,8 @@ namespace Umbraco.Web.Rest.Controllers
         #endregion
 
         #region Protected - to override for REST implementation
+
+        protected abstract ContentMetadataRepresentation GetMetadataForItem(TId id);
 
         protected abstract TEntity GetItem(TId id);
 
@@ -155,6 +172,14 @@ namespace Umbraco.Web.Rest.Controllers
             return Mapper.Map(entity, representation);
         }
 
+        /// <summary>
+        /// Used to throw validation exceptions
+        /// </summary>
+        /// <param name="modelState"></param>
+        /// <param name="message"></param>
+        /// <param name="id"></param>
+        /// <param name="errors"></param>
+        /// <returns></returns>
         protected ModelValidationException ValidationException(ModelStateDictionary modelState, string message = null, int? id = null, params string[] errors)
         {
             var errorList = (from ms in modelState
@@ -177,30 +202,42 @@ namespace Umbraco.Web.Rest.Controllers
             return new ModelValidationException(errorModel);
         }
 
-        ///// <summary>
-        ///// Create a 400 response message indicating that a validation error occurred
-        ///// 
-        ///// </summary>
-        ///// <param name="request"/><param name="errorMessage"/>
-        ///// <returns/>
-        //public static HttpResponseMessage CreateValidationErrorResponse(this HttpRequestMessage request, string errorMessage)
-        //{
-        //    HttpResponseMessage errorResponse = System.Net.Http.HttpRequestMessageExtensions.CreateErrorResponse(request, HttpStatusCode.BadRequest, errorMessage);
-        //    errorResponse.Headers.Add("X-Status-Reason", "Validation failed");
-        //    return errorResponse;
-        //}
 
-        ///// <summary>
-        ///// Create a 400 response message indicating that a validation error occurred
-        ///// 
-        ///// </summary>
-        ///// <param name="request"/><param name="modelState"/>
-        ///// <returns/>
-        //public static HttpResponseMessage CreateValidationErrorResponse(this HttpRequestMessage request, ModelStateDictionary modelState)
-        //{
-        //    HttpResponseMessage errorResponse = System.Net.Http.HttpRequestMessageExtensions.CreateErrorResponse(request, HttpStatusCode.BadRequest, modelState);
-        //    errorResponse.Headers.Add("X-Status-Reason", "Validation failed");
-        //    return errorResponse;
-        //}
+        public IDictionary<string, FieldInfo> GetDefaultFieldMetaData()
+        {
+            return new Dictionary<string, FieldInfo>
+            {
+                {"id", new FieldInfo{Label = "Id"}},
+                {"key", new FieldInfo{Label = "Key"}},
+                {"contentTypeAlias", new FieldInfo{Label = TextService.Localize("content/documentType", UserCulture)}},
+                {"parentId", new FieldInfo{Label = "Parent Id"}},
+                {"hasChildren", new FieldInfo{Label = "Has Children"}},
+                {"templateId", new FieldInfo{Label = TextService.Localize("template/template", UserCulture) + " Id"}},
+                {"sortOrder", new FieldInfo{Label = TextService.Localize("general/sort", UserCulture)}},
+                {"name", new FieldInfo{Label = TextService.Localize("general/name", UserCulture)}},
+                {"urlName", new FieldInfo{Label = TextService.Localize("general/url", UserCulture) + " " + TextService.Localize("general/name", UserCulture)}},
+                {"writerName", new FieldInfo{Label = TextService.Localize("content/updatedBy", UserCulture)}},
+                {"creatorName", new FieldInfo{Label = TextService.Localize("content/createBy", UserCulture)}},
+                {"writerId", new FieldInfo{Label = "Writer Id"}},
+                {"creatorId", new FieldInfo{Label = "Creator Id"}},
+                {"path", new FieldInfo{Label = TextService.Localize("general/path", UserCulture)}},
+                {"createDate", new FieldInfo{Label = TextService.Localize("content/createDate", UserCulture)}},
+                {"updateDate", new FieldInfo{Label = TextService.Localize("content/updateDate", UserCulture)}},
+                {"level", new FieldInfo{Label = "Level"}},
+                {"url", new FieldInfo{Label = TextService.Localize("general/url", UserCulture)}},
+                {"ItemType", new FieldInfo{Label = TextService.Localize("general/type", UserCulture)}}
+            };
+        }
+
+        private CultureInfo _userCulture;
+        protected CultureInfo UserCulture
+        {
+            get { return _userCulture ?? (_userCulture = Security.CurrentUser.GetUserCulture(TextService)); }
+        }
+
+        private ILocalizedTextService TextService
+        {
+            get { return Services.TextService; }
+        }
     }
 }
