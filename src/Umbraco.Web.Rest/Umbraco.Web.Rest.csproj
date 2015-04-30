@@ -240,6 +240,8 @@
     <Compile Include="Controllers\ContentController.cs" />
     <Compile Include="Controllers\UmbracoHalController.cs" />
     <Compile Include="Controllers\HalFormatterConfigurationAttribute.cs" />
+    <Compile Include="Links\IContentLinkTemplate.cs" />
+    <Compile Include="Links\PublishedContentLinkTemplate.cs" />
     <Compile Include="Models\ContentListRepresentation.cs" />
     <Compile Include="Models\ValidationError.cs" />
     <Compile Include="Models\ValidationResponse.cs" />
@@ -247,7 +249,7 @@
     <Compile Include="Models\ContentPropertyRepresentation.cs" />
     <Compile Include="Models\ContentRepresentation.cs" />
     <Compile Include="Models\ContentRepresentationMapper.cs" />
-    <Compile Include="Models\LinkTemplates.cs" />
+    <Compile Include="Links\ContentLinkTemplate.cs" />
     <Compile Include="Models\MappingExpressionExtensions.cs" />
     <Compile Include="FieldNames.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Net;
@@ -11,6 +12,7 @@ using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Models;
+using Umbraco.Web.Rest.Models;
 using Umbraco.Web.Rest.Routing;
 using Umbraco.Web.Rest.Tests.TestHelpers;
 
@@ -91,26 +93,17 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.AreEqual("application/hal+json", result.Content.Headers.ContentType.MediaType);
                 Assert.IsAssignableFrom<StreamContent>(result.Content);
                 
+                //TODO: Need to assert more values!
+
                 var djson = JsonConvert.DeserializeObject<JObject>(json);
 
-                //TODO: Need to assert more values!
-                //Assert.AreEqual("http://testserver/umbraco/rest/v1/Content/published", djson["collection"]["href"].Value<string>());
-                //Assert.AreEqual(1, djson["collection"]["items"].Count());
-                //Assert.AreEqual("http://testserver/umbraco/rest/v1/Content/published/123", djson["collection"]["items"][0]["href"].Value<string>());
-                //Assert.AreEqual(12, djson["collection"]["items"][0]["data"].Count());
+                Assert.AreEqual("/umbraco/rest/v1/content/published/123", djson["_links"]["self"]["href"].Value<string>());
+                Assert.AreEqual("/umbraco/rest/v1/content/published/456", djson["_links"]["parent"]["href"].Value<string>());
+                Assert.AreEqual("/umbraco/rest/v1/content/published/123/children", djson["_links"]["children"]["href"].Value<string>());
+                Assert.AreEqual("/umbraco/rest/v1/content/published", djson["_links"]["root"]["href"].Value<string>());
 
-                //Assert.IsNotNull(djson["collection"]["items"][0]["data"].SingleOrDefault(x => x[FieldNames.Name].Value<string>() == FieldNames.Properties));
-                //Assert.AreEqual(2, djson["collection"]["items"][0]["data"].SingleOrDefault(x => x[FieldNames.Name].Value<string>() == FieldNames.Properties)["array"].Count());
-
-                //Assert.AreEqual(2, djson["collection"]["items"][0]["links"].Count());
-
-                //Assert.AreEqual("children", djson["collection"]["items"][0]["links"][0]["rel"].Value<string>());
-                //Assert.AreEqual("parent", djson["collection"]["items"][0]["links"][1]["rel"].Value<string>());
-                //Assert.AreEqual("Children", djson["collection"]["items"][0]["links"][0]["prompt"].Value<string>());
-                //Assert.AreEqual("Parent", djson["collection"]["items"][0]["links"][1]["prompt"].Value<string>());
-                //Assert.AreEqual("http://testserver/umbraco/rest/v1/Content/published/123/children", djson["collection"]["items"][0]["links"][0]["href"].Value<string>());
-                //Assert.AreEqual("http://testserver/umbraco/rest/v1/Content/published/456", djson["collection"]["items"][0]["links"][1]["href"].Value<string>());
-
+                var properties = djson["properties"].ToObject<IDictionary<string, ContentPropertyRepresentation>>();
+                Assert.AreEqual(2, properties.Count());                
             }
         }
 

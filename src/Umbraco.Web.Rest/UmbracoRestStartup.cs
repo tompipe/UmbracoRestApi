@@ -24,37 +24,39 @@ namespace Umbraco.Web.Rest
 
         public static void CreateRoutes(HttpConfiguration config)
         {
+            const int version = 1;
+
             //HAL routes:
 
             //** PublishedContent routes
             MapEntityTypeRoute(config,
                 RouteConstants.PublishedContentRouteName,
-                string.Format("{0}/rest/v1/{1}/{2}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.ContentSegment, RouteConstants.PublishedSegment),
-                string.Format("{0}/rest/v1/{1}/{2}/{{id}}", UmbracoMvcArea, RouteConstants.ContentSegment, RouteConstants.PublishedSegment),
+                string.Format("{0}/{1}/{2}/{{id}}/{{action}}", RouteConstants.GetRestRootPath(version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment),
+                string.Format("{0}/{1}/{2}/{{id}}", RouteConstants.GetRestRootPath(version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment),
                 "PublishedContent",
                 typeof(ContentController).Namespace);
 
             //** Content routes
             MapEntityTypeRoute(config,
                 RouteConstants.ContentRouteName,
-                string.Format("{0}/rest/v1/{1}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.ContentSegment),
-                string.Format("{0}/rest/v1/{1}/{{id}}", UmbracoMvcArea, RouteConstants.ContentSegment),
+                string.Format("{0}/{1}/{{id}}/{{action}}", RouteConstants.GetRestRootPath(version), RouteConstants.ContentSegment),
+                string.Format("{0}/{1}/{{id}}", RouteConstants.GetRestRootPath(version), RouteConstants.ContentSegment),
                 "Content",
                 typeof(ContentController).Namespace);
 
             //** Media routes
             MapEntityTypeRoute(config,
                 RouteConstants.MediaRouteName,
-                string.Format("{0}/rest/v1/{1}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.MediaSegment),
-                string.Format("{0}/v1/{1}/{{id}}", UmbracoMvcArea, RouteConstants.MediaSegment),
+                string.Format("{0}/{1}/{{id}}/{{action}}", RouteConstants.GetRestRootPath(version), RouteConstants.MediaSegment),
+                string.Format("{0}/{1}/{{id}}", RouteConstants.GetRestRootPath(version), RouteConstants.MediaSegment),
                 "Media",
                 typeof(ContentController).Namespace);
 
             //** Members routes
             MapEntityTypeRoute(config,
                 RouteConstants.MembersRouteName,
-                string.Format("{0}/rest/v1/{1}/{{id}}/{{action}}", UmbracoMvcArea, RouteConstants.MembersSegment),
-                string.Format("{0}/rest/v1/{1}/{{id}}", UmbracoMvcArea, RouteConstants.MembersSegment),
+                string.Format("{0}/{1}/{{id}}/{{action}}", RouteConstants.GetRestRootPath(version), RouteConstants.MembersSegment),
+                string.Format("{0}/{1}/{{id}}", RouteConstants.GetRestRootPath(version), RouteConstants.MembersSegment),
                 "Members",
                 typeof(ContentController).Namespace);
 
@@ -84,23 +86,6 @@ namespace Umbraco.Web.Rest
                 .WithNamespace(@namespace);
         }
 
-        private static string _umbracoMvcArea;
-
-        /// <summary>
-        /// This returns the string of the MVC Area route.
-        /// </summary>
-        /// <remarks>
-        /// Uses reflection to get the internal property in umb core, we don't want to expose this publicly in the core
-        /// until we sort out the Global configuration bits and make it an interface, put them in the correct place, etc...
-        /// </remarks>
-        private static string UmbracoMvcArea
-        {
-            get
-            {
-                return _umbracoMvcArea ??
-                    //Use reflection to get the type and value and cache
-                       (_umbracoMvcArea = (string)Assembly.Load("Umbraco.Core").GetType("Umbraco.Core.Configuration.GlobalSettings").GetStaticProperty("UmbracoMvcArea"));
-            }
-        }
+        
     }
 }

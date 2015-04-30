@@ -9,9 +9,11 @@ using System.Text;
 using Microsoft.Owin.Testing;
 using Moq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Models;
+using Umbraco.Web.Rest.Models;
 using Umbraco.Web.Rest.Routing;
 using Umbraco.Web.Rest.Tests.TestHelpers;
 
@@ -93,6 +95,16 @@ namespace Umbraco.Web.Rest.Tests
                 Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
 
                 //TODO: Assert values!
+
+                var djson = JsonConvert.DeserializeObject<JObject>(json);
+
+                Assert.AreEqual("/umbraco/rest/v1/content/123", djson["_links"]["self"]["href"].Value<string>());
+                Assert.AreEqual("/umbraco/rest/v1/content/456", djson["_links"]["parent"]["href"].Value<string>());
+                Assert.AreEqual("/umbraco/rest/v1/content/123/children", djson["_links"]["children"]["href"].Value<string>());
+                Assert.AreEqual("/umbraco/rest/v1/content", djson["_links"]["root"]["href"].Value<string>());
+
+                var properties = djson["properties"].ToObject<IDictionary<string, ContentPropertyRepresentation>>();
+                Assert.AreEqual(2, properties.Count()); 
             }
         }
 

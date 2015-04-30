@@ -2,6 +2,7 @@
 using System.Net;
 using System.Web.Http;
 using Umbraco.Core.Models;
+using Umbraco.Web.Rest.Links;
 
 namespace Umbraco.Web.Rest.Controllers
 {
@@ -49,5 +50,9 @@ namespace Umbraco.Web.Rest.Controllers
             return content.Children;
         }
 
+        protected override IContentLinkTemplate LinkTemplate
+        {
+            get { return new PublishedContentLinkTemplate(CurrentVersionRequest); }
+        }
     }
 }

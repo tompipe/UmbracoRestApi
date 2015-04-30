@@ -12,16 +12,6 @@ namespace Umbraco.Web.Rest.Models
     {
         public override void ConfigureMappings(IConfiguration config, ApplicationContext applicationContext)
         {
-            config.CreateMap<IEnumerable<IContent>, ContentListRepresentation>()
-                .ConstructUsing((IEnumerable<IContent> contents) =>
-                    new ContentListRepresentation(
-                        new List<ContentRepresentation>(Mapper.Map<IEnumerable<ContentRepresentation>>(contents))));
-
-            config.CreateMap<IEnumerable<IPublishedContent>, ContentListRepresentation>()
-               .ConstructUsing((IEnumerable<IPublishedContent> contents) =>
-                   new ContentListRepresentation(
-                       new List<ContentRepresentation>(Mapper.Map<IEnumerable<ContentRepresentation>>(contents))));
-
             config.CreateMap<IContent, ContentRepresentation>()
                 .ForMember(representation => representation.HasChildren, expression => expression.MapFrom(content => 
                     applicationContext.Services.ContentService.HasChildren(content.Id)))
@@ -66,8 +56,7 @@ namespace Umbraco.Web.Rest.Models
                 });
 
             config.CreateMap<IPublishedContent, ContentRepresentation>()
-                .ForMember(representation => representation.HasChildren, expression => expression.MapFrom(content =>
-                    applicationContext.Services.ContentService.HasChildren(content.Id)))
+                .ForMember(representation => representation.HasChildren, expression => expression.MapFrom(content => content.Children.Any()))
                 .ForMember(representation => representation.Properties, expression => expression.ResolveUsing(content =>
                 {
                     return content.Properties.ToDictionary(property => property.PropertyTypeAlias,

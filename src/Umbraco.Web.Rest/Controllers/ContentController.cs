@@ -8,6 +8,7 @@ using System.Web.Http.Controllers;
 using AutoMapper;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
+using Umbraco.Web.Rest.Links;
 using Umbraco.Web.Rest.Models;
 using Umbraco.Web.WebApi;
 
@@ -70,6 +71,13 @@ namespace Umbraco.Web.Rest.Controllers
 
         protected override IContent Update(int id, ContentRepresentation content)
         {
+            if (!ModelState.IsValid)
+            {
+                throw ValidationException(ModelState);
+            }
+
+            //TODO: Perform property validation!!!
+
             var found = ContentService.GetById(id);
             if (found == null) throw new HttpResponseException(HttpStatusCode.NotFound);
 
@@ -79,7 +87,11 @@ namespace Umbraco.Web.Rest.Controllers
 
             return found;
         }
-       
+
+        protected override IContentLinkTemplate LinkTemplate
+        {
+            get { return new ContentLinkTemplate(CurrentVersionRequest); }
+        }
 
         protected IContentService ContentService
         {
