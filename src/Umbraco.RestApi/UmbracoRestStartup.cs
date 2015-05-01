@@ -66,23 +66,21 @@ namespace Umbraco.RestApi
         {
 
             //Used for 'GETs' since we have multiple get action names
-            config.Routes.MapHttpRoute(
+            config.Routes.MapHttpRouteWithNamespaceAndRouteName(
                 name: RouteConstants.GetRouteNameForGetRequests(routeName),
                 routeTemplate: routeTemplateGet,
-                defaults: new { controller = defaultController, action = "Get", id = RouteParameter.Optional },
-                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) }
-                )
-                .WithRouteName(routeName)
-                .WithNamespace(@namespace);
+                defaults: new {controller = defaultController, action = "Get", id = RouteParameter.Optional},
+                constraints: new {httpMethod = new HttpMethodConstraint(HttpMethod.Get)},
+                @namespace: @namespace
+                );
 
             //Used for everything else
-            config.Routes.MapHttpRoute(
+            config.Routes.MapHttpRouteWithNamespaceAndRouteName(
                 name: routeName,
                 routeTemplate: routeTemplateOther,
-                defaults: new { controller = defaultController, id = RouteParameter.Optional }
-                )
-                .WithRouteName(routeName)
-                .WithNamespace(@namespace);
+                defaults: new {controller = defaultController, id = RouteParameter.Optional},
+                @namespace: @namespace
+                );
         }
 
         

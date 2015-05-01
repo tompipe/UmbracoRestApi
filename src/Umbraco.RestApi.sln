@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{50217DAB
 		..\build\Build-Release.ps1 = ..\build\Build-Release.ps1
 		..\build\Build.bat = ..\build\Build.bat
 		..\build\Readme.txt = ..\build\Readme.txt
-		..\build\Umbraco.Web.Rest.nuspec = ..\build\Umbraco.Web.Rest.nuspec
+		..\build\UmbracoCms.RestApi.nuspec = ..\build\UmbracoCms.RestApi.nuspec
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeFiles", "CodeFiles", "{6F2DBA9B-37EC-4526-9057-0463C5CF32BB}"
