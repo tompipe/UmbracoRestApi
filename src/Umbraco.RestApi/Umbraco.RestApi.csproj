@@ -242,7 +242,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppBuilderExtensions.cs" />
     <Compile Include="Controllers\ContentPropertyValidator.cs" />
+    <Compile Include="Controllers\DynamicCorsAttribute.cs" />
+    <Compile Include="Controllers\DynamicCorsPolicy.cs" />
     <Compile Include="Controllers\PublishedContentController.cs" />
     <Compile Include="Controllers\ContentController.cs" />
     <Compile Include="Controllers\UmbracoHalController.cs" />
