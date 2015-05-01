@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>Umbraco.Web.Rest</id>
+    <title>Umbraco REST Api</title>
+    <version>0.0.0.0</version>
+    <authors>Umbraco HQ</authors>
+    <owners>Umbraco HQ</owners>
+    <description>Umbraco REST Api for working with content, published content, media and member data</description>
+    <summary>Umbraco REST Api</summary>
+    <language>en-US</language>
+    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>https://github.com/umbraco/UmbracoRest</projectUrl>
+    <tags>umbraco rest webapi hal</tags>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <dependencies>
+      <dependency id="UmbracoCms.Core" version="[7.3.0, 8.0.0)" />
+      <dependency id="Microsoft.AspNet.WebApi" version="[5.2.3, 6.0.0)" />
+      <dependency id="Microsoft.AspNet.WebApi.Cors" version="[5.2.3, 6.0.0)" />
+      <dependency id="WebApi.Hal" version="[2.5.0, 3.0.0)" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="net45\*.dll" target="lib\net45" />
+    <file src="net45\*.pdb" target="lib\net45" />
+    <file src="Readme.txt" target="Content" />
+  </files>
+</package>

@@ -7,6 +7,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco.Web.Rest", "Umbraco
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco.Web.Rest.Tests", "Umbraco.Web.Rest.Tests\Umbraco.Web.Rest.Tests.csproj", "{B1AA5F6F-8D28-493D-8C9C-1A3CA24ACD14}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{50217DAB-3AC4-4F09-8846-0FC26C59A9C3}"
+	ProjectSection(SolutionItems) = preProject
+		..\build\Build-Release.ps1 = ..\build\Build-Release.ps1
+		..\build\Build.bat = ..\build\Build.bat
+		..\build\Readme.txt = ..\build\Readme.txt
+		..\build\Umbraco.Web.Rest.nuspec = ..\build\Umbraco.Web.Rest.nuspec
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

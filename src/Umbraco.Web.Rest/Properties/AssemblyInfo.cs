@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Umbraco.Web.Rest")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Umbraco REST Api")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Umbraco")]
 [assembly: AssemblyProduct("Umbraco.Web.Rest")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
+
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -22,17 +22,9 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("369eadbc-e210-437e-8a64-c15c4c779784")]
 
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Build and Revision Numbers 
-// by using the '*' as shown below:
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyFileVersion("1.0.0")]
+[assembly: AssemblyInformationalVersion("1.0.0")]
+[assembly: AssemblyCopyright("Copyright © Umbraco 2015")]
 
 [assembly: InternalsVisibleTo("Umbraco.Web.Rest.Tests")]
