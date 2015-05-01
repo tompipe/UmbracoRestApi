@@ -19,18 +19,6 @@ $NuGetPackagesPath = Join-Path -Path $SolutionRoot "packages"
 
 $MSBuild = "$Env:SYSTEMROOT\Microsoft.NET\Framework\v4.0.30319\msbuild.exe";
 
-# Go get nuget.exe if we don't hae it
-$NuGet = "$BuildFolder\nuget.exe"
-$FileExists = Test-Path $NuGet 
-If ($FileExists -eq $False) {
-	$SourceNugetExe = "http://nuget.org/nuget.exe"
-	Invoke-WebRequest $SourceNugetExe -OutFile $NuGet
-}
-
-# Restore NuGet packages
-# New-Item -ItemType Directory -Force -Path $NuGetPackagesPath
-# .\NuGet.exe install $SolutionRoot\UmbracoExamine.PDF\packages.config -OutputDirectory  $NuGetPackagesPath
-
 # Make sure we don't have a release folder for this version already
 $BuildFolder = Join-Path -Path $RepoRoot -ChildPath "build";
 $ReleaseFolder = Join-Path -Path $BuildFolder -ChildPath "Releases\v$ReleaseVersionNumber$PreReleaseName";
@@ -40,6 +28,14 @@ if ((Get-Item $ReleaseFolder -ErrorAction SilentlyContinue) -ne $null)
 	Remove-Item $ReleaseFolder -Recurse
 }
 New-Item $ReleaseFolder -Type directory
+
+# Go get nuget.exe if we don't hae it
+$NuGet = "$BuildFolder\nuget.exe"
+$FileExists = Test-Path $NuGet 
+If ($FileExists -eq $False) {
+	$SourceNugetExe = "http://nuget.org/nuget.exe"
+	Invoke-WebRequest $SourceNugetExe -OutFile $NuGet
+}
 
 #trace
 "Release path: $ReleaseFolder"
@@ -77,8 +73,8 @@ if (-not $?)
 
 $include = @('Umbraco.Web.Rest.dll','Umbraco.Web.Rest.pdb')
 $BinFolder = Join-Path -Path $SolutionRoot -ChildPath "Umbraco.Web.Rest\bin\Release";
-New-Item "$ReleaseFolder\net45\" -Type directory
-Copy-Item "$BinFolder\*.*" -Destination "$ReleaseFolder\net45\" -Include $include
+New-Item "$ReleaseFolder\bin\" -Type directory
+Copy-Item "$BinFolder\*.*" -Destination "$ReleaseFolder\bin\" -Include $include
 
 # COPY THE README OVER
 Copy-Item "$BuildFolder\Readme.txt" -Destination $ReleaseFolder

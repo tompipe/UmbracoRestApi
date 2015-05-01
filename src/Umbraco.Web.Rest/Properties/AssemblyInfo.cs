@@ -10,7 +10,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Umbraco")]
 [assembly: AssemblyProduct("Umbraco.Web.Rest")]
-
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
