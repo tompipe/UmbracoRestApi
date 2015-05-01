@@ -41,7 +41,7 @@ If ($FileExists -eq $False) {
 "Release path: $ReleaseFolder"
 
 # Set the version number in SolutionInfo.cs
-$AssemblyInfoPath = Join-Path -Path $SolutionRoot -ChildPath "Umbraco.Web.Rest\Properties\AssemblyInfo.cs"
+$AssemblyInfoPath = Join-Path -Path $SolutionRoot -ChildPath "Umbraco.RestApi\Properties\AssemblyInfo.cs"
 (gc -Path $AssemblyInfoPath) `
 	-replace "(?<=AssemblyFileVersion\(`")[.\d]*(?=`"\))", $ReleaseVersionNumber |
 	sc -Path $AssemblyInfoPath -Encoding UTF8;
@@ -55,7 +55,7 @@ $Copyright = "Copyright © Umbraco " + (Get-Date).year;
 	sc -Path $AssemblyInfoPath -Encoding UTF8;
 
 # Build the solution in release mode
-$SolutionPath = Join-Path -Path $SolutionRoot -ChildPath "Umbraco.Web.Rest.sln";
+$SolutionPath = Join-Path -Path $SolutionRoot -ChildPath "Umbraco.RestApi.sln";
 
 # clean sln for all deploys
 & $MSBuild "$SolutionPath" /p:Configuration=Release /maxcpucount /t:Clean
@@ -71,8 +71,8 @@ if (-not $?)
 	throw "The MSBuild process returned an error code."
 }
 
-$include = @('Umbraco.Web.Rest.dll','Umbraco.Web.Rest.pdb')
-$BinFolder = Join-Path -Path $SolutionRoot -ChildPath "Umbraco.Web.Rest\bin\Release";
+$include = @('Umbraco.RestApi.dll','Umbraco.RestApi.pdb')
+$BinFolder = Join-Path -Path $SolutionRoot -ChildPath "Umbraco.RestApi\bin\Release";
 New-Item "$ReleaseFolder\bin\" -Type directory
 Copy-Item "$BinFolder\*.*" -Destination "$ReleaseFolder\bin\" -Include $include
 
@@ -80,8 +80,8 @@ Copy-Item "$BinFolder\*.*" -Destination "$ReleaseFolder\bin\" -Include $include
 Copy-Item "$BuildFolder\Readme.txt" -Destination $ReleaseFolder
 
 # COPY OVER THE NUSPEC AND BUILD THE NUGET PACKAGE
-Copy-Item "$BuildFolder\Umbraco.Web.Rest.nuspec" -Destination $ReleaseFolder
-$NuSpec = Join-Path -Path $ReleaseFolder -ChildPath "Umbraco.Web.Rest.nuspec";
+Copy-Item "$BuildFolder\UmbracoCms.RestApi.nuspec" -Destination $ReleaseFolder
+$NuSpec = Join-Path -Path $ReleaseFolder -ChildPath "UmbracoCms.RestApi.nuspec";
 
 Write-Output "DEBUGGING: " $NuSpec -OutputDirectory $ReleaseFolder -Version $ReleaseVersionNumber$PreReleaseName
 & $NuGet pack $NuSpec -OutputDirectory $ReleaseFolder -Version $ReleaseVersionNumber$PreReleaseName

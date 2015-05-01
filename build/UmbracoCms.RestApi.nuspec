@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>UmbracoCms.Web.Rest</id>
+    <id>UmbracoCms.RestApi</id>
     <title>Umbraco REST Api</title>
     <version>0.0.0.0</version>
     <authors>Umbraco HQ</authors>
