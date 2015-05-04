@@ -27,9 +27,14 @@ namespace Umbraco.RestApi.Links
             get { return new Link("parent", string.Format("~/{0}/{1}/{{parentId}}", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment)); }
         }
 
-        public Link ChildContent
+        //public Link ChildContent
+        //{
+        //    get { return new Link("children", string.Format("~/{0}/{1}/{{id}}/children", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment)); }
+        //}
+
+        public Link PagedChildContent
         {
-            get { return new Link("children", string.Format("~/{0}/{1}/{{id}}/children", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment)); }
+            get { return new Link("children", string.Format("~/{0}/{1}/{{id}}/children{{?pageIndex}}{{&pageSize}}", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment)); }
         }
 
         public Link ContentMetaData

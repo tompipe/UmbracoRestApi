@@ -7,7 +7,8 @@ namespace Umbraco.RestApi.Links
         Link RootContent { get; }
         Link ContentItem { get; }
         Link ParentContent { get; }
-        Link ChildContent { get; }
+        //Link ChildContent { get; }
+        Link PagedChildContent { get; }
         Link ContentMetaData { get; }
     }
 }

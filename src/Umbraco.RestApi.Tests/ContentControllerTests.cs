@@ -15,6 +15,7 @@ using NUnit.Framework;
 using Umbraco.Core.Configuration;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Persistence.DatabaseModelDefinitions;
 using Umbraco.Core.PropertyEditors;
 using Umbraco.Core.Services;
 using Umbraco.RestApi.Routing;
@@ -125,7 +126,7 @@ namespace Umbraco.RestApi.Tests
 
                 Assert.AreEqual("/umbraco/rest/v1/content/123", djson["_links"]["self"]["href"].Value<string>());
                 Assert.AreEqual("/umbraco/rest/v1/content/456", djson["_links"]["parent"]["href"].Value<string>());
-                Assert.AreEqual("/umbraco/rest/v1/content/123/children", djson["_links"]["children"]["href"].Value<string>());
+                Assert.AreEqual("/umbraco/rest/v1/content/123/children?pageIndex=0&pageSize=100", djson["_links"]["children"]["href"].Value<string>());
                 Assert.AreEqual("/umbraco/rest/v1/content", djson["_links"]["root"]["href"].Value<string>());
 
                 var properties = djson["properties"].ToObject<IDictionary<string, object>>();
@@ -213,6 +214,58 @@ namespace Umbraco.RestApi.Tests
                 Console.Write(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), Formatting.Indented));
 
                 Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+            }
+        }
+
+        [Test]
+        public async void Get_Children_Is_With_Params_Result()
+        {
+            var startup = new TestStartup(
+                //This will be invoked before the controller is created so we can modify these mocked services
+                (request, umbCtx, typedContent, serviceContext) =>
+                {
+                    var mockContentService = Mock.Get(serviceContext.ContentService);
+
+                    mockContentService.Setup(x => x.GetById(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedContent());
+
+                    long total = 6;
+                    mockContentService.Setup(x => x.GetPagedChildren(It.IsAny<int>(), It.IsAny<long>(), It.IsAny<int>(), out total, It.IsAny<string>(), Direction.Ascending, It.IsAny<string>()))
+                        .Returns(new List<IContent>(new[]
+                        {
+                            ModelMocks.SimpleMockedContent(789),
+                            ModelMocks.SimpleMockedContent(456)
+                        }));
+
+                    mockContentService.Setup(x => x.HasChildren(It.IsAny<int>())).Returns(true);
+                });
+
+            using (var server = TestServer.Create(builder => startup.Configuration(builder)))
+            {
+                var request = new HttpRequestMessage()
+                {
+                    RequestUri = new Uri(string.Format("http://testserver/umbraco/rest/v1/{0}/123/children?pageIndex=1&pageSize=2", RouteConstants.ContentSegment)),
+                    Method = HttpMethod.Get,
+                };
+
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/hal+json"));
+
+                Console.WriteLine(request);
+                var result = await server.HttpClient.SendAsync(request);
+                Console.WriteLine(result);
+
+                var json = await ((StreamContent)result.Content).ReadAsStringAsync();
+                Console.Write(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), Formatting.Indented));
+
+                Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+                var djson = JsonConvert.DeserializeObject<JObject>(json);
+
+                Assert.AreEqual(6, djson["totalResults"].Value<int>());
+                Assert.AreEqual(1, djson["pageIndex"].Value<int>());
+                Assert.AreEqual(2, djson["pageSize"].Value<int>());
+                Assert.IsNotNull(djson["_links"]["next"]);
+                Assert.IsNotNull(djson["_links"]["prev"]);
+                
             }
         }
 

@@ -57,9 +57,14 @@ namespace Umbraco.RestApi.Controllers
             return ContentService.GetById(id);                       
         }
 
-        protected override IEnumerable<IContent> GetChildContent(int id)
+        protected override PagedResult<IContent> GetChildContent(int id, long pageIndex = 0, int pageSize = 100)
         {
-            return ContentService.GetChildren(id);
+            long total;
+            var items = ContentService.GetPagedChildren(id, pageIndex, pageSize, out total);
+            return new PagedResult<IContent>(total, pageIndex + 1, pageSize)
+            {
+                Items = items
+            };
         }
 
         protected override IContent CreateNew(ContentRepresentation content)

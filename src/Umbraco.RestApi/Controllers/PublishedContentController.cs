@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Web.Http;
 using Umbraco.Core.Models;
@@ -61,11 +62,16 @@ namespace Umbraco.RestApi.Controllers
             return Umbraco.TypedContent(id);
         }
 
-        protected override IEnumerable<IPublishedContent> GetChildContent(int id)
+        protected override PagedResult<IPublishedContent> GetChildContent(int id, long pageIndex = 0, int pageSize = 100)
         {
             var content = Umbraco.TypedContent(id);
             if (content == null) throw new HttpResponseException(HttpStatusCode.NotFound);
-            return content.Children;
+            var resolved = content.Children.ToArray();
+
+            return new PagedResult<IPublishedContent>(resolved.Length, pageIndex + 1, pageSize)
+            {
+                Items = resolved.Skip(GetSkipSize(pageIndex, pageSize)).Take(pageSize)
+            };
         }
 
         protected override IContentLinkTemplate LinkTemplate

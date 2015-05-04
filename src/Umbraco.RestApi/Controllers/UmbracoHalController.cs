@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -55,12 +56,12 @@ namespace Umbraco.RestApi.Controllers
 
         [HttpGet]
         [ActionName("children")]
-        public virtual HttpResponseMessage GetChildren(TId id)
+        public virtual HttpResponseMessage GetChildren(TId id, long pageIndex = 0, int pageSize = 100)
         {
-            var result = GetChildContent(id);
+            var result = GetChildContent(id, pageIndex, pageSize);
             return result == null
                 ? Request.CreateResponse(HttpStatusCode.NotImplemented)
-                : Request.CreateResponse(HttpStatusCode.OK, CreateContentRepresentation(result));
+                : Request.CreateResponse(HttpStatusCode.OK, CreatePagedContentRepresentation(id, result));
         }
 
         [HttpGet]
@@ -124,7 +125,7 @@ namespace Umbraco.RestApi.Controllers
             return null;
         }
 
-        protected virtual IEnumerable<TEntity> GetChildContent(TId id)
+        protected virtual PagedResult<TEntity> GetChildContent(TId id, long pageIndex = 0, int pageSize = 100)
         {
             return null;
         }
@@ -159,6 +160,19 @@ namespace Umbraco.RestApi.Controllers
         protected ContentListRepresentation CreateContentRepresentation(IEnumerable<TEntity> entities)
         {
             return new ContentListRepresentation(entities.Select(CreateContentRepresentation).ToList(), LinkTemplate);
+        }
+
+        protected PagedContentListRepresentation CreatePagedContentRepresentation(TId parentId, PagedResult<TEntity> pagedResult)
+        {
+            return new PagedContentListRepresentation(
+                pagedResult.Items.Select(CreateContentRepresentation).ToList(),
+                pagedResult.TotalItems,
+                pagedResult.TotalPages,
+                pagedResult.PageNumber - 1,
+                Convert.ToInt32(pagedResult.PageSize),
+                LinkTemplate,
+                LinkTemplate.PagedChildContent,
+                new {id = parentId});
         }
 
         /// <summary>
@@ -233,6 +247,20 @@ namespace Umbraco.RestApi.Controllers
             return new ModelValidationException(errorModel);
         }
 
+        /// <summary>
+        /// Calculates the skip size based on the paged parameters specified
+        /// </summary>
+        /// <remarks>
+        /// Returns 0 if the page number or page size is zero
+        /// </remarks>
+        public int GetSkipSize(long pageIndex, int pageSize)
+        {
+            if (pageIndex >= 0 && pageSize > 0)
+            {
+                return Convert.ToInt32((pageIndex) * pageSize);
+            }
+            return 0;
+        }
 
         public IDictionary<string, ContentPropertyInfo> GetDefaultFieldMetaData()
         {

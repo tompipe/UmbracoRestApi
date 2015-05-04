@@ -13,8 +13,18 @@ Umbraco REST API has been installed!
 Be sure to read the readme files for UmbracoCms.IdentityExtensions which has been installed: 
 https://github.com/umbraco/UmbracoIdentityExtensibility/blob/master/build/Readme.txt
 That readme contains information on getting started with ASP.Net Identity 
-with Umbraco and how to extend/configure it.
+with Umbraco and how to extend/configure it with OWIN startup classes.
 
-By default CORS is disabled for, to modify the CORS policies for Umbraco Rest API:
+By default CORS is enabled for Umbraco REST Api http calls. To modify the CORS policies for 
+the Umbraco Rest API, add this line to your current OWIN startup:
 
-//TODO: DOcument this!
+app.ConfigureUmbracoRestApiCors(new UmbracoRestApiOptions()
+	{
+		//Modify the CorsPolicy as required
+		CorsPolicy = new CorsPolicy()
+            {
+                AllowAnyHeader = true,
+                AllowAnyMethod = true,
+                AllowAnyOrigin = true
+            }
+	});

@@ -16,7 +16,7 @@ namespace Umbraco.RestApi.Models
         }
 
         public int TotalResults { get; set; }
-        
+
         protected override void CreateHypermedia()
         {
             base.CreateHypermedia();

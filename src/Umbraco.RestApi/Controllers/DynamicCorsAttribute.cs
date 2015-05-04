@@ -21,7 +21,7 @@ namespace Umbraco.RestApi.Controllers
         /// <param name="request">The request.</param><param name="cancellationToken">The cancellation token.</param>
         public Task<CorsPolicy> GetCorsPolicyAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(DynamicCorsPolicy.CorsPolicy);
+            return Task.FromResult(UmbracoRestApiOptionsInstance.Options.CorsPolicy);
         }
 
     }

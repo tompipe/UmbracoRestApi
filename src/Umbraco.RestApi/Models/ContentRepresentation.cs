@@ -84,7 +84,7 @@ namespace Umbraco.RestApi.Models
 
             if (HasChildren)
             {
-                Links.Add(_linkTemplate.ChildContent.CreateLink(new { id = Id }));
+                Links.Add(_linkTemplate.PagedChildContent.CreateLink(new { id = Id, pageIndex = 0, pageSize = 100 }));
             }
 
             if (ParentId > 0)

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.Cors;
 using Microsoft.Owin.Builder;
 using Owin;
 using Umbraco.RestApi.Controllers;
@@ -12,10 +11,10 @@ namespace Umbraco.RestApi
 {
     public static class AppBuilderExtensions
     {
-        public static void ConfigureUmbracoRestApiCors(this AppBuilder app, CorsPolicy corsPolicy)
+        public static void ConfigureUmbracoRestApi(this IAppBuilder app, UmbracoRestApiOptions options)
         {
-            if (corsPolicy == null) throw new ArgumentNullException("corsPolicy");
-            DynamicCorsPolicy.CorsPolicy = corsPolicy;
+            if (options == null) throw new ArgumentNullException("options");
+            UmbracoRestApiOptionsInstance.Options = options;
         }
     }
 }
