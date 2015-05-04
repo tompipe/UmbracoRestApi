@@ -31,7 +31,7 @@ namespace Umbraco.RestApi.Tests
         {
             var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
-                (request, umbCtx, typedContent, serviceContext) =>
+                (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
                     var mockTypedContent = Mock.Get(typedContent);
                     mockTypedContent.Setup(x => x.TypedContent(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedPublishedContent(123, 456, 789));
@@ -63,7 +63,7 @@ namespace Umbraco.RestApi.Tests
         {
             var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
-                (request, umbCtx, typedContent, serviceContext) =>
+                (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
                     var mockTypedContent = Mock.Get(typedContent);
                     mockTypedContent.Setup(x => x.TypedContent(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedPublishedContent(123, 456, 789));
@@ -97,7 +97,7 @@ namespace Umbraco.RestApi.Tests
 
                 Assert.AreEqual("/umbraco/rest/v1/content/published/123", djson["_links"]["self"]["href"].Value<string>());
                 Assert.AreEqual("/umbraco/rest/v1/content/published/456", djson["_links"]["parent"]["href"].Value<string>());
-                Assert.AreEqual("/umbraco/rest/v1/content/published/123/children?pageIndex=0&pageSize=100", djson["_links"]["children"]["href"].Value<string>());
+                Assert.AreEqual("/umbraco/rest/v1/content/published/{id}/children{?pageIndex,pageSize}", djson["_links"]["children"]["href"].Value<string>());
                 Assert.AreEqual("/umbraco/rest/v1/content/published", djson["_links"]["root"]["href"].Value<string>());
 
                 var properties = djson["properties"].ToObject<IDictionary<string, object>>();
@@ -112,7 +112,7 @@ namespace Umbraco.RestApi.Tests
         {
             var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services,
-                (request, umbCtx, typedContent, serviceContext) =>
+                (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
                     var mockTypedContent = Mock.Get(typedContent);
                     mockTypedContent.Setup(x => x.TypedContentAtRoot()).Returns(new[]
@@ -153,7 +153,7 @@ namespace Umbraco.RestApi.Tests
         [Test]
         public async void Post_Is_501_Response()
         {
-            var startup = new TestStartup((request, umbCtx, typedContent, serviceContext) => { });
+            var startup = new TestStartup((request, umbCtx, typedContent, serviceContext, searchProvider) => { });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
             {
@@ -180,7 +180,7 @@ namespace Umbraco.RestApi.Tests
         [Test]
         public async void Put_Is_501_Response()
         {
-            var startup = new TestStartup((request, umbCtx, typedContent, serviceContext) => { });
+            var startup = new TestStartup((request, umbCtx, typedContent, serviceContext, searchProvider) => { });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
             {
@@ -207,7 +207,7 @@ namespace Umbraco.RestApi.Tests
         [Test]
         public async void Delete_Is_501_Response()
         {
-            var startup = new TestStartup((request, umbCtx, typedContent, serviceContext) => { });
+            var startup = new TestStartup((request, umbCtx, typedContent, serviceContext, searchProvider) => { });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
             {

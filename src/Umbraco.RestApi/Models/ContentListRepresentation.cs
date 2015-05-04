@@ -23,10 +23,8 @@ namespace Umbraco.RestApi.Models
 
             Links.Add(_linkTemplate.RootContent.CreateLink());
 
-            //TODO: Add search
-            //var search = LinkTemplates.Beers.SearchBeers;
-            //if (Links.Count(l=>l.Rel == search.Rel && l.Href == search.Href) == 0)
-            //    Links.Add(LinkTemplates.Beers.SearchBeers);
+            //templated link
+            Links.Add(_linkTemplate.Search);
         }
     }
 }

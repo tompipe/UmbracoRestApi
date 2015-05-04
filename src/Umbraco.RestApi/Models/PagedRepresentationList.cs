@@ -41,7 +41,7 @@ namespace Umbraco.RestApi.Models
 
             Href = Href ?? _uriTemplate.CreateLink(prms.ToArray()).Href;
 
-            Links.Add(new Link { Href = Href, Rel = "self" });
+            Links.Add(new Link("self", Href));
 
             if (PageIndex > 0)
             {

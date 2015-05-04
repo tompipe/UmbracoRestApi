@@ -18,6 +18,12 @@ namespace Umbraco.RestApi.Models
     /// </remarks>
     public class QueryStructure
     {
+        public QueryStructure()
+        {
+            PageIndex = 0;
+            PageSize = 100;
+        }
+
         public long PageIndex { get; set; }
         public int PageSize { get; set; }
 

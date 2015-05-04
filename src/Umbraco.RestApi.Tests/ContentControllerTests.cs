@@ -7,6 +7,10 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using Examine;
+using Examine.LuceneEngine;
+using Examine.Providers;
+using Examine.SearchCriteria;
 using Microsoft.Owin.Testing;
 using Moq;
 using Newtonsoft.Json;
@@ -47,7 +51,7 @@ namespace Umbraco.RestApi.Tests
         {
             var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services,
-                (request, umbCtx, typedContent, serviceContext) =>
+                (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
                     var mockContentService = Mock.Get(serviceContext.ContentService);
                     mockContentService.Setup(x => x.GetRootContent()).Returns(new[]
@@ -88,11 +92,61 @@ namespace Umbraco.RestApi.Tests
         }
 
         [Test]
+        public async void Search_200_Result()
+        {
+            var startup = new TestStartup(
+                //This will be invoked before the controller is created so we can modify these mocked services
+                (request, umbCtx, typedContent, serviceContext, searchProvider) =>
+                {
+                    var mockSearchResults = new Mock<ISearchResults>();
+                    mockSearchResults.Setup(results => results.TotalItemCount).Returns(10);
+                    mockSearchResults.Setup(results => results.Skip(It.IsAny<int>())).Returns(new[]
+                    {
+                        new SearchResult() {Id = 789},
+                        new SearchResult() {Id = 456},
+                    });
+
+                    var mockSearchProvider = Mock.Get(searchProvider);
+                    mockSearchProvider.Setup(x => x.CreateSearchCriteria()).Returns(Mock.Of<ISearchCriteria>());
+                    mockSearchProvider.Setup(x => x.Search(It.IsAny<ISearchCriteria>(), It.IsAny<int>()))
+                        .Returns(mockSearchResults.Object);
+
+                    var mockContentService = Mock.Get(serviceContext.ContentService);
+                    mockContentService.Setup(x => x.GetByIds(It.IsAny<IEnumerable<int>>()))
+                        .Returns(new[]
+                        {
+                            ModelMocks.SimpleMockedContent(789),
+                            ModelMocks.SimpleMockedContent(456)
+                        });
+                });
+
+            using (var server = TestServer.Create(builder => startup.Configuration(builder)))
+            {
+                var request = new HttpRequestMessage()
+                {
+                    RequestUri = new Uri(string.Format("http://testserver/umbraco/rest/v1/{0}/search?lucene=parentID:\\-1", RouteConstants.ContentSegment)),
+                    Method = HttpMethod.Get,
+                };
+
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/hal+json"));
+
+                Console.WriteLine(request);
+                var result = await server.HttpClient.SendAsync(request);
+                Console.WriteLine(result);
+
+                var json = await ((StreamContent) result.Content).ReadAsStringAsync();
+                Console.Write(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), Formatting.Indented));
+
+                Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+            }
+        }
+
+        [Test]
         public async void Get_Id_Result()
         {
             var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
-                 (request, umbCtx, typedContent, serviceContext) =>
+                 (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                  {
                      var mockContentService = Mock.Get(serviceContext.ContentService);
 
@@ -126,7 +180,7 @@ namespace Umbraco.RestApi.Tests
 
                 Assert.AreEqual("/umbraco/rest/v1/content/123", djson["_links"]["self"]["href"].Value<string>());
                 Assert.AreEqual("/umbraco/rest/v1/content/456", djson["_links"]["parent"]["href"].Value<string>());
-                Assert.AreEqual("/umbraco/rest/v1/content/123/children?pageIndex=0&pageSize=100", djson["_links"]["children"]["href"].Value<string>());
+                Assert.AreEqual("/umbraco/rest/v1/content/{id}/children{?pageIndex,pageSize}", djson["_links"]["children"]["href"].Value<string>());
                 Assert.AreEqual("/umbraco/rest/v1/content", djson["_links"]["root"]["href"].Value<string>());
 
                 var properties = djson["properties"].ToObject<IDictionary<string, object>>();
@@ -141,7 +195,7 @@ namespace Umbraco.RestApi.Tests
         {
             var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
-                 (request, umbCtx, typedContent, serviceContext) =>
+                 (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                  {
                      var mockContentService = Mock.Get(serviceContext.ContentService);
 
@@ -185,7 +239,7 @@ namespace Umbraco.RestApi.Tests
         {
             var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
-                (request, umbCtx, typedContent, serviceContext) =>
+                (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
                     var mockContentService = Mock.Get(serviceContext.ContentService);
 
@@ -222,7 +276,7 @@ namespace Umbraco.RestApi.Tests
         {
             var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
-                (request, umbCtx, typedContent, serviceContext) =>
+                (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
                     var mockContentService = Mock.Get(serviceContext.ContentService);
 
@@ -274,7 +328,7 @@ namespace Umbraco.RestApi.Tests
         {
             var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
-                (request, umbCtx, typedContent, serviceContext) =>
+                (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
                     SetupMocksForPost(serviceContext);
                 });
@@ -315,7 +369,7 @@ namespace Umbraco.RestApi.Tests
         {
             var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
-                (request, umbCtx, typedContent, serviceContext) =>
+                (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
                     SetupMocksForPost(serviceContext);
                 });
@@ -364,7 +418,7 @@ namespace Umbraco.RestApi.Tests
         {
             var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
-                (request, umbCtx, typedContent, serviceContext) =>
+                (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
                     SetupMocksForPost(serviceContext);
                 });
@@ -412,7 +466,7 @@ namespace Umbraco.RestApi.Tests
         {
             var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
-                (request, umbCtx, typedContent, serviceContext) =>
+                (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
                     SetupMocksForPost(serviceContext);
 
@@ -463,7 +517,7 @@ namespace Umbraco.RestApi.Tests
         {
             var startup = new TestStartup(
                 //This will be invoked before the controller is created so we can modify these mocked services
-                (request, umbCtx, typedContent, serviceContext) =>
+                (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
                     SetupMocksForPost(serviceContext);
                 });

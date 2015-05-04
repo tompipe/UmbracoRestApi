@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Dispatcher;
 using AutoMapper;
+using Examine.Providers;
 using Owin;
 using Umbraco.Core.Services;
 using Umbraco.RestApi.Models;
@@ -16,20 +17,20 @@ namespace Umbraco.RestApi.Tests.TestHelpers
     /// </summary>
     public class TestStartup
     {
-        private readonly Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, ServiceContext> _activator;
+        private readonly Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, ServiceContext, BaseSearchProvider> _activator;
 
-        public TestStartup(Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, ServiceContext> activator)
+        public TestStartup(Action<HttpRequestMessage, UmbracoContext, ITypedPublishedContentQuery, ServiceContext, BaseSearchProvider> activator)
         {
             _activator = activator;
         }
 
-        private void Activator(HttpRequestMessage httpRequestMessage, UmbracoContext umbracoContext, ITypedPublishedContentQuery arg3, ServiceContext serviceContext)
+        private void Activator(HttpRequestMessage httpRequestMessage, UmbracoContext umbracoContext, ITypedPublishedContentQuery arg3, ServiceContext serviceContext, BaseSearchProvider searchProvider)
         {
-            _activator(httpRequestMessage, umbracoContext, arg3, serviceContext);
+            _activator(httpRequestMessage, umbracoContext, arg3, serviceContext, searchProvider);
 
             Mapper.Initialize(configuration =>
             {
-                var contentRepresentationMapper = new ContentRepresentationMapper();
+                var contentRepresentationMapper = new ContentModelMapper();
                 contentRepresentationMapper.ConfigureMappings(configuration, umbracoContext.Application);
             });
         }

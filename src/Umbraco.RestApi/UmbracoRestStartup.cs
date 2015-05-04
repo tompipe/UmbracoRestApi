@@ -30,54 +30,71 @@ namespace Umbraco.RestApi
             //** PublishedContent routes
             MapEntityTypeRoute(config,
                 RouteConstants.PublishedContentRouteName,
-                string.Format("{0}/{1}/{2}/{{id}}/{{action}}", RouteConstants.GetRestRootPath(version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment),
-                string.Format("{0}/{1}/{2}/{{id}}", RouteConstants.GetRestRootPath(version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment),
+                string.Format("{0}/{1}/{2}", RouteConstants.GetRestRootPath(version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment),
                 "PublishedContent",
                 typeof(ContentController).Namespace);
 
             //** Content routes
             MapEntityTypeRoute(config,
                 RouteConstants.ContentRouteName,
-                string.Format("{0}/{1}/{{id}}/{{action}}", RouteConstants.GetRestRootPath(version), RouteConstants.ContentSegment),
-                string.Format("{0}/{1}/{{id}}", RouteConstants.GetRestRootPath(version), RouteConstants.ContentSegment),
+                string.Format("{0}/{1}", RouteConstants.GetRestRootPath(version), RouteConstants.ContentSegment),
                 "Content",
                 typeof(ContentController).Namespace);
 
             //** Media routes
             MapEntityTypeRoute(config,
                 RouteConstants.MediaRouteName,
-                string.Format("{0}/{1}/{{id}}/{{action}}", RouteConstants.GetRestRootPath(version), RouteConstants.MediaSegment),
-                string.Format("{0}/{1}/{{id}}", RouteConstants.GetRestRootPath(version), RouteConstants.MediaSegment),
+                string.Format("{0}/{1}", RouteConstants.GetRestRootPath(version), RouteConstants.MediaSegment),
                 "Media",
                 typeof(ContentController).Namespace);
 
             //** Members routes
             MapEntityTypeRoute(config,
                 RouteConstants.MembersRouteName,
-                string.Format("{0}/{1}/{{id}}/{{action}}", RouteConstants.GetRestRootPath(version), RouteConstants.MembersSegment),
-                string.Format("{0}/{1}/{{id}}", RouteConstants.GetRestRootPath(version), RouteConstants.MembersSegment),
+                string.Format("{0}/{1}", RouteConstants.GetRestRootPath(version), RouteConstants.MembersSegment),
                 "Members",
                 typeof(ContentController).Namespace);
 
           
         }
 
-        private static void MapEntityTypeRoute(HttpConfiguration config, string routeName, string routeTemplateGet, string routeTemplateOther, string defaultController, string @namespace)
+        private static void MapEntityTypeRoute(HttpConfiguration config, string routeName, 
+            string routeTemplateRoot, 
+            string defaultController, 
+            string @namespace)
         {
+            
+            //route for search
+            var routeTemplateSearch = string.Concat(routeTemplateRoot.EnsureEndsWith('/'), "search");
 
-            //Used for 'GETs' since we have multiple get action names
+            //Used for search
             config.Routes.MapHttpRouteWithNamespaceAndRouteName(
-                name: RouteConstants.GetRouteNameForGetRequests(routeName),
-                routeTemplate: routeTemplateGet,
-                defaults: new {controller = defaultController, action = "Get", id = RouteParameter.Optional},
+                name: RouteConstants.GetRouteNameForSearchRequests(routeName),
+                routeTemplate: routeTemplateSearch,
+                defaults: new {controller = defaultController, action = "search"},
                 constraints: new {httpMethod = new HttpMethodConstraint(HttpMethod.Get)},
                 @namespace: @namespace
                 );
 
-            //Used for everything else
+            //template for Id + action routes
+            var routeTemplateIdGet = string.Concat(routeTemplateRoot.EnsureEndsWith('/'), "{id}/{action}");
+
+            //Used for 'GET' with Id + Action 
+            config.Routes.MapHttpRouteWithNamespaceAndRouteName(
+                name: RouteConstants.GetRouteNameForIdGetRequests(routeName),
+                routeTemplate: routeTemplateIdGet,
+                defaults: new { controller = defaultController, action = "Get", id = RouteParameter.Optional },
+                constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get) },
+                @namespace: @namespace
+                );
+
+            //standard web.api template route for POST, DELETE, empty GET, etc...
+            var routeTemplateDefault = string.Concat(routeTemplateRoot.EnsureEndsWith('/'), "{id}");
+
+            //Used for everything else (POST, DELETE, etc...)
             config.Routes.MapHttpRouteWithNamespaceAndRouteName(
                 name: routeName,
-                routeTemplate: routeTemplateOther,
+                routeTemplate: routeTemplateDefault,
                 defaults: new {controller = defaultController, id = RouteParameter.Optional},
                 @namespace: @namespace
                 );

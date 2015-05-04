@@ -19,7 +19,11 @@ namespace Umbraco.RestApi.Models
         {
             base.CreateHypermedia();
 
+            //add root
             Links.Add(_linkTemplate.RootContent.CreateLink());
+
+            //templated link
+            Links.Add(_linkTemplate.Search);
         }
     }
 }

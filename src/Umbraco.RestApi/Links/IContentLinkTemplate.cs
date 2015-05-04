@@ -10,5 +10,6 @@ namespace Umbraco.RestApi.Links
         Link PagedDescendantContent { get; }
         Link PagedChildContent { get; }
         Link ContentMetaData { get; }
+        Link Search { get; }
     }
 }

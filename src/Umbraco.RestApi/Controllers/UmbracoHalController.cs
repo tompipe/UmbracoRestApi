@@ -8,6 +8,8 @@ using System.Text.RegularExpressions;
 using System.Web.Http;
 using System.Web.Http.ModelBinding;
 using AutoMapper;
+using Examine;
+using Examine.Providers;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
@@ -15,6 +17,7 @@ using Umbraco.RestApi.Links;
 using Umbraco.RestApi.Models;
 using Umbraco.Web;
 using Umbraco.Web.WebApi;
+using WebApi.Hal;
 
 
 namespace Umbraco.RestApi.Controllers
@@ -26,18 +29,42 @@ namespace Umbraco.RestApi.Controllers
     public abstract class UmbracoHalController<TId, TEntity> : UmbracoApiControllerBase
         where TEntity : class
     {
+        
+
         protected UmbracoHalController()
         {
         }
 
         protected UmbracoHalController(
             UmbracoContext umbracoContext, 
-            UmbracoHelper umbracoHelper)
+            UmbracoHelper umbracoHelper,
+            BaseSearchProvider searchProvider)
             : base(umbracoContext, umbracoHelper)
         {
+            if (searchProvider == null) throw new ArgumentNullException("searchProvider");
+            _searchProvider = searchProvider;
         }
 
         #region Actions
+
+        //NOTE: We cannot accept POST here for now unless we modify the routing structure since there's only one POST per
+        // controller currently (with the way we've routed).
+        [HttpGet]
+        [ActionName("search")]
+        public HttpResponseMessage Search(
+            [ModelBinder(typeof(QueryStructureModelBinder))]
+            QueryStructure query)
+        {
+            var result = PerformSearch(query);
+            return result == null
+                ? Request.CreateResponse(HttpStatusCode.NotImplemented)
+                : Request.CreateResponse(HttpStatusCode.OK, CreatePagedContentRepresentation(
+                    result,
+                    LinkTemplate.Search,
+                    new {lucene = query.Lucene}));
+
+        }
+
         public HttpResponseMessage Get()
         {
             var result = GetRootContent();
@@ -61,7 +88,10 @@ namespace Umbraco.RestApi.Controllers
             var result = GetChildContent(id, pageIndex, pageSize);
             return result == null
                 ? Request.CreateResponse(HttpStatusCode.NotImplemented)
-                : Request.CreateResponse(HttpStatusCode.OK, CreatePagedContentRepresentation(id, result));
+                : Request.CreateResponse(HttpStatusCode.OK, CreatePagedContentRepresentation(
+                    result,
+                    LinkTemplate.PagedChildContent,
+                    new {id = id}));
         }
 
         [HttpGet]
@@ -71,7 +101,10 @@ namespace Umbraco.RestApi.Controllers
             var result = GetDescendantContent(id, pageIndex, pageSize);
             return result == null
                 ? Request.CreateResponse(HttpStatusCode.NotImplemented)
-                : Request.CreateResponse(HttpStatusCode.OK, CreatePagedContentRepresentation(id, result));
+                : Request.CreateResponse(HttpStatusCode.OK, CreatePagedContentRepresentation(
+                    result,
+                    LinkTemplate.PagedDescendantContent,
+                    new {id = id}));
         }
 
         [HttpGet]
@@ -126,6 +159,11 @@ namespace Umbraco.RestApi.Controllers
 
         #region Protected - to override for REST implementation
 
+        protected virtual PagedResult<TEntity> PerformSearch(QueryStructure query)
+        {
+            return null;
+        } 
+
         protected abstract ContentMetadataRepresentation GetMetadataForItem(TId id);
 
         protected abstract TEntity GetItem(TId id);
@@ -177,7 +215,10 @@ namespace Umbraco.RestApi.Controllers
             return new ContentListRepresentation(entities.Select(CreateContentRepresentation).ToList(), LinkTemplate);
         }
 
-        protected PagedContentListRepresentation CreatePagedContentRepresentation(TId parentId, PagedResult<TEntity> pagedResult)
+        protected PagedContentListRepresentation CreatePagedContentRepresentation(
+            PagedResult<TEntity> pagedResult, 
+            Link pagedUriTemplate,
+            object uriTemplateParams = null)
         {
             return new PagedContentListRepresentation(
                 pagedResult.Items.Select(CreateContentRepresentation).ToList(),
@@ -186,8 +227,8 @@ namespace Umbraco.RestApi.Controllers
                 pagedResult.PageNumber - 1,
                 Convert.ToInt32(pagedResult.PageSize),
                 LinkTemplate,
-                LinkTemplate.PagedChildContent,
-                new {id = parentId});
+                pagedUriTemplate,
+                uriTemplateParams);
         }
 
         /// <summary>
@@ -304,6 +345,12 @@ namespace Umbraco.RestApi.Controllers
                 {"url", new ContentPropertyInfo{Label = TextService.Localize("general/url", UserCulture)}},
                 {"ItemType", new ContentPropertyInfo{Label = TextService.Localize("general/type", UserCulture)}}
             };
+        }
+
+        private BaseSearchProvider _searchProvider;
+        protected BaseSearchProvider SearchProvider
+        {
+            get { return _searchProvider ?? (_searchProvider = ExamineManager.Instance.SearchProviderCollection["InternalSearcher"]); }
         }
 
         private CultureInfo _userCulture;

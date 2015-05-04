@@ -54,38 +54,22 @@ namespace Umbraco.RestApi.Models
 
         [JsonConverter(typeof(ExplicitlyCasedDictionaryKeyJsonConverter<object>))]
         public IDictionary<string, object> Properties { get; set; }
-        
-        public override string Rel
-        {
-            get
-            {
-                if (_linkTemplate == null) throw new NullReferenceException("LinkTemplate is null");
-                return _linkTemplate.ContentItem.Rel;
-            }
-            set { }
-        }
-
-        public override string Href
-        {
-            get
-            {
-                if (_linkTemplate == null) throw new NullReferenceException("LinkTemplate is null");
-                return _linkTemplate.ContentItem.CreateLink(new { id = Id }).Href;
-            }
-            set { }
-        }
-
+      
         protected override void CreateHypermedia()
         {
             if (_linkTemplate == null) throw new NullReferenceException("LinkTemplate is null");
 
+            Href = _linkTemplate.ContentItem.CreateLink(new {id = Id}).Href;
+            Rel = _linkTemplate.ContentItem.Rel;
+
             Links.Add(_linkTemplate.RootContent.CreateLink());
             Links.Add(_linkTemplate.ContentMetaData.CreateLink(new { id = Id }));
-
+            
             if (HasChildren)
             {
-                Links.Add(_linkTemplate.PagedChildContent.CreateLink(new { id = Id, pageIndex = 0, pageSize = 100 }));
-                Links.Add(_linkTemplate.PagedDescendantContent.CreateLink(new { id = Id, pageIndex = 0, pageSize = 100 }));
+                //templated links
+                Links.Add(_linkTemplate.PagedChildContent);
+                Links.Add(_linkTemplate.PagedDescendantContent);
             }
 
             if (ParentId > 0)

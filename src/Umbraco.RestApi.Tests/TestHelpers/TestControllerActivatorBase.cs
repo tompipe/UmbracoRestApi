@@ -6,6 +6,7 @@ using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Dispatcher;
 using System.Web.Security;
+using Examine.Providers;
 using Moq;
 using Umbraco.Core;
 using Umbraco.Core.Configuration.UmbracoSettings;
@@ -115,12 +116,14 @@ namespace Umbraco.RestApi.Tests.TestHelpers
                     Mock.Of<IUmbracoComponentRenderer>(),
                     membershipHelper);
 
-                return CreateController(controllerType, request, umbHelper, mockedTypedContent, serviceContext);
+                var searchProvider = Mock.Of<BaseSearchProvider>();
+
+                return CreateController(controllerType, request, umbHelper, mockedTypedContent, serviceContext, searchProvider);
             }
             //default
             return base.Create(request, controllerDescriptor, controllerType);
         }
 
-        protected abstract ApiController CreateController(Type controllerType, HttpRequestMessage msg, UmbracoHelper helper, ITypedPublishedContentQuery qry, ServiceContext serviceContext);
+        protected abstract ApiController CreateController(Type controllerType, HttpRequestMessage msg, UmbracoHelper helper, ITypedPublishedContentQuery qry, ServiceContext serviceContext, BaseSearchProvider searchProvider);
     }
 }

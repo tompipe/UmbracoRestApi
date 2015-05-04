@@ -137,6 +137,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.SqlServerCe, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <Private>True</Private>
@@ -251,6 +252,7 @@
     <Compile Include="AppBuilderExtensions.cs" />
     <Compile Include="Controllers\ContentPropertyValidator.cs" />
     <Compile Include="Controllers\DynamicCorsAttribute.cs" />
+    <Compile Include="Controllers\QueryStructureModelBinder.cs" />
     <Compile Include="Models\PagedContentListRepresentation.cs" />
     <Compile Include="Models\PagedRepresentationList.cs" />
     <Compile Include="Models\QueryStructure.cs" />
@@ -272,7 +274,7 @@
     <Compile Include="Serialization\ExplicitlyCasedDictionaryKeyJsonConverter.cs" />
     <Compile Include="Models\ContentPropertyRepresentation.cs" />
     <Compile Include="Models\ContentRepresentation.cs" />
-    <Compile Include="Models\ContentRepresentationMapper.cs" />
+    <Compile Include="Models\ContentModelMapper.cs" />
     <Compile Include="Links\ContentLinkTemplate.cs" />
     <Compile Include="Models\MappingExpressionExtensions.cs" />
     <Compile Include="FieldNames.cs" />

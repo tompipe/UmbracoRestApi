@@ -1,7 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Web.Http;
 using AutoMapper;
+using Examine;
+using Examine.Providers;
+using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
 using Umbraco.RestApi.Links;
@@ -13,6 +18,7 @@ namespace Umbraco.RestApi.Controllers
     
     public class ContentController : UmbracoHalController<int, IContent>
     {
+        
 
         /// <summary>
         /// Default ctor
@@ -26,11 +32,35 @@ namespace Umbraco.RestApi.Controllers
         /// </summary>
         /// <param name="umbracoContext"></param>
         /// <param name="umbracoHelper"></param>
+        /// <param name="searchProvider"></param>
         public ContentController(
             UmbracoContext umbracoContext,
-            UmbracoHelper umbracoHelper)
-            : base(umbracoContext, umbracoHelper)
+            UmbracoHelper umbracoHelper, 
+            BaseSearchProvider searchProvider)
+            : base(umbracoContext, umbracoHelper, searchProvider)
         {
+            
+        }
+
+        protected override PagedResult<IContent> PerformSearch(QueryStructure query)
+        {
+            if (query.Lucene.IsNullOrWhiteSpace()) throw new HttpResponseException(HttpStatusCode.NotFound);
+
+            var result =
+                SearchProvider.Search(
+                    SearchProvider.CreateSearchCriteria().RawQuery(query.Lucene),
+                    query.PageSize);
+
+            var paged = result.Skip(query.PageSize);
+
+            //TODO: We really need to make a model mapper from search result to IContent, for now well just go lookup that content :(
+
+            var foundContent = ContentService.GetByIds(paged.Select(x => x.Id)).WhereNotNull();
+
+            return new PagedResult<IContent>(result.TotalItemCount, query.PageIndex + 1, query.PageSize)
+            {
+                Items = foundContent
+            };
         }
 
         protected override IEnumerable<IContent> GetRootContent()

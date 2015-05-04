@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
+using Examine;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Mapping;
 
 namespace Umbraco.RestApi.Models
 {
-    public class ContentRepresentationMapper : MapperConfiguration
+    public class ContentModelMapper : MapperConfiguration
     {
         public override void ConfigureMappings(IConfiguration config, ApplicationContext applicationContext)
         {
@@ -79,6 +80,11 @@ namespace Umbraco.RestApi.Models
                     return content.Properties.ToDictionary(property => property.PropertyTypeAlias,
                         property => property.Value);
                 }));
+
+            //config.CreateMap<SearchResult, ContentRepresentation>()
+            //    //TODO: Lookup children
+            //    .ForMember(content => content.HasChildren, expression => expression.Ignore())
+            //    .ForMember(content => content.ContentType, expression => expression.Ignore())
         }
     }
 }

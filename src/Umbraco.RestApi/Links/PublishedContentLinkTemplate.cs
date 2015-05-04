@@ -29,17 +29,22 @@ namespace Umbraco.RestApi.Links
 
         public Link PagedDescendantContent
         {
-            get { return new Link("descendants", string.Format("~/{0}/{1}/{2}/{{id}}/descendants?pageIndex={{pageIndex}}&pageSize={{pageSize}}", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment)); }
+            get { return new Link("descendants", string.Format("~/{0}/{1}/{2}/{{id}}/descendants{{?pageIndex,pageSize}}", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment)); }
         }
 
         public Link PagedChildContent
         {
-            get { return new Link("children", string.Format("~/{0}/{1}/{2}/{{id}}/children?pageIndex={{pageIndex}}&pageSize={{pageSize}}", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment)); }
+            get { return new Link("children", string.Format("~/{0}/{1}/{2}/{{id}}/children{{?pageIndex,pageSize}}", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment)); }
         }
 
         public Link ContentMetaData
         {
             get { return new Link("meta", string.Format("~/{0}/{1}/{2}/{{id}}/meta", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment)); }
+        }
+
+        public Link Search
+        {
+            get { return new Link("search", string.Format("~/{0}/{1}/{2}/search{{?pageIndex}}{{&pageSize,lucene}}", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment)); }
         }
     }
 }

@@ -31,9 +31,14 @@ namespace Umbraco.RestApi.Routing
         /// </summary>
         /// <param name="baseRouteName"></param>
         /// <returns></returns>
-        public static string GetRouteNameForGetRequests(string baseRouteName)
+        public static string GetRouteNameForIdGetRequests(string baseRouteName)
         {
-            return baseRouteName + "_GET";
+            return baseRouteName + "_1";
+        }
+
+        public static string GetRouteNameForSearchRequests(string baseRouteName)
+        {
+            return baseRouteName + "_2";
         }
 
         private static string _umbracoMvcArea;

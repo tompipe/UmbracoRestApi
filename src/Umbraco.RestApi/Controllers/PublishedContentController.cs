@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Web.Http;
+using Examine.Providers;
 using Umbraco.Core.Models;
 using Umbraco.RestApi.Links;
 using Umbraco.RestApi.Models;
@@ -29,10 +30,12 @@ namespace Umbraco.RestApi.Controllers
         /// </summary>
         /// <param name="umbracoContext"></param>
         /// <param name="umbracoHelper"></param>
+        /// <param name="searchProvider"></param>
         public PublishedContentController(
             UmbracoContext umbracoContext,
-            UmbracoHelper umbracoHelper)
-            : base(umbracoContext, umbracoHelper)
+            UmbracoHelper umbracoHelper,
+            BaseSearchProvider searchProvider)
+            : base(umbracoContext, umbracoHelper, searchProvider)
         {
         }
 
