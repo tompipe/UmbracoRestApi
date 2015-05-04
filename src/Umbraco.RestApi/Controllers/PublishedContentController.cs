@@ -74,6 +74,18 @@ namespace Umbraco.RestApi.Controllers
             };
         }
 
+        protected override PagedResult<IPublishedContent> GetDescendantContent(int id, long pageIndex = 0, int pageSize = 100)
+        {
+            var content = Umbraco.TypedContent(id);
+            if (content == null) throw new HttpResponseException(HttpStatusCode.NotFound);
+            var resolved = content.Descendants().ToArray();
+
+            return new PagedResult<IPublishedContent>(resolved.Length, pageIndex + 1, pageSize)
+            {
+                Items = resolved.Skip(GetSkipSize(pageIndex, pageSize)).Take(pageSize)
+            };
+        }
+
         protected override IContentLinkTemplate LinkTemplate
         {
             get { return new PublishedContentLinkTemplate(CurrentVersionRequest); }

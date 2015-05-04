@@ -56,7 +56,7 @@ namespace Umbraco.RestApi.Controllers
 
         [HttpGet]
         [ActionName("children")]
-        public virtual HttpResponseMessage GetChildren(TId id, long pageIndex = 0, int pageSize = 100)
+        public HttpResponseMessage GetChildren(TId id, long pageIndex = 0, int pageSize = 100)
         {
             var result = GetChildContent(id, pageIndex, pageSize);
             return result == null
@@ -65,8 +65,18 @@ namespace Umbraco.RestApi.Controllers
         }
 
         [HttpGet]
+        [ActionName("descendants")]
+        public HttpResponseMessage GetDescendants(TId id, long pageIndex = 0, int pageSize = 100)
+        {
+            var result = GetDescendantContent(id, pageIndex, pageSize);
+            return result == null
+                ? Request.CreateResponse(HttpStatusCode.NotImplemented)
+                : Request.CreateResponse(HttpStatusCode.OK, CreatePagedContentRepresentation(id, result));
+        }
+
+        [HttpGet]
         [ActionName("meta")]
-        public virtual HttpResponseMessage GetMetadata(TId id)
+        public HttpResponseMessage GetMetadata(TId id)
         {
             var result = GetMetadataForItem(id);
             return result == null
@@ -126,6 +136,11 @@ namespace Umbraco.RestApi.Controllers
         }
 
         protected virtual PagedResult<TEntity> GetChildContent(TId id, long pageIndex = 0, int pageSize = 100)
+        {
+            return null;
+        }
+
+        protected virtual PagedResult<TEntity> GetDescendantContent(TId id, long pageIndex = 0, int pageSize = 100)
         {
             return null;
         }

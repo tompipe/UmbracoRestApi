@@ -67,6 +67,16 @@ namespace Umbraco.RestApi.Controllers
             };
         }
 
+        protected override PagedResult<IContent> GetDescendantContent(int id, long pageIndex = 0, int pageSize = 100)
+        {
+            long total;
+            var items = ContentService.GetPagedDescendants(id, pageIndex, pageSize, out total);
+            return new PagedResult<IContent>(total, pageIndex + 1, pageSize)
+            {
+                Items = items
+            };
+        }
+
         protected override IContent CreateNew(ContentRepresentation content)
         {
             //we cannot continue here if the mandatory items are empty (i.e. name, etc...)
