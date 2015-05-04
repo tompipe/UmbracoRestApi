@@ -3,7 +3,9 @@ using System.Linq;
 using System.Net;
 using System.Web.Http;
 using Examine.Providers;
+using Umbraco.Core;
 using Umbraco.Core.Models;
+using Umbraco.Core.Services;
 using Umbraco.RestApi.Links;
 using Umbraco.RestApi.Models;
 using Umbraco.Web;
@@ -37,6 +39,24 @@ namespace Umbraco.RestApi.Controllers
             BaseSearchProvider searchProvider)
             : base(umbracoContext, umbracoHelper, searchProvider)
         {
+        }
+
+        protected override PagedResult<IPublishedContent> PerformSearch(QueryStructure query)
+        {
+            if (query.Lucene.IsNullOrWhiteSpace()) throw new HttpResponseException(HttpStatusCode.NotFound);
+
+            //TODO: This would be more efficient if we went straight to the ExamineManager and used it's built in Skip method
+            // but then we have to write our own model mappers and don't have time for that right now.
+
+            var result = Umbraco.ContentQuery.TypedSearch(SearchProvider.CreateSearchCriteria().RawQuery(query.Lucene), SearchProvider)
+                .ToArray();
+
+            var paged = result.Skip(GetSkipSize(query.PageIndex, query.PageSize)).Take(query.PageSize);
+            
+            return new PagedResult<IPublishedContent>(result.Length, query.PageIndex + 1, query.PageSize)
+            {
+                Items = paged
+            };
         }
 
         protected override IEnumerable<IPublishedContent> GetRootContent()

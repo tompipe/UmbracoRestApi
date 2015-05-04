@@ -44,7 +44,7 @@ namespace Umbraco.RestApi.Links
 
         public Link Search
         {
-            get { return new Link("search", string.Format("~/{0}/{1}/{2}/search{{?pageIndex}}{{&pageSize,lucene}}", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment)); }
+            get { return new Link("search", string.Format("~/{0}/{1}/{2}/search{{?pageIndex,pageSize,lucene}}", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment)); }
         }
     }
 }
