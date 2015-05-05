@@ -37,9 +37,16 @@ namespace Umbraco.RestApi.Controllers
             UmbracoContext umbracoContext,
             UmbracoHelper umbracoHelper, 
             BaseSearchProvider searchProvider)
-            : base(umbracoContext, umbracoHelper, searchProvider)
+            : base(umbracoContext, umbracoHelper)
         {
-            
+            if (searchProvider == null) throw new ArgumentNullException("searchProvider");
+            _searchProvider = searchProvider;
+        }
+
+        private BaseSearchProvider _searchProvider;
+        protected BaseSearchProvider SearchProvider
+        {
+            get { return _searchProvider ?? (_searchProvider = ExamineManager.Instance.SearchProviderCollection["InternalSearcher"]); }
         }
 
         protected override PagedResult<IContent> PerformSearch(QueryStructure query)
@@ -51,16 +58,25 @@ namespace Umbraco.RestApi.Controllers
                     SearchProvider.CreateSearchCriteria().RawQuery(query.Lucene),
                     query.PageSize);
 
-            var paged = result.Skip(query.PageSize);
+            var paged = result.Skip(GetSkipSize(query.PageIndex, query.PageSize)).ToArray();
 
             //TODO: We really need to make a model mapper from search result to IContent, for now well just go lookup that content :(
 
-            var foundContent = ContentService.GetByIds(paged.Select(x => x.Id)).WhereNotNull();
+            if (paged.Any())
+            {
+                var foundContent = ContentService.GetByIds(paged.Select(x => x.Id)).WhereNotNull();
+
+                return new PagedResult<IContent>(result.TotalItemCount, query.PageIndex + 1, query.PageSize)
+                {
+                    Items = foundContent
+                };    
+            }
 
             return new PagedResult<IContent>(result.TotalItemCount, query.PageIndex + 1, query.PageSize)
             {
-                Items = foundContent
-            };
+                Items = Enumerable.Empty<IContent>()
+            };    
+            
         }
 
         protected override IEnumerable<IContent> GetRootContent()

@@ -31,7 +31,7 @@ namespace Umbraco.RestApi.Controllers
             }
 
             int pageIndex;
-            if (query.Any(x => x.Key.InvariantEquals("pageIndex")) && int.TryParse(query.Single(x => x.Key.InvariantEquals("pageSize")).Value, out pageIndex))
+            if (query.Any(x => x.Key.InvariantEquals("pageIndex")) && int.TryParse(query.Single(x => x.Key.InvariantEquals("pageIndex")).Value, out pageIndex))
             {
                 queryStructure.PageIndex = pageIndex;
             }

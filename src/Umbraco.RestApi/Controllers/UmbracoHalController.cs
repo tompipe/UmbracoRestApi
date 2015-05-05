@@ -37,12 +37,9 @@ namespace Umbraco.RestApi.Controllers
 
         protected UmbracoHalController(
             UmbracoContext umbracoContext, 
-            UmbracoHelper umbracoHelper,
-            BaseSearchProvider searchProvider)
+            UmbracoHelper umbracoHelper)
             : base(umbracoContext, umbracoHelper)
         {
-            if (searchProvider == null) throw new ArgumentNullException("searchProvider");
-            _searchProvider = searchProvider;
         }
 
         #region Actions
@@ -345,12 +342,6 @@ namespace Umbraco.RestApi.Controllers
                 {"url", new ContentPropertyInfo{Label = TextService.Localize("general/url", UserCulture)}},
                 {"ItemType", new ContentPropertyInfo{Label = TextService.Localize("general/type", UserCulture)}}
             };
-        }
-
-        private BaseSearchProvider _searchProvider;
-        protected BaseSearchProvider SearchProvider
-        {
-            get { return _searchProvider ?? (_searchProvider = ExamineManager.Instance.SearchProviderCollection["InternalSearcher"]); }
         }
 
         private CultureInfo _userCulture;

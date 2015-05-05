@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web.Http;
+using Examine;
 using Examine.Providers;
 using Umbraco.Core;
 using Umbraco.Core.Models;
@@ -37,8 +39,16 @@ namespace Umbraco.RestApi.Controllers
             UmbracoContext umbracoContext,
             UmbracoHelper umbracoHelper,
             BaseSearchProvider searchProvider)
-            : base(umbracoContext, umbracoHelper, searchProvider)
+            : base(umbracoContext, umbracoHelper)
         {
+            if (searchProvider == null) throw new ArgumentNullException("searchProvider");
+            _searchProvider = searchProvider;
+        }
+
+        private BaseSearchProvider _searchProvider;
+        protected BaseSearchProvider SearchProvider
+        {
+            get { return _searchProvider ?? (_searchProvider = ExamineManager.Instance.SearchProviderCollection["ExternalSearcher"]); }
         }
 
         protected override PagedResult<IPublishedContent> PerformSearch(QueryStructure query)
