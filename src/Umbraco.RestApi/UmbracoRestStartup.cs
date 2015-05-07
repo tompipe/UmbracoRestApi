@@ -68,7 +68,7 @@ namespace Umbraco.RestApi
             var routeTemplateSearch = string.Concat(routeTemplateRoot.EnsureEndsWith('/'), "search");
 
             //Used for search
-            config.Routes.MapHttpRouteWithNamespaceAndRouteName(
+            config.Routes.MapHttpRouteWithNamespaceAndRouteName(config,
                 name: RouteConstants.GetRouteNameForSearchRequests(routeName),
                 routeTemplate: routeTemplateSearch,
                 defaults: new {controller = defaultController, action = "search"},
@@ -80,7 +80,7 @@ namespace Umbraco.RestApi
             var routeTemplateIdGet = string.Concat(routeTemplateRoot.EnsureEndsWith('/'), "{id}/{action}");
 
             //Used for 'GET' with Id + Action 
-            config.Routes.MapHttpRouteWithNamespaceAndRouteName(
+            config.Routes.MapHttpRouteWithNamespaceAndRouteName(config,
                 name: RouteConstants.GetRouteNameForIdGetRequests(routeName),
                 routeTemplate: routeTemplateIdGet,
                 defaults: new { controller = defaultController, action = "Get", id = RouteParameter.Optional },
@@ -92,7 +92,7 @@ namespace Umbraco.RestApi
             var routeTemplateDefault = string.Concat(routeTemplateRoot.EnsureEndsWith('/'), "{id}");
 
             //Used for everything else (POST, DELETE, etc...)
-            config.Routes.MapHttpRouteWithNamespaceAndRouteName(
+            config.Routes.MapHttpRouteWithNamespaceAndRouteName(config,
                 name: routeName,
                 routeTemplate: routeTemplateDefault,
                 defaults: new {controller = defaultController, id = RouteParameter.Optional},

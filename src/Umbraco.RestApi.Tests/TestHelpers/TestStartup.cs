@@ -42,9 +42,7 @@ namespace Umbraco.RestApi.Tests.TestHelpers
             var httpConfig = new HttpConfiguration();
 
             httpConfig.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
-
-            httpConfig.EnableCors();
-
+            
             httpConfig.Services.Replace(typeof(IAssembliesResolver), new TestWebApiResolver());
             httpConfig.Services.Replace(typeof(IHttpControllerActivator), new TestControllerActivator(Activator));
             httpConfig.Services.Replace(typeof(IHttpControllerSelector), new NamespaceHttpControllerSelector(httpConfig));
