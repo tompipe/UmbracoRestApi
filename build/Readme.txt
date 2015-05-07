@@ -18,7 +18,7 @@ with Umbraco and how to extend/configure it with OWIN startup classes.
 By default CORS is enabled for Umbraco REST Api http calls. To modify the CORS policies for 
 the Umbraco Rest API, add this line to your current OWIN startup:
 
-app.ConfigureUmbracoRestApiCors(new UmbracoRestApiOptions()
+app.ConfigureUmbracoRestApi(new UmbracoRestApiOptions()
 	{
 		//Modify the CorsPolicy as required
 		CorsPolicy = new CorsPolicy()

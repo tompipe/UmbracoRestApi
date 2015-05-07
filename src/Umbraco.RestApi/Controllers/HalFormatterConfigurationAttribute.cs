@@ -7,11 +7,8 @@ namespace Umbraco.RestApi.Controllers
 {
     public class HalFormatterConfigurationAttribute : Attribute, IControllerConfiguration
     {
-        public virtual void Initialize(HttpControllerSettings controllerSettings, HttpControllerDescriptor controllerDescriptor)
+        public void Initialize(HttpControllerSettings controllerSettings, HttpControllerDescriptor controllerDescriptor)
         {
-
-            
-
             controllerSettings.Formatters.Insert(0, new XmlHalMediaTypeFormatter());
             var jsonFormatter = new JsonHalMediaTypeFormatter
             {

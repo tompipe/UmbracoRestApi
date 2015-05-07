@@ -19,7 +19,7 @@
       <dependency id="Microsoft.AspNet.WebApi" version="[5.2.3, 6.0.0)" />
       <dependency id="Microsoft.AspNet.WebApi.Cors" version="[5.2.3, 6.0.0)" />
       <dependency id="WebApi.Hal" version="[2.5.0, 3.0.0)" />
-      <dependency id="UmbracoCms.IdentityExtensions" version="[1.0.0-nightly0001, 2.0.0)" />
+      <dependency id="UmbracoCms.IdentityExtensions" version="[1.0.0-nightly0003, 2.0.0)" />
     </dependencies>
   </metadata>
   <files>

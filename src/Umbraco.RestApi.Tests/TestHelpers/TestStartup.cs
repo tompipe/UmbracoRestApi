@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using System.Web.Http.Dispatcher;
 using AutoMapper;
 using Examine.Providers;
@@ -42,6 +43,8 @@ namespace Umbraco.RestApi.Tests.TestHelpers
 
             httpConfig.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
 
+            httpConfig.EnableCors();
+
             httpConfig.Services.Replace(typeof(IAssembliesResolver), new TestWebApiResolver());
             httpConfig.Services.Replace(typeof(IHttpControllerActivator), new TestControllerActivator(Activator));
             httpConfig.Services.Replace(typeof(IHttpControllerSelector), new NamespaceHttpControllerSelector(httpConfig));
@@ -54,7 +57,6 @@ namespace Umbraco.RestApi.Tests.TestHelpers
             UmbracoRestStartup.CreateRoutes(httpConfig);
 
             app.UseWebApi(httpConfig);
-
         }
     }
 
