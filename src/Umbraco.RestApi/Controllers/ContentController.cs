@@ -15,7 +15,7 @@ using Umbraco.Web;
 
 namespace Umbraco.RestApi.Controllers
 {
-    
+    [RoutePrefix("umbraco/rest/v1/content")]
     public class ContentController : UmbracoHalController<int, IContent>
     {
         

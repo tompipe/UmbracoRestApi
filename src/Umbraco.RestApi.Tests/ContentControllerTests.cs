@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Web.Http;
 using Examine;
 using Examine.LuceneEngine;
 using Examine.Providers;
@@ -81,6 +82,8 @@ namespace Umbraco.RestApi.Tests
                 Console.Write(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), Formatting.Indented));
 
                 Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+                var asdf = GlobalConfiguration.Configuration;
 
                 var djson = JsonConvert.DeserializeObject<JObject>(json);
 

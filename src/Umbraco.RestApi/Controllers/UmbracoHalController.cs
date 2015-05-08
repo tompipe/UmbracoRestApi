@@ -6,10 +6,12 @@ using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Web.Http;
+using System.Web.Http.Controllers;
 using System.Web.Http.ModelBinding;
 using AutoMapper;
 using Examine;
 using Examine.Providers;
+using Newtonsoft.Json.Serialization;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
@@ -23,13 +25,35 @@ using WebApi.Hal;
 namespace Umbraco.RestApi.Controllers
 {
     [DynamicCors]
-    [UmbracoAuthorize]
-    [IsBackOffice]
+    //[UmbracoAuthorize]
+    [IsBackOffice]    
     [HalFormatterConfiguration]
     public abstract class UmbracoHalController<TId, TEntity> : UmbracoApiControllerBase
         where TEntity : class
+        where TId: struct
     {
-        
+        ///// <summary>
+        ///// Sets up the controller with the correct formatters and services
+        ///// </summary>       
+        ///// <remarks>
+        ///// We cannot use IControllerConfiguration because we are using our custom attribute routing mechanism
+        ///// which cannot support 
+        ///// </remarks>
+        //protected override void Initialize(HttpControllerContext controllerContext)
+        //{
+        //    base.Initialize(controllerContext);
+
+        //    controllerContext.Configuration.Formatters.Insert(0, new XmlHalMediaTypeFormatter());
+        //    var jsonFormatter = new JsonHalMediaTypeFormatter
+        //    {
+        //        SerializerSettings =
+        //        {
+        //            ContractResolver = new CamelCasePropertyNamesContractResolver()
+        //        }
+        //    };
+        //    controllerContext.Configuration.Formatters.Insert(0, jsonFormatter);
+        //}
+
 
         protected UmbracoHalController()
         {
@@ -47,7 +71,7 @@ namespace Umbraco.RestApi.Controllers
         //NOTE: We cannot accept POST here for now unless we modify the routing structure since there's only one POST per
         // controller currently (with the way we've routed).
         [HttpGet]
-        [ActionName("search")]
+        //[CustomRoute("search/{query}")]
         public HttpResponseMessage Search(
             [ModelBinder(typeof(QueryStructureModelBinder))]
             QueryStructure query)
@@ -62,6 +86,7 @@ namespace Umbraco.RestApi.Controllers
 
         }
 
+        [CustomRoute("")]
         public HttpResponseMessage Get()
         {
             var result = GetRootContent();
@@ -70,6 +95,7 @@ namespace Umbraco.RestApi.Controllers
                 : Request.CreateResponse(HttpStatusCode.OK, CreateContentRepresentation(result));
         }
 
+        [CustomRoute("{id}")]
         public HttpResponseMessage Get(TId id)
         {
             var result = GetItem(id);
@@ -78,9 +104,28 @@ namespace Umbraco.RestApi.Controllers
                 : Request.CreateResponse(HttpStatusCode.OK, CreateContentRepresentation(result));
         }
 
+        //public HttpResponseMessage Get(TId? id)
+        //{
+        //    if (id.HasValue)
+        //    {
+        //        var result = GetItem(id.Value);
+        //        return result == null
+        //            ? Request.CreateResponse(HttpStatusCode.NotFound)
+        //            : Request.CreateResponse(HttpStatusCode.OK, CreateContentRepresentation(result));
+        //    }
+        //    else
+        //    {
+        //        var result = GetRootContent();
+        //        return result == null
+        //            ? Request.CreateResponse(HttpStatusCode.NotImplemented)
+        //            : Request.CreateResponse(HttpStatusCode.OK, CreateContentRepresentation(result));
+        //    }
+        //}
+
         [HttpGet]
-        [ActionName("children")]
-        public HttpResponseMessage GetChildren(TId id, long pageIndex = 0, int pageSize = 100)
+        //[ActionName("children")]
+        //[CustomRoute("children/{id}/{pageIndex?}/{pageIndex?}")]
+        public HttpResponseMessage Children(TId id, long pageIndex = 0, int pageSize = 100)
         {
             var result = GetChildContent(id, pageIndex, pageSize);
             return result == null
@@ -92,8 +137,9 @@ namespace Umbraco.RestApi.Controllers
         }
 
         [HttpGet]
-        [ActionName("descendants")]
-        public HttpResponseMessage GetDescendants(TId id, long pageIndex = 0, int pageSize = 100)
+        //[ActionName("descendants")]
+        //[CustomRoute("descendants/{id}/{pageIndex?}/{pageIndex?}")]
+        public HttpResponseMessage Descendants(TId id, long pageIndex = 0, int pageSize = 100)
         {
             var result = GetDescendantContent(id, pageIndex, pageSize);
             return result == null
@@ -105,8 +151,9 @@ namespace Umbraco.RestApi.Controllers
         }
 
         [HttpGet]
-        [ActionName("meta")]
-        public HttpResponseMessage GetMetadata(TId id)
+        //[ActionName("meta")]
+        [CustomRoute("meta/{id}")]
+        public HttpResponseMessage Metadata(TId id)
         {
             var result = GetMetadataForItem(id);
             return result == null
@@ -114,6 +161,7 @@ namespace Umbraco.RestApi.Controllers
                 : Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
+        [HttpPost]
         public HttpResponseMessage Post(ContentRepresentation content)
         {
             try
@@ -131,6 +179,7 @@ namespace Umbraco.RestApi.Controllers
             }
         }
 
+        [HttpPut]
         public HttpResponseMessage Put(TId id, ContentRepresentation content)
         {
             try
@@ -148,6 +197,7 @@ namespace Umbraco.RestApi.Controllers
             }
         }
 
+        [HttpDelete]
         public virtual HttpResponseMessage Delete(int id)
         {
             return Request.CreateResponse(HttpStatusCode.NotImplemented);
@@ -315,7 +365,8 @@ namespace Umbraco.RestApi.Controllers
             return 0;
         }
 
-        public IDictionary<string, ContentPropertyInfo> GetDefaultFieldMetaData()
+        [NonAction]
+        protected IDictionary<string, ContentPropertyInfo> GetDefaultFieldMetaData()
         {
             //TODO: This shouldn't actually localize based on the current user!!!
             // this should localize based on the current request's Accept-Language and Content-Language headers

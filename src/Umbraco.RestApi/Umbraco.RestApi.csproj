@@ -253,9 +253,12 @@
     <Compile Include="Controllers\ContentPropertyValidator.cs" />
     <Compile Include="Controllers\DynamicCorsAttribute.cs" />
     <Compile Include="Controllers\QueryStructureModelBinder.cs" />
+    <Compile Include="CustomRouteAttributeDirectRouteProvider.cs" />
+    <Compile Include="Controllers\CustomRouteAttribute.cs" />
     <Compile Include="Models\PagedContentListRepresentation.cs" />
     <Compile Include="Models\PagedRepresentationList.cs" />
     <Compile Include="Models\QueryStructure.cs" />
+    <Compile Include="SpecificAssemblyResolver.cs" />
     <Compile Include="UmbracoRestApiOptionsInstance.cs" />
     <Compile Include="Controllers\PublishedContentController.cs" />
     <Compile Include="Controllers\ContentController.cs" />

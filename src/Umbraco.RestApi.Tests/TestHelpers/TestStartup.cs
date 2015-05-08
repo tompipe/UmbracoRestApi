@@ -41,9 +41,12 @@ namespace Umbraco.RestApi.Tests.TestHelpers
 
             var httpConfig = new HttpConfiguration();
 
-            httpConfig.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
+            //this is here to ensure that multiple calls to this don't cause errors
+            //httpConfig.MapHttpAttributeRoutes();
             
-            httpConfig.Services.Replace(typeof(IAssembliesResolver), new TestWebApiResolver());
+            httpConfig.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
+
+            httpConfig.Services.Replace(typeof(IAssembliesResolver), new SpecificAssemblyResolver(new[] { typeof(UmbracoRestStartup).Assembly }));
             httpConfig.Services.Replace(typeof(IHttpControllerActivator), new TestControllerActivator(Activator));
             httpConfig.Services.Replace(typeof(IHttpControllerSelector), new NamespaceHttpControllerSelector(httpConfig));
 

@@ -282,7 +282,6 @@
     <Compile Include="TestHelpers\ProviderUtilities.cs" />
     <Compile Include="PublishedContentControllerTests.cs" />
     <Compile Include="TestHelpers\TestControllerActivatorBase.cs" />
-    <Compile Include="TestHelpers\TestWebApiResolver.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
