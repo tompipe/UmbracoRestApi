@@ -27,34 +27,12 @@ namespace Umbraco.RestApi.Controllers
     [DynamicCors]
     //[UmbracoAuthorize]
     [IsBackOffice]    
-    [HalFormatterConfiguration]
+    [HalFormatterConfiguration]    
     public abstract class UmbracoHalController<TId, TEntity> : UmbracoApiControllerBase
         where TEntity : class
         where TId: struct
     {
-        ///// <summary>
-        ///// Sets up the controller with the correct formatters and services
-        ///// </summary>       
-        ///// <remarks>
-        ///// We cannot use IControllerConfiguration because we are using our custom attribute routing mechanism
-        ///// which cannot support 
-        ///// </remarks>
-        //protected override void Initialize(HttpControllerContext controllerContext)
-        //{
-        //    base.Initialize(controllerContext);
-
-        //    controllerContext.Configuration.Formatters.Insert(0, new XmlHalMediaTypeFormatter());
-        //    var jsonFormatter = new JsonHalMediaTypeFormatter
-        //    {
-        //        SerializerSettings =
-        //        {
-        //            ContractResolver = new CamelCasePropertyNamesContractResolver()
-        //        }
-        //    };
-        //    controllerContext.Configuration.Formatters.Insert(0, jsonFormatter);
-        //}
-
-
+       
         protected UmbracoHalController()
         {
         }
@@ -71,7 +49,7 @@ namespace Umbraco.RestApi.Controllers
         //NOTE: We cannot accept POST here for now unless we modify the routing structure since there's only one POST per
         // controller currently (with the way we've routed).
         [HttpGet]
-        //[CustomRoute("search/{query}")]
+        [CustomRoute("search")]
         public HttpResponseMessage Search(
             [ModelBinder(typeof(QueryStructureModelBinder))]
             QueryStructure query)
@@ -86,8 +64,9 @@ namespace Umbraco.RestApi.Controllers
 
         }
 
+        [HttpGet]
         [CustomRoute("")]
-        public HttpResponseMessage Get()
+        public HttpResponseMessage asdf()
         {
             var result = GetRootContent();
             return result == null
@@ -95,8 +74,9 @@ namespace Umbraco.RestApi.Controllers
                 : Request.CreateResponse(HttpStatusCode.OK, CreateContentRepresentation(result));
         }
 
+        [HttpGet]
         [CustomRoute("{id}")]
-        public HttpResponseMessage Get(TId id)
+        public HttpResponseMessage sdafsdfa(TId id)
         {
             var result = GetItem(id);
             return result == null
@@ -124,7 +104,7 @@ namespace Umbraco.RestApi.Controllers
 
         [HttpGet]
         //[ActionName("children")]
-        //[CustomRoute("children/{id}/{pageIndex?}/{pageIndex?}")]
+        [CustomRoute("{id}/children/{pageIndex?}/{pageSize?}")]
         public HttpResponseMessage Children(TId id, long pageIndex = 0, int pageSize = 100)
         {
             var result = GetChildContent(id, pageIndex, pageSize);
@@ -138,7 +118,7 @@ namespace Umbraco.RestApi.Controllers
 
         [HttpGet]
         //[ActionName("descendants")]
-        //[CustomRoute("descendants/{id}/{pageIndex?}/{pageIndex?}")]
+        [CustomRoute("{id}/descendants/{pageIndex?}/{pageSize?}")]
         public HttpResponseMessage Descendants(TId id, long pageIndex = 0, int pageSize = 100)
         {
             var result = GetDescendantContent(id, pageIndex, pageSize);
@@ -152,7 +132,7 @@ namespace Umbraco.RestApi.Controllers
 
         [HttpGet]
         //[ActionName("meta")]
-        [CustomRoute("meta/{id}")]
+        [CustomRoute("{id}/meta")]
         public HttpResponseMessage Metadata(TId id)
         {
             var result = GetMetadataForItem(id);
@@ -162,6 +142,7 @@ namespace Umbraco.RestApi.Controllers
         }
 
         [HttpPost]
+        [CustomRoute("")]
         public HttpResponseMessage Post(ContentRepresentation content)
         {
             try
@@ -180,6 +161,7 @@ namespace Umbraco.RestApi.Controllers
         }
 
         [HttpPut]
+        [CustomRoute("{id}")]
         public HttpResponseMessage Put(TId id, ContentRepresentation content)
         {
             try
@@ -198,6 +180,7 @@ namespace Umbraco.RestApi.Controllers
         }
 
         [HttpDelete]
+        [CustomRoute("{id}")]
         public virtual HttpResponseMessage Delete(int id)
         {
             return Request.CreateResponse(HttpStatusCode.NotImplemented);

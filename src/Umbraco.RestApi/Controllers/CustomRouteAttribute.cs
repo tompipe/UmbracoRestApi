@@ -10,6 +10,13 @@ namespace Umbraco.RestApi.Controllers
         {
             InnerAttribute = new RouteAttribute(template);
         }
+
+        public string Name
+        {
+            get { return InnerAttribute.Name; }
+            set { InnerAttribute.Name = value; }
+        }
+
         public RouteAttribute InnerAttribute;
     }
 }

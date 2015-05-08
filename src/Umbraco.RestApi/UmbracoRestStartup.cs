@@ -25,7 +25,15 @@ namespace Umbraco.RestApi
         {
             const int version = 1;
 
-            config.MapPerAssemblyAttributeRoutes("UmbracoRestApi", typeof (UmbracoRestStartup).Assembly, true);
+            config.MapPerAssemblyAttributeRoutes(
+                routeName: "UmbracoRestApi", 
+                assemblyToScan: typeof (UmbracoRestStartup).Assembly, 
+                routeCallback: route =>
+                {
+                    
+                },
+                inheritedAttributes: true);
+
             //config.MapHttpAttributeRoutes(new CustomRouteAttributeDirectRouteProvider(true));
 
             ////HAL routes:

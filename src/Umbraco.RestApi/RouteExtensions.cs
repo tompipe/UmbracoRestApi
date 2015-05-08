@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Net.Http;
@@ -20,6 +21,7 @@ namespace Umbraco.RestApi
             this HttpConfiguration originalConfig, 
             string routeName,
             Assembly assemblyToScan,
+            Action<IHttpRoute> routeCallback = null,
             bool inheritedAttributes = false)
         {
             //new temp config to clone
@@ -43,42 +45,76 @@ namespace Umbraco.RestApi
 
                     tempConfig.EnsureInitialized();
 
-                    //get the route created
-                    var attributeRoute = tempConfig.Routes.Single();
+                    var controllerDescriptors = new List<HttpControllerDescriptor>();
 
-                    //attributeRoute.Handler = GetMessageHandler()
-
-
-                    //cast to it's collection
-                    var attributeRoutes = (IReadOnlyCollection<IHttpRoute>)attributeRoute;
-                    //update each attribute route's action descriptor http configuration property
-                    //to be the real configuration 
-                    foreach (var httpRoute in attributeRoutes)
+                    //get the routes created
+                    foreach (var attributeRoute in tempConfig.Routes)
                     {
-                        var descriptors = httpRoute.DataTokens["actions"] as IEnumerable<HttpActionDescriptor>;
-                        if (descriptors != null)
+                        //attributeRoute.Handler = GetMessageHandler()
+
+                        //in many cases it's a collection of routes contained in a single route
+                        var routeCollection = attributeRoute as IReadOnlyCollection<IHttpRoute>;
+                        if (routeCollection != null)
                         {
-                            foreach (var descriptor in descriptors)
+                            //update each attribute route's action descriptor http configuration property
+                            //to be the real configuration 
+                            foreach (var httpRoute in routeCollection)
                             {
-                                descriptor.Configuration = configuration;
-                                //NOTE: We are making a new instance of a HttpControllerDescriptor to force
-                                // the descriptor to initialize again so that IControllerConfiguration executes.
-                                descriptor.ControllerDescriptor = new HttpControllerDescriptor(
-                                    configuration,
-                                    descriptor.ControllerDescriptor.ControllerName,
-                                    descriptor.ControllerDescriptor.ControllerType);
+                                SetDescriptorsOnRoute(httpRoute, configuration, controllerDescriptors);
                             }
                         }
+                        else
+                        {
+                            SetDescriptorsOnRoute(attributeRoute, configuration, controllerDescriptors);
+                        }
+
+                        //callback can modify the route
+                        if (routeCallback != null)
+                        {
+                            routeCallback(attributeRoute);
+                        }
+
+                        //now we need to add the route back to the main configuration
+                        originalConfig.Routes.Add(
+                            routeName,
+                            attributeRoute);
                     }
 
-                    //now we need to add the route back to the main configuration
-                    originalConfig.Routes.Add(
-                        routeName,
-                        attributeRoute);
+                    
                 }
 
                 originalInit(configuration);
             };
+        }
+
+        private static void SetDescriptorsOnRoute(IHttpRoute route, HttpConfiguration configuration, ICollection<HttpControllerDescriptor> controllerDescriptors)
+        {
+            var actionDescriptors = route.DataTokens["actions"] as IEnumerable<HttpActionDescriptor>;
+            if (actionDescriptors != null)
+            {
+                foreach (var descriptor in actionDescriptors)
+                {
+                    descriptor.Configuration = configuration;
+
+                    //IMPORTANT: We are making a new instance of a HttpControllerDescriptor to force
+                    // the descriptor to initialize again so that IControllerConfiguration executes.
+                    // if they are not the same webapi will throw an exception about ambiguous controllers.
+
+                    //for any controller type, we need to have the exact same controller descriptor instance
+
+                    var found = controllerDescriptors.SingleOrDefault(x => x.ControllerType == descriptor.ControllerDescriptor.ControllerType);
+                    if (found == null)
+                    {
+                        found = new HttpControllerDescriptor(
+                            configuration,
+                            descriptor.ControllerDescriptor.ControllerName,
+                            descriptor.ControllerDescriptor.ControllerType);
+                        controllerDescriptors.Add(found);
+                    }
+
+                    descriptor.ControllerDescriptor = found;
+                }
+            }
         }
 
         //public static IHttpRoute MapHttpRouteWithNamespaceAndRouteName(this HttpRouteCollection routes,

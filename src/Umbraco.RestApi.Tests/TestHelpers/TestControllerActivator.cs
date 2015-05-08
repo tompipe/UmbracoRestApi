@@ -1,9 +1,12 @@
 using System;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Controllers;
+using System.Web.Http.Dispatcher;
 using Examine.Providers;
 using Umbraco.Core.Services;
 using Umbraco.Web;
+using Umbraco.Web.WebApi;
 
 namespace Umbraco.RestApi.Tests.TestHelpers
 {
