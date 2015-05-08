@@ -25,7 +25,7 @@ using WebApi.Hal;
 namespace Umbraco.RestApi.Controllers
 {
     [DynamicCors]
-    //[UmbracoAuthorize]
+    [UmbracoAuthorize]
     [IsBackOffice]    
     [HalFormatterConfiguration]    
     public abstract class UmbracoHalController<TId, TEntity> : UmbracoApiControllerBase
@@ -66,7 +66,7 @@ namespace Umbraco.RestApi.Controllers
 
         [HttpGet]
         [CustomRoute("")]
-        public HttpResponseMessage asdf()
+        public HttpResponseMessage Get()
         {
             var result = GetRootContent();
             return result == null
@@ -76,7 +76,7 @@ namespace Umbraco.RestApi.Controllers
 
         [HttpGet]
         [CustomRoute("{id}")]
-        public HttpResponseMessage sdafsdfa(TId id)
+        public HttpResponseMessage Get(TId id)
         {
             var result = GetItem(id);
             return result == null
@@ -84,28 +84,9 @@ namespace Umbraco.RestApi.Controllers
                 : Request.CreateResponse(HttpStatusCode.OK, CreateContentRepresentation(result));
         }
 
-        //public HttpResponseMessage Get(TId? id)
-        //{
-        //    if (id.HasValue)
-        //    {
-        //        var result = GetItem(id.Value);
-        //        return result == null
-        //            ? Request.CreateResponse(HttpStatusCode.NotFound)
-        //            : Request.CreateResponse(HttpStatusCode.OK, CreateContentRepresentation(result));
-        //    }
-        //    else
-        //    {
-        //        var result = GetRootContent();
-        //        return result == null
-        //            ? Request.CreateResponse(HttpStatusCode.NotImplemented)
-        //            : Request.CreateResponse(HttpStatusCode.OK, CreateContentRepresentation(result));
-        //    }
-        //}
-
         [HttpGet]
-        //[ActionName("children")]
         [CustomRoute("{id}/children/{pageIndex?}/{pageSize?}")]
-        public HttpResponseMessage Children(TId id, long pageIndex = 0, int pageSize = 100)
+        public HttpResponseMessage GetChildren(TId id, long pageIndex = 0, int pageSize = 100)
         {
             var result = GetChildContent(id, pageIndex, pageSize);
             return result == null
@@ -117,9 +98,8 @@ namespace Umbraco.RestApi.Controllers
         }
 
         [HttpGet]
-        //[ActionName("descendants")]
         [CustomRoute("{id}/descendants/{pageIndex?}/{pageSize?}")]
-        public HttpResponseMessage Descendants(TId id, long pageIndex = 0, int pageSize = 100)
+        public HttpResponseMessage GetDescendants(TId id, long pageIndex = 0, int pageSize = 100)
         {
             var result = GetDescendantContent(id, pageIndex, pageSize);
             return result == null
@@ -131,9 +111,8 @@ namespace Umbraco.RestApi.Controllers
         }
 
         [HttpGet]
-        //[ActionName("meta")]
         [CustomRoute("{id}/meta")]
-        public HttpResponseMessage Metadata(TId id)
+        public HttpResponseMessage GetMetadata(TId id)
         {
             var result = GetMetadataForItem(id);
             return result == null

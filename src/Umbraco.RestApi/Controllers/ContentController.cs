@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Web.Http;
 using AutoMapper;
 using Examine;
@@ -15,7 +16,8 @@ using Umbraco.Web;
 
 namespace Umbraco.RestApi.Controllers
 {
-    [RoutePrefix("umbraco/rest/v1/content")]
+ 
+    [UmbracoRoutePrefixAttribute("rest/v1/content")]
     public class ContentController : UmbracoHalController<int, IContent>
     {
         
@@ -41,6 +43,18 @@ namespace Umbraco.RestApi.Controllers
         {
             if (searchProvider == null) throw new ArgumentNullException("searchProvider");
             _searchProvider = searchProvider;
+        }
+
+        [CustomRoute("helloworld", Name = "Hello")]
+        public HttpResponseMessage GetBlah()
+        {
+            return null;
+        }
+
+        [CustomRoute("helloworld", Name = "asdfsadf")]
+        public HttpResponseMessage asdfasdf()
+        {
+            return null;
         }
 
         private BaseSearchProvider _searchProvider;

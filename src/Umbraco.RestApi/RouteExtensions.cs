@@ -17,74 +17,94 @@ namespace Umbraco.RestApi
 {
     internal static class RouteExtensions
     {
-        public static void MapPerAssemblyAttributeRoutes(
+        /// <summary>
+        /// This will create attribute routes for specific controllers without interfering with normal attribute routing
+        /// </summary>
+        /// <param name="originalConfig"></param>
+        /// <param name="routeNamePrefix">
+        /// For non-named attributed routes, they are created as one master route containing sub-routes, this will be the 
+        /// prefix name for that route, the suffix will be the controller type.
+        /// For named attribute routes, those names will be used.
+        /// </param>
+        /// <param name="controllerTypes">
+        /// Route these controllers based on their attributes. They will be routed in order (precedence)
+        /// </param>
+        /// <param name="routeCallback"></param>
+        /// <param name="inheritedAttributes"></param>
+        public static void MapControllerAttributeRoutes(
             this HttpConfiguration originalConfig, 
-            string routeName,
-            Assembly assemblyToScan,
+            string routeNamePrefix,
+            IEnumerable<Type> controllerTypes,
             Action<IHttpRoute> routeCallback = null,
             bool inheritedAttributes = false)
         {
-            //new temp config to clone
-            var tempConfig = new HttpConfiguration();
-            
-            tempConfig.Services.Replace(typeof(IAssembliesResolver), new SpecificAssemblyResolver(new[] { assemblyToScan }));
-            tempConfig.MapHttpAttributeRoutes(new CustomRouteAttributeDirectRouteProvider(inheritedAttributes));
-
-            var isInitialized = false;
-
-            var originalInit = originalConfig.Initializer;
-            originalConfig.Initializer = configuration =>
+            foreach (var controllerType in controllerTypes)
             {
-                //Track a boolean because otherwise we'll end up in an infinite loop because
-                // of the ctor of the HttpControllerDescriptor below will clone http config
-                // per controller and invoke the original initializer, and we don't want to
-                // initialize the clones again with the attribute routes.
-                if (!isInitialized)
+                //new temp config to clone
+                var tempConfig = new HttpConfiguration();
+
+                tempConfig.Services.Replace(typeof(IHttpControllerTypeResolver), new SpecificControllerTypeResolver(new[] { controllerType }));
+                tempConfig.MapHttpAttributeRoutes(new CustomRouteAttributeDirectRouteProvider(inheritedAttributes));
+
+                var isInitialized = false;
+
+                var originalInit = originalConfig.Initializer;
+                var controllerTypeLocal = controllerType;
+
+                originalConfig.Initializer = configuration =>
                 {
-                    isInitialized = true;
-
-                    tempConfig.EnsureInitialized();
-
-                    var controllerDescriptors = new List<HttpControllerDescriptor>();
-
-                    //get the routes created
-                    foreach (var attributeRoute in tempConfig.Routes)
+                    //Track a boolean because otherwise we'll end up in an infinite loop because
+                    // of the ctor of the HttpControllerDescriptor below will clone http config
+                    // per controller and invoke the original initializer, and we don't want to
+                    // initialize the clones again with the attribute routes.
+                    if (!isInitialized)
                     {
-                        //attributeRoute.Handler = GetMessageHandler()
+                        isInitialized = true;
 
-                        //in many cases it's a collection of routes contained in a single route
-                        var routeCollection = attributeRoute as IReadOnlyCollection<IHttpRoute>;
-                        if (routeCollection != null)
+                        tempConfig.EnsureInitialized();
+
+                        var controllerDescriptors = new List<HttpControllerDescriptor>();
+
+                        //get the routes created
+                        foreach (var attributeRoute in tempConfig.Routes)
                         {
-                            //update each attribute route's action descriptor http configuration property
-                            //to be the real configuration 
-                            foreach (var httpRoute in routeCollection)
+                            //attributeRoute.Handler = GetMessageHandler()
+
+                            //in many cases it's a collection of routes contained in a single route
+                            var routeCollection = attributeRoute as IReadOnlyCollection<IHttpRoute>;
+                            var routeName = string.Format("{0}{1}", routeNamePrefix, controllerTypeLocal.FullName);
+                            if (routeCollection != null)
                             {
-                                SetDescriptorsOnRoute(httpRoute, configuration, controllerDescriptors);
+                                //update each attribute route's action descriptor http configuration property
+                                //to be the real configuration 
+                                foreach (var httpRoute in routeCollection)
+                                {
+                                    SetDescriptorsOnRoute(httpRoute, configuration, controllerDescriptors);
+                                }
                             }
-                        }
-                        else
-                        {
-                            SetDescriptorsOnRoute(attributeRoute, configuration, controllerDescriptors);
-                        }
+                            else
+                            {
+                                SetDescriptorsOnRoute(attributeRoute, configuration, controllerDescriptors);
+                                //get the route name from the data tokens, since this is a named route
+                                routeName = attributeRoute.DataTokens["Umb_RouteName"].ToString();
+                            }
 
-                        //callback can modify the route
-                        if (routeCallback != null)
-                        {
-                            routeCallback(attributeRoute);
-                        }
+                            //callback can modify the route
+                            if (routeCallback != null)
+                            {
+                                routeCallback(attributeRoute);
+                            }
 
-                        //now we need to add the route back to the main configuration
-                        originalConfig.Routes.Add(
-                            routeName,
-                            attributeRoute);
+                            //now we need to add the route back to the main configuration
+                            originalConfig.Routes.Add(
+                                routeName,
+                                attributeRoute);
+                        }
                     }
 
-                    
-                }
-
-                originalInit(configuration);
-            };
+                    originalInit(configuration);
+                };
+            }
         }
 
         private static void SetDescriptorsOnRoute(IHttpRoute route, HttpConfiguration configuration, ICollection<HttpControllerDescriptor> controllerDescriptors)
@@ -117,38 +137,6 @@ namespace Umbraco.RestApi
             }
         }
 
-        //public static IHttpRoute MapHttpRouteWithNamespaceAndRouteName(this HttpRouteCollection routes,
-        //    HttpConfiguration config,
-        //    string name, string routeTemplate, object defaults, object constraints,
-        //    string @namespace)
-        //{
-        //    var defaultsDictionary = new HttpRouteValueDictionary(defaults);
-        //    var constraintsDictionary = new HttpRouteValueDictionary(constraints);
-        //    var route = routes.CreateRoute(routeTemplate, defaultsDictionary, constraintsDictionary, 
-        //        dataTokens: new Dictionary<string, object>(), //ensure there's data tokens
-        //        handler: GetMessageHandler(config));
-        //    routes.Add(name, route);
-        //    route.WithNamespace(@namespace);
-        //    route.WithRouteName(name);
-        //    return route;
-        //}
-
-        //public static IHttpRoute MapHttpRouteWithNamespaceAndRouteName(this HttpRouteCollection routes,
-        //    HttpConfiguration config,
-        //    string name, string routeTemplate, object defaults,
-        //    string @namespace)
-        //{
-        //    var defaultsDictionary = new HttpRouteValueDictionary(defaults);
-        //    var constraintsDictionary = new HttpRouteValueDictionary();
-        //    var route = routes.CreateRoute(routeTemplate, defaultsDictionary, constraintsDictionary,
-        //        dataTokens: new Dictionary<string, object>(), //ensure there's data tokens
-        //        handler: GetMessageHandler(config));
-        //    routes.Add(name, route);
-        //    route.WithNamespace(@namespace);
-        //    route.WithRouteName(name);
-        //    return route;
-        //}
-
         /// <summary>
         /// Gets a custom message handler that explicitly contains the CorsMessageHandler for use 
         /// with our RestApi routes.
@@ -169,44 +157,6 @@ namespace Umbraco.RestApi
                 });
         }
 
-        public static Route WithRouteName(this Route route, string routeName)
-        {
-            if (route.DataTokens == null)
-            {
-                route.DataTokens = new RouteValueDictionary();
-            }
-            route.DataTokens["UR_RouteName"] = routeName;
-            return route;
-        }
-
-        public static IHttpRoute WithRouteName(this IHttpRoute route, string routeName)
-        {
-            route.DataTokens["UR_RouteName"] = routeName;
-            return route;
-        }
-
-        public static Route WithNamespace(this Route route, string @namespace)
-        {
-            if (route.DataTokens == null)
-            {
-                route.DataTokens = new RouteValueDictionary();
-            }
-            route.DataTokens["Namespaces"] = new string[] {@namespace};
-            ;
-            return route;
-        }
-
-        public static IHttpRoute WithNamespace(this IHttpRoute route, string @namespace)
-        {
-
-            route.DataTokens["Namespaces"] = new string[] {@namespace};
-            return route;
-        }
-
-        public static string GetRouteName(this IHttpRoute route)
-        {
-            return route.DataTokens["UR_RouteName"].ToString();
-        }
 
 
     }

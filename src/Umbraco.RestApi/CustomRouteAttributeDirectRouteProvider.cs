@@ -25,12 +25,7 @@ namespace Umbraco.RestApi
 
         protected override IReadOnlyList<IDirectRouteFactory> GetActionRouteFactories(HttpActionDescriptor actionDescriptor)
         {
-            //return actionDescriptor.GetCustomAttributes<IDirectRouteFactory>(inherit: _inherit);
-
-            var customRoutes = actionDescriptor.GetCustomAttributes<CustomRouteAttribute>(inherit: _inherit);
-
-            // inherit route attributes decorated on base class controller's actions
-            return customRoutes.Select(x => x.InnerAttribute).ToList();
+            return actionDescriptor.GetCustomAttributes<CustomRouteAttribute>(inherit: _inherit);
         }
     }
 }

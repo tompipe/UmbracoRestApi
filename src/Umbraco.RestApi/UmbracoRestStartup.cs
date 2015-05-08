@@ -25,14 +25,32 @@ namespace Umbraco.RestApi
         {
             const int version = 1;
 
-            config.MapPerAssemblyAttributeRoutes(
-                routeName: "UmbracoRestApi", 
-                assemblyToScan: typeof (UmbracoRestStartup).Assembly, 
+            config.MapControllerAttributeRoutes(
+                routeNamePrefix: "UmbracoRestApi",
+                //Map these explicit controllers in the order they appear
+                controllerTypes: new[]
+                {                    
+                    typeof (PublishedContentController),
+                    typeof (ContentController)
+                },
                 routeCallback: route =>
                 {
-                    
+
                 },
                 inheritedAttributes: true);
+
+            //config.MapControllerAttributeRoutes(
+            //   routeName: "UmbracoRestApi2",
+            //    //Map these explicit controllers in the order they appear
+            //   controllerTypes: new[]
+            //    {                    
+            //        typeof (ContentController)
+            //    },
+            //   routeCallback: route =>
+            //   {
+
+            //   },
+            //   inheritedAttributes: true);
 
             //config.MapHttpAttributeRoutes(new CustomRouteAttributeDirectRouteProvider(true));
 
