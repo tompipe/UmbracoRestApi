@@ -152,6 +152,46 @@ namespace Umbraco.RestApi.Tests
         }
 
         [Test]
+        public async void Get_Root_With_OPTIONS()
+        {
+            var startup = new TestStartup(
+                //This will be invoked before the controller is created so we can modify these mocked services,
+                (request, umbCtx, typedContent, serviceContext, searchProvider) =>
+                {
+                    var mockTypedContent = Mock.Get(typedContent);
+                    mockTypedContent.Setup(x => x.TypedContentAtRoot()).Returns(new[]
+                    {
+                        ModelMocks.SimpleMockedPublishedContent(123, -1, 789),
+                        ModelMocks.SimpleMockedPublishedContent(456, -1, 321)
+                    });
+                });
+
+            using (var server = TestServer.Create(builder => startup.Configuration(builder)))
+            {
+                var request = new HttpRequestMessage()
+                {
+                    RequestUri = new Uri(string.Format("http://testserver/umbraco/rest/v1/{0}/{1}", RouteConstants.ContentSegment, RouteConstants.PublishedSegment)),
+                    Method = HttpMethod.Get,
+                };
+
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/hal+json"));
+                request.Headers.Add("Access-Control-Request-Headers", "accept, authorization");
+                request.Headers.Add("Access-Control-Request-Method", "GET");
+                request.Headers.Add("Origin", "http://localhost:12061");
+                request.Headers.Add("Referer", "http://localhost:12061/browser.html");
+
+                Console.WriteLine(request);
+                var result = await server.HttpClient.SendAsync(request);
+                Console.WriteLine(result);
+
+                var json = await ((StreamContent)result.Content).ReadAsStringAsync();
+                Console.Write(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), Formatting.Indented));
+
+                Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+            }
+        }
+
+        [Test]
         public async void Get_Root_Result()
         {
             var startup = new TestStartup(
