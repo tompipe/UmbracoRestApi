@@ -10,6 +10,7 @@ using Umbraco.Core.Models;
 using Umbraco.Core.Services;
 using Umbraco.RestApi.Links;
 using Umbraco.RestApi.Models;
+using Umbraco.RestApi.Routing;
 using Umbraco.Web;
 
 namespace Umbraco.RestApi.Controllers
@@ -17,7 +18,7 @@ namespace Umbraco.RestApi.Controllers
     /// <summary>
     /// REST service for querying against Published content
     /// </summary>    
-    [UmbracoRoutePrefixAttribute("rest/v1/content/published")]
+    [UmbracoRoutePrefix("rest/v1/content/published")]
     public class PublishedContentController : UmbracoHalController<int, IPublishedContent>
     {
         //TODO: We need to make a way to return IPublishedContent from either the cache or from Examine, then convert that to the output

@@ -17,6 +17,7 @@ using Umbraco.Core.Models;
 using Umbraco.Core.Services;
 using Umbraco.RestApi.Links;
 using Umbraco.RestApi.Models;
+using Umbraco.RestApi.Routing;
 using Umbraco.Web;
 using Umbraco.Web.WebApi;
 using WebApi.Hal;
@@ -27,7 +28,7 @@ namespace Umbraco.RestApi.Controllers
     [DynamicCors]
     [UmbracoAuthorize]
     [IsBackOffice]    
-    [HalFormatterConfiguration]    
+    [HalFormatterConfiguration]  
     public abstract class UmbracoHalController<TId, TEntity> : UmbracoApiControllerBase
         where TEntity : class
         where TId: struct

@@ -12,12 +12,13 @@ using Umbraco.Core.Models;
 using Umbraco.Core.Services;
 using Umbraco.RestApi.Links;
 using Umbraco.RestApi.Models;
+using Umbraco.RestApi.Routing;
 using Umbraco.Web;
 
 namespace Umbraco.RestApi.Controllers
 {
  
-    [UmbracoRoutePrefixAttribute("rest/v1/content")]
+    [UmbracoRoutePrefix("rest/v1/content")]
     public class ContentController : UmbracoHalController<int, IContent>
     {
         
@@ -43,18 +44,6 @@ namespace Umbraco.RestApi.Controllers
         {
             if (searchProvider == null) throw new ArgumentNullException("searchProvider");
             _searchProvider = searchProvider;
-        }
-
-        [CustomRoute("helloworld", Name = "Hello")]
-        public HttpResponseMessage GetBlah()
-        {
-            return null;
-        }
-
-        [CustomRoute("helloworld", Name = "asdfsadf")]
-        public HttpResponseMessage asdfasdf()
-        {
-            return null;
         }
 
         private BaseSearchProvider _searchProvider;

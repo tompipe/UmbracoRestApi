@@ -1,11 +1,11 @@
 using System;
-using System.Diagnostics.Contracts;
+using System.Collections.Concurrent;
 using System.Web.Http;
 using System.Web.Http.Routing;
 
-namespace Umbraco.RestApi.Controllers
+namespace Umbraco.RestApi.Routing
 {
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
     internal sealed class CustomRouteAttribute : Attribute, IDirectRouteFactory
     {
         public CustomRouteAttribute(string template)
@@ -19,14 +19,23 @@ namespace Umbraco.RestApi.Controllers
             set { InnerAttribute.Name = value; }
         }
 
+        public int Order
+        {
+            get { return InnerAttribute.Order; }
+            set { InnerAttribute.Order = value; }
+        }
+
         public RouteAttribute InnerAttribute;
 
         RouteEntry IDirectRouteFactory.CreateRoute(DirectRouteFactoryContext context)
         {
-            var result = ((IDirectRouteFactory) InnerAttribute).CreateRoute(context);
+            var result = ((IDirectRouteFactory)InnerAttribute).CreateRoute(context);
+
+            var writeableResult = new RouteEntry(result.Name, new WriteableRoute(result.Route));
+
             //need to add this here so we can retrieve it later
-            result.Route.DataTokens.Add("Umb_RouteName", Name);
-            return result;
+            writeableResult.Route.DataTokens.Add("Umb_RouteName", Name);
+            return writeableResult;
         }
     }
 }

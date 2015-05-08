@@ -1,11 +1,8 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Web.Http.Controllers;
 using System.Web.Http.Routing;
-using Umbraco.RestApi.Controllers;
 
-namespace Umbraco.RestApi
+namespace Umbraco.RestApi.Routing
 {
     /// <summary>
     /// This is used to lookup our CustomRouteAttribute instead of the normal RouteAttribute so that 

@@ -2,7 +2,7 @@ using System.Reflection;
 using System.Web.Http;
 using Umbraco.Core;
 
-namespace Umbraco.RestApi.Controllers
+namespace Umbraco.RestApi.Routing
 {
     /// <summary>
     /// A custom route prefix which is based on the configured back office route/folder (i.e. Umbraco)

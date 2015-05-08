@@ -1,6 +1,12 @@
-﻿using System.Net.Http;
+﻿using System.Collections.Generic;
+using System.Net.Http;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Cors;
+using System.Web.Http.Dispatcher;
+using System.Web.Http.Routing;
 using Umbraco.Core;
 using Umbraco.RestApi.Controllers;
 using Umbraco.RestApi.Routing;
@@ -12,126 +18,54 @@ namespace Umbraco.RestApi
         protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
         {
             //Create routes for REST
-            //NOTE : we are NOT using attribute routing! This is because there is no way to enable attribute routing against your own
-            // assemblies with a custom DefaultDirectRouteProvider which we would require to implement inherited attribute routes. 
-            // So we're just going to create the routes manually which is far less intruisive for an end-user developer since we don't
-            // have to muck around with any startup logic.
-
             CreateRoutes(GlobalConfiguration.Configuration);
         }
         
 
         public static void CreateRoutes(HttpConfiguration config)
         {
-            const int version = 1;
-
+            //NOTE : we are using custom attribute routing... This is because there is no way to enable attribute routing against your own
+            // assemblies with a custom DefaultDirectRouteProvider which we would require to implement inherited attribute routes. 
+            // So we've gone ahead and made this possible. It doesn't use any reflection, just a few tricks and works quite well. 
+            // We just need to use the CustomRouteAttribute instead of the normal RouteAttribute.
             config.MapControllerAttributeRoutes(
-                routeNamePrefix: "UmbracoRestApi",
+                routeNamePrefix: "UmbRest-",
                 //Map these explicit controllers in the order they appear
                 controllerTypes: new[]
                 {                    
                     typeof (PublishedContentController),
                     typeof (ContentController)
-                },
-                routeCallback: route =>
+                },                
+                mainRouteCallback: route =>
                 {
-
+                    if (route.DataTokens == null) route.DataTokens = new Dictionary<string, object>();
+                    route.DataTokens["Namespaces"] = new[] { typeof(ContentController).Namespace };
+                    route.Handler = GetMessageHandler(config);
                 },
                 inheritedAttributes: true);
 
-            //config.MapControllerAttributeRoutes(
-            //   routeName: "UmbracoRestApi2",
-            //    //Map these explicit controllers in the order they appear
-            //   controllerTypes: new[]
-            //    {                    
-            //        typeof (ContentController)
-            //    },
-            //   routeCallback: route =>
-            //   {
-
-            //   },
-            //   inheritedAttributes: true);
-
-            //config.MapHttpAttributeRoutes(new CustomRouteAttributeDirectRouteProvider(true));
-
-            ////HAL routes:
-
-            ////** PublishedContent routes
-            //MapEntityTypeRoute(config,
-            //    RouteConstants.PublishedContentRouteName,
-            //    string.Format("{0}/{1}/{2}", RouteConstants.GetRestRootPath(version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment),
-            //    "PublishedContent",
-            //    typeof(ContentController).Namespace);
-
-            ////** Content routes
-            //MapEntityTypeRoute(config,
-            //    RouteConstants.ContentRouteName,
-            //    string.Format("{0}/{1}", RouteConstants.GetRestRootPath(version), RouteConstants.ContentSegment),
-            //    "Content",
-            //    typeof(ContentController).Namespace);
-
-            ////** Media routes
-            //MapEntityTypeRoute(config,
-            //    RouteConstants.MediaRouteName,
-            //    string.Format("{0}/{1}", RouteConstants.GetRestRootPath(version), RouteConstants.MediaSegment),
-            //    "Media",
-            //    typeof(ContentController).Namespace);
-
-            ////** Members routes
-            //MapEntityTypeRoute(config,
-            //    RouteConstants.MembersRouteName,
-            //    string.Format("{0}/{1}", RouteConstants.GetRestRootPath(version), RouteConstants.MembersSegment),
-            //    "Members",
-            //    typeof(ContentController).Namespace);
-
 
         }
 
-        private static void MapEntityTypeRoute(HttpConfiguration config, string routeName, 
-            string routeTemplateRoot, 
-            string defaultController, 
-            string @namespace)
+        /// <summary>
+        /// Gets a custom message handler that explicitly contains the CorsMessageHandler for use 
+        /// with our RestApi routes.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        private static HttpMessageHandler GetMessageHandler(HttpConfiguration config)
         {
-         
-            
-
-            ////route for search
-            //var routeTemplateSearch = string.Concat(routeTemplateRoot.EnsureEndsWith('/'), "search");
-
-            ////Used for search
-            //config.Routes.MapHttpRouteWithNamespaceAndRouteName(config,
-            //    name: RouteConstants.GetRouteNameForSearchRequests(routeName),
-            //    routeTemplate: routeTemplateSearch,
-            //    defaults: new {controller = defaultController, action = "Search"},
-            //    constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get), controller = defaultController },
-            //    @namespace: @namespace
-            //    );
-
-            ////template for Id + action routes
-            //var routeTemplateIdGet = string.Concat(routeTemplateRoot.EnsureEndsWith('/'), "{id}/{action}");
-
-            ////Used for 'GET' with Id + Action 
-            //config.Routes.MapHttpRouteWithNamespaceAndRouteName(config,
-            //    name: RouteConstants.GetRouteNameForIdGetRequests(routeName),
-            //    routeTemplate: routeTemplateIdGet,
-            //    defaults: new { controller = defaultController, action = "Get" },
-            //    constraints: new { httpMethod = new HttpMethodConstraint(HttpMethod.Get), controller = defaultController },
-            //    @namespace: @namespace
-            //    );
-
-            ////standard web.api template route for POST, DELETE, empty GET, etc...
-            //var routeTemplateDefault = string.Concat(routeTemplateRoot.EnsureEndsWith('/'), "{*allvalues}");
-
-            ////Used for everything else (POST, DELETE, etc...)
-            //config.Routes.MapHttpRouteWithNamespaceAndRouteName(config,
-            //    name: routeName,
-            //    routeTemplate: routeTemplateDefault,
-            //    defaults: new {controller = defaultController, action = "Get"},
-            //    constraints: new { controller = defaultController },
-            //    @namespace: @namespace
-            //    );
+            // Create a message handler chain with an end-point.
+            return HttpClientFactory.CreatePipeline(
+                new HttpControllerDispatcher(config),
+                new DelegatingHandler[]
+                {
+                    //Explicitly include the CorsMessage handler!
+                    // we're doing this so people don't have to do EnableCors() in their startup,
+                    // we don't care about that, we always want to support Cors for the rest api
+                    new CorsMessageHandler(config)
+                });
         }
 
-        
     }
 }

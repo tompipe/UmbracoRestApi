@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
-using System.Net.Http;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Controllers;
-using System.Web.Http.Cors;
 using System.Web.Http.Dispatcher;
 using System.Web.Http.Routing;
 using System.Web.Routing;
 
-namespace Umbraco.RestApi
+namespace Umbraco.RestApi.Routing
 {
     internal static class RouteExtensions
     {
@@ -29,13 +23,19 @@ namespace Umbraco.RestApi
         /// <param name="controllerTypes">
         /// Route these controllers based on their attributes. They will be routed in order (precedence)
         /// </param>
-        /// <param name="routeCallback"></param>
+        /// <param name="subRouteCallback">
+        /// A callback to modify the sub route (individual action routes)
+        /// </param>
+        /// <param name="mainRouteCallback">
+        /// A callback to modify the main route (the one that the RouteTable has visibility for) 
+        /// </param>
         /// <param name="inheritedAttributes"></param>
         public static void MapControllerAttributeRoutes(
             this HttpConfiguration originalConfig, 
             string routeNamePrefix,
             IEnumerable<Type> controllerTypes,
-            Action<IHttpRoute> routeCallback = null,
+            Action<WriteableRoute> subRouteCallback = null,
+            Action<WriteableRoute> mainRouteCallback = null,
             bool inheritedAttributes = false)
         {
             foreach (var controllerType in controllerTypes)
@@ -72,7 +72,6 @@ namespace Umbraco.RestApi
 
                             //in many cases it's a collection of routes contained in a single route
                             var routeCollection = attributeRoute as IReadOnlyCollection<IHttpRoute>;
-                            var routeName = string.Format("{0}{1}", routeNamePrefix, controllerTypeLocal.FullName);
                             if (routeCollection != null)
                             {
                                 //update each attribute route's action descriptor http configuration property
@@ -80,25 +79,39 @@ namespace Umbraco.RestApi
                                 foreach (var httpRoute in routeCollection)
                                 {
                                     SetDescriptorsOnRoute(httpRoute, configuration, controllerDescriptors);
+
+                                    //callback can modify the route
+                                    if (subRouteCallback != null)
+                                    {
+                                        subRouteCallback((WriteableRoute)httpRoute);
+                                    }
                                 }
+
+                                //map the route into a writable route
+                                var writeableRoute = new WriteableRoute(attributeRoute);
+
+                                if (mainRouteCallback != null)
+                                {
+                                    mainRouteCallback(writeableRoute);
+                                }
+
+                                //now we need to add the route back to the main configuration
+                                originalConfig.Routes.Add(
+                                    string.Format("{0}{1}", routeNamePrefix, controllerTypeLocal.FullName),
+                                    writeableRoute);
                             }
                             else
                             {
-                                SetDescriptorsOnRoute(attributeRoute, configuration, controllerDescriptors);
-                                //get the route name from the data tokens, since this is a named route
-                                routeName = attributeRoute.DataTokens["Umb_RouteName"].ToString();
-                            }
+                                SetDescriptorsOnRoute(attributeRoute, configuration, controllerDescriptors);                                
+                                //NOTE: We cannot modify this route because it is a linking route - it
+                                // it used only for generating links, not routing them
 
-                            //callback can modify the route
-                            if (routeCallback != null)
-                            {
-                                routeCallback(attributeRoute);
+                                //now we need to add the route back to the main configuration
+                                originalConfig.Routes.Add(
+                                    attributeRoute.DataTokens["Umb_RouteName"].ToString(),
+                                    attributeRoute);
                             }
-
-                            //now we need to add the route back to the main configuration
-                            originalConfig.Routes.Add(
-                                routeName,
-                                attributeRoute);
+                           
                         }
                     }
 
@@ -136,28 +149,6 @@ namespace Umbraco.RestApi
                 }
             }
         }
-
-        /// <summary>
-        /// Gets a custom message handler that explicitly contains the CorsMessageHandler for use 
-        /// with our RestApi routes.
-        /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
-        private static HttpMessageHandler GetMessageHandler(HttpConfiguration config)
-        {
-            // Create a message handler chain with an end-point.
-            return HttpClientFactory.CreatePipeline(
-                new HttpControllerDispatcher(config), 
-                new DelegatingHandler[]
-                {                   
-                    //Explicitly include the CorsMessage handler!
-                    // we're doing this so people don't have to do EnableCors() in their startup,
-                    // we don't care about that, we always want to support Cors for the rest api
-                    new CorsMessageHandler(config)
-                });
-        }
-
-
 
     }
 
