@@ -40,6 +40,7 @@ namespace Umbraco.RestApi
                 {
                     if (route.DataTokens == null) route.DataTokens = new Dictionary<string, object>();
                     route.DataTokens["Namespaces"] = new[] { typeof(ContentController).Namespace };
+                    route.DataTokens["UseNamespaceFallback"] = false;
                     route.Handler = GetMessageHandler(config);
                 },
                 inheritedAttributes: true);
