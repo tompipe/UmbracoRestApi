@@ -80,7 +80,9 @@ namespace Umbraco.RestApi.Tests
                 Assert.IsTrue(result.Headers.Contains("Access-Control-Allow-Origin"));
                 var acao = result.Headers.GetValues("Access-Control-Allow-Origin");
                 Assert.AreEqual(1, acao.Count());
-                Assert.AreEqual("*", acao.First());
+
+                //looks like the mvc cors default is to allow the request domain instea of *
+                Assert.AreEqual("http://localhost:12061", acao.First());
             }
         }
 

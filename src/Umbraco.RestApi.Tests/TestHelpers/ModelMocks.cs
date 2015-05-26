@@ -53,6 +53,41 @@ namespace Umbraco.RestApi.Tests.TestHelpers
             return mock.Object;
         }
 
+        public static IMedia SimpleMockedMedia(int id = 123, int parentId = 456)
+        {
+            var c = Mock.Of<IMedia>(
+                content => content.Id == id
+                           && content.CreateDate == DateTime.Now.AddDays(-2)
+                           && content.CreatorId == 0
+                           && content.HasIdentity == true
+                           && content.ContentType == Mock.Of<IMediaType>(ct => ct.Id == 99 && ct.Alias == "testType")
+                           && content.ContentTypeId == 10
+                           && content.Level == 1
+                           && content.Name == "Home"
+                           && content.Path == "-1,123"
+                           && content.ParentId == parentId
+                           && content.SortOrder == 1
+                           && content.UpdateDate == DateTime.Now.AddDays(-1)
+                           && content.PropertyTypes == new List<PropertyType>(new[]
+                           {
+                               new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "TestProperty1") {Name = "Test Property1", Mandatory = true, ValidationRegExp = ""},
+                               new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty2") {Name = "Test Property2", Mandatory = false, ValidationRegExp = ""}
+                           })
+                           && content.Properties == new PropertyCollection(new[]
+                           {
+                               new Property(3, Guid.NewGuid(),
+                                   new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "TestProperty1"), "property value1"),
+                               new Property(3, Guid.NewGuid(),
+                                   new PropertyType("testEditor", DataTypeDatabaseType.Nvarchar, "testProperty2"), "property value2"),
+                           }));
+
+            var mock = Mock.Get(c);
+            mock.Setup(content => content.HasProperty(It.IsAny<string>()))
+                .Returns((string alias) => alias == "TestProperty1" || alias == "testProperty2");
+
+            return mock.Object;
+        }
+
         public static IContentType SimpleMockedContentType()
         {
             var ct = Mock.Of<IContentType>();

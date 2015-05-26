@@ -274,6 +274,7 @@
     <Compile Include="CamelCaseTests.cs" />
     <Compile Include="ContentControllerTests.cs" />
     <Compile Include="CorsTest.cs" />
+    <Compile Include="MediaControllerTests.cs" />
     <Compile Include="TestHelpers\AuthenticateEverythingExtensions.cs" />
     <Compile Include="TestHelpers\AuthenticateEverythingMiddleware.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

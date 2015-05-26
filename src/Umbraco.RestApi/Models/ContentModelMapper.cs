@@ -15,6 +15,7 @@ namespace Umbraco.RestApi.Models
             config.CreateMap<IContent, ContentRepresentation>()
                 .ForMember(representation => representation.HasChildren, expression => expression.MapFrom(content => 
                     applicationContext.Services.ContentService.HasChildren(content.Id)))
+
                 .ForMember(representation => representation.Properties, expression => expression.ResolveUsing(content =>
                 {
                     var d = new Dictionary<string, object>();

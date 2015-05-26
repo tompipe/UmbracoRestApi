@@ -33,6 +33,9 @@ namespace Umbraco.RestApi.Tests.TestHelpers
             {
                 var contentRepresentationMapper = new ContentModelMapper();
                 contentRepresentationMapper.ConfigureMappings(configuration, umbracoContext.Application);
+
+                var mediaRepresentationMapper = new MediaModelMapper();
+                mediaRepresentationMapper.ConfigureMappings(configuration, umbracoContext.Application);
             });
         }
 
