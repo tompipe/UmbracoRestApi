@@ -377,7 +377,7 @@ namespace Umbraco.RestApi.Tests
                 //This will be invoked before the controller is created so we can modify these mocked services
                 (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
-                    SetupMocksForPost(serviceContext);
+                    TestHelpers.ContentServiceMocks.SetupMocksForPost(serviceContext);
                 });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -418,7 +418,7 @@ namespace Umbraco.RestApi.Tests
                 //This will be invoked before the controller is created so we can modify these mocked services
                 (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
-                    SetupMocksForPost(serviceContext);
+                    TestHelpers.ContentServiceMocks.SetupMocksForPost(serviceContext);
                 });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -467,7 +467,7 @@ namespace Umbraco.RestApi.Tests
                 //This will be invoked before the controller is created so we can modify these mocked services
                 (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
-                    SetupMocksForPost(serviceContext);
+                    TestHelpers.ContentServiceMocks.SetupMocksForPost(serviceContext);
                 });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -515,7 +515,7 @@ namespace Umbraco.RestApi.Tests
                 //This will be invoked before the controller is created so we can modify these mocked services
                 (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
-                    SetupMocksForPost(serviceContext);
+                    TestHelpers.ContentServiceMocks.SetupMocksForPost(serviceContext);
 
                     var mockPropertyEditor = Mock.Get(PropertyEditorResolver.Current);
                     mockPropertyEditor.Setup(x => x.GetByAlias("testEditor")).Returns(new ModelMocks.SimplePropertyEditor());
@@ -566,7 +566,7 @@ namespace Umbraco.RestApi.Tests
                 //This will be invoked before the controller is created so we can modify these mocked services
                 (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
-                    SetupMocksForPost(serviceContext);
+                    TestHelpers.ContentServiceMocks.SetupMocksForPost(serviceContext);
                 });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -600,34 +600,6 @@ namespace Umbraco.RestApi.Tests
             }
         }
 
-        private void SetupMocksForPost(ServiceContext serviceContext)
-        {
-            var mockContentService = Mock.Get(serviceContext.ContentService);
-            mockContentService.Setup(x => x.GetById(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedContent());
-            mockContentService.Setup(x => x.GetChildren(It.IsAny<int>())).Returns(new List<IContent>(new[] { ModelMocks.SimpleMockedContent(789) }));
-            mockContentService.Setup(x => x.HasChildren(It.IsAny<int>())).Returns(true);
-            mockContentService.Setup(x => x.CreateContent(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
-                .Returns(() => ModelMocks.SimpleMockedContent(8888));
-
-            var mockContentTypeService = Mock.Get(serviceContext.ContentTypeService);
-            mockContentTypeService.Setup(x => x.GetContentType(It.IsAny<string>())).Returns(ModelMocks.SimpleMockedContentType());
-
-            var mockDataTypeService = Mock.Get(serviceContext.DataTypeService);
-            mockDataTypeService.Setup(x => x.GetPreValuesCollectionByDataTypeId(It.IsAny<int>())).Returns(new PreValueCollection(Enumerable.Empty<PreValue>()));
-
-            var mockServiceProvider = new Mock<IServiceProvider>();
-            mockServiceProvider.Setup(x => x.GetService(It.IsAny<Type>())).Returns(new ModelMocks.SimplePropertyEditor());
-
-            Func<IEnumerable<Type>> producerList = Enumerable.Empty<Type>;
-            var mockPropertyEditorResolver = new Mock<PropertyEditorResolver>(
-                Mock.Of<IServiceProvider>(),
-                Mock.Of<ILogger>(),
-                producerList);
-
-            mockPropertyEditorResolver.Setup(x => x.PropertyEditors).Returns(new[] { new ModelMocks.SimplePropertyEditor() });
-
-            PropertyEditorResolver.Current = mockPropertyEditorResolver.Object;
-        }
     }
 
 }

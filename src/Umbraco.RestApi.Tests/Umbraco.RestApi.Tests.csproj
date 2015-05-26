@@ -278,6 +278,7 @@
     <Compile Include="TestHelpers\AuthenticateEverythingExtensions.cs" />
     <Compile Include="TestHelpers\AuthenticateEverythingMiddleware.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestHelpers\ContentServiceMocks.cs" />
     <Compile Include="TestHelpers\MockUmbracoSettings.cs" />
     <Compile Include="TestHelpers\ModelMocks.cs" />
     <Compile Include="TestHelpers\TestControllerActivator.cs" />
