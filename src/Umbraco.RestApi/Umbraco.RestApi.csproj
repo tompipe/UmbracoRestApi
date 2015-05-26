@@ -253,7 +253,10 @@
     <Compile Include="AppBuilderExtensions.cs" />
     <Compile Include="Controllers\ContentPropertyValidator.cs" />
     <Compile Include="Controllers\DynamicCorsAttribute.cs" />
+    <Compile Include="Controllers\MediaController.cs" />
     <Compile Include="Controllers\QueryStructureModelBinder.cs" />
+    <Compile Include="Links\MediaLinkTemplate.cs" />
+    <Compile Include="Models\MediaModelMapper.cs" />
     <Compile Include="Routing\UmbracoRoutePrefixAttribute.cs" />
     <Compile Include="Routing\CustomRouteAttributeDirectRouteProvider.cs" />
     <Compile Include="Routing\CustomRouteAttribute.cs" />

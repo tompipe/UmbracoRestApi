@@ -34,7 +34,8 @@ namespace Umbraco.RestApi
                 controllerTypes: new[]
                 {                    
                     typeof (PublishedContentController),
-                    typeof (ContentController)
+                    typeof (ContentController),
+                    typeof (MediaController)
                 },                
                 mainRouteCallback: route =>
                 {
