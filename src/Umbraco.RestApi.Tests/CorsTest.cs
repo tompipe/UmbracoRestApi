@@ -135,5 +135,58 @@ namespace Umbraco.RestApi.Tests
                 Assert.AreEqual("http://localhost:12061", acao.First());
             }
         }
+
+        [Test]
+        public async void Supports_Post()
+        {
+            var startup = new TestStartup(
+                //This will be invoked before the controller is created so we can modify these mocked services
+                (request, umbCtx, typedContent, serviceContext, searchProvider) =>
+                {
+                   TestHelpers.ContentServiceMocks.SetupMocksForPost(serviceContext);
+                });
+
+            using (var server = TestServer.Create(builder => startup.Configuration(builder)))
+            {
+                var request = new HttpRequestMessage()
+                {
+                    RequestUri = new Uri(string.Format("http://testserver/umbraco/rest/v1/{0}", RouteConstants.ContentSegment)),
+                    Method = HttpMethod.Post,
+                };
+
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/hal+json"));
+                request.Headers.Add("Origin", "http://localhost:12061");
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/hal+json"));
+
+                request.Content = new StringContent(@"{
+  ""contentTypeAlias"": ""testType"",
+  ""parentId"": 456,
+  ""templateId"": 9,
+  ""name"": ""Home"",
+  ""properties"": {
+    ""TestProperty1"": ""property value1"",
+    ""testProperty2"": ""property value2""
+  }
+}", Encoding.UTF8, "application/json");
+
+                Console.WriteLine(request);
+                var result = await server.HttpClient.SendAsync(request);
+                Console.WriteLine(result);
+
+                //CORS
+                Assert.IsTrue(result.Headers.Contains("Access-Control-Allow-Origin"));
+                var acao = result.Headers.GetValues("Access-Control-Allow-Origin");
+                Assert.AreEqual(1, acao.Count());
+                Assert.AreEqual("http://localhost:12061", acao.First());
+
+                //Creation
+                var json = await ((StreamContent)result.Content).ReadAsStringAsync();
+                Console.Write(JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), Formatting.Indented));
+
+                Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+            }
+        }
+
+
     }
 }
