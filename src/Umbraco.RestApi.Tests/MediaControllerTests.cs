@@ -131,7 +131,7 @@ namespace Umbraco.RestApi.Tests
 
                 var djson = JsonConvert.DeserializeObject<JObject>(json);
 
-                Assert.AreEqual("/umbraco/rest/v1/content", djson["_links"]["root"]["href"].Value<string>());
+                Assert.AreEqual("/umbraco/rest/v1/media", djson["_links"]["root"]["href"].Value<string>());
                 Assert.AreEqual(2, djson["totalResults"].Value<int>());
                 Assert.AreEqual(2, djson["_links"]["content"].Count());
                 Assert.AreEqual(2, djson["_embedded"]["content"].Count());
