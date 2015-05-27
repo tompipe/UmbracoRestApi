@@ -73,7 +73,7 @@ namespace Umbraco.RestApi.Models
                         var found = content.HasProperty(propertyRepresentation.Key) ? content.Properties[propertyRepresentation.Key] : null;
                         if (found != null)
                         {
-                            found.Value = found.Value;
+                            found.Value = propertyRepresentation.Value;
                         }
                     }
                 });
