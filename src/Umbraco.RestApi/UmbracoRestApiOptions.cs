@@ -15,7 +15,7 @@ namespace Umbraco.RestApi
             {
                 AllowAnyOrigin = true,
                 SupportsCredentials = true,
-                Headers = {"authorization", "accept"},
+                AllowAnyHeader = true,
                 Methods = {"GET", "POST", "DELETE", "PUT"}
             };
         }
