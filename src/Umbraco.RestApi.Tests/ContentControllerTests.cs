@@ -45,6 +45,7 @@ namespace Umbraco.RestApi.Tests
         {
             //Hack - because Reset is internal
             typeof (PropertyEditorResolver).CallStaticMethod("Reset", true);
+            UmbracoRestApiOptionsInstance.Options = new UmbracoRestApiOptions();
         }
 
         [Test]

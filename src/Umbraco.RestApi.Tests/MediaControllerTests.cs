@@ -45,6 +45,7 @@ namespace Umbraco.RestApi.Tests
         {
             //Hack - because Reset is internal
             typeof(PropertyEditorResolver).CallStaticMethod("Reset", true);
+            UmbracoRestApiOptionsInstance.Options = new UmbracoRestApiOptions();
         }
 
         [Test]
@@ -377,7 +378,7 @@ namespace Umbraco.RestApi.Tests
                 //This will be invoked before the controller is created so we can modify these mocked services
                 (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
-                    SetupMocksForPost(serviceContext);
+                    MediaServiceMocks.SetupMocksForPost(serviceContext);
                 });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -418,7 +419,7 @@ namespace Umbraco.RestApi.Tests
                 //This will be invoked before the controller is created so we can modify these mocked services
                 (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
-                    SetupMocksForPost(serviceContext);
+                    MediaServiceMocks.SetupMocksForPost(serviceContext);
                 });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -455,7 +456,7 @@ namespace Umbraco.RestApi.Tests
 
                 Assert.AreEqual(2, djson["totalResults"].Value<int>());
                 Assert.AreEqual("content.ContentTypeAlias", djson["_embedded"]["errors"][0]["logRef"].Value<string>());
-                Assert.AreEqual("content.name", djson["_embedded"]["errors"][1]["logRef"].Value<string>());
+                Assert.AreEqual("content.Name", djson["_embedded"]["errors"][1]["logRef"].Value<string>());
 
             }
         }
@@ -467,7 +468,7 @@ namespace Umbraco.RestApi.Tests
                 //This will be invoked before the controller is created so we can modify these mocked services
                 (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
-                    SetupMocksForPost(serviceContext);
+                    MediaServiceMocks.SetupMocksForPost(serviceContext);
                 });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -515,7 +516,7 @@ namespace Umbraco.RestApi.Tests
                 //This will be invoked before the controller is created so we can modify these mocked services
                 (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
-                    SetupMocksForPost(serviceContext);
+                    MediaServiceMocks.SetupMocksForPost(serviceContext);
 
                     var mockPropertyEditor = Mock.Get(PropertyEditorResolver.Current);
                     mockPropertyEditor.Setup(x => x.GetByAlias("testEditor")).Returns(new ModelMocks.SimplePropertyEditor());
@@ -566,7 +567,7 @@ namespace Umbraco.RestApi.Tests
                 //This will be invoked before the controller is created so we can modify these mocked services
                 (request, umbCtx, typedContent, serviceContext, searchProvider) =>
                 {
-                    SetupMocksForPost(serviceContext);
+                    MediaServiceMocks.SetupMocksForPost(serviceContext);
                 });
 
             using (var server = TestServer.Create(builder => startup.Configuration(builder)))
@@ -600,34 +601,6 @@ namespace Umbraco.RestApi.Tests
             }
         }
 
-        private void SetupMocksForPost(ServiceContext serviceContext)
-        {
-            var mockMediaService = Mock.Get(serviceContext.MediaService);
-            mockMediaService.Setup(x => x.GetById(It.IsAny<int>())).Returns(() => ModelMocks.SimpleMockedMedia());
-            mockMediaService.Setup(x => x.GetChildren(It.IsAny<int>())).Returns(new List<IMedia>(new[] { ModelMocks.SimpleMockedMedia(789) }));
-            mockMediaService.Setup(x => x.HasChildren(It.IsAny<int>())).Returns(true);
-            mockMediaService.Setup(x => x.CreateMedia(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
-                .Returns(() => ModelMocks.SimpleMockedMedia(8888));
-
-            var mockContentTypeService = Mock.Get(serviceContext.ContentTypeService);
-            mockContentTypeService.Setup(x => x.GetContentType(It.IsAny<string>())).Returns(ModelMocks.SimpleMockedContentType());
-
-            var mockDataTypeService = Mock.Get(serviceContext.DataTypeService);
-            mockDataTypeService.Setup(x => x.GetPreValuesCollectionByDataTypeId(It.IsAny<int>())).Returns(new PreValueCollection(Enumerable.Empty<PreValue>()));
-
-            var mockServiceProvider = new Mock<IServiceProvider>();
-            mockServiceProvider.Setup(x => x.GetService(It.IsAny<Type>())).Returns(new ModelMocks.SimplePropertyEditor());
-
-            Func<IEnumerable<Type>> producerList = Enumerable.Empty<Type>;
-            var mockPropertyEditorResolver = new Mock<PropertyEditorResolver>(
-                Mock.Of<IServiceProvider>(),
-                Mock.Of<ILogger>(),
-                producerList);
-
-            mockPropertyEditorResolver.Setup(x => x.PropertyEditors).Returns(new[] { new ModelMocks.SimplePropertyEditor() });
-
-            PropertyEditorResolver.Current = mockPropertyEditorResolver.Object;
-        }
     }
 
 }

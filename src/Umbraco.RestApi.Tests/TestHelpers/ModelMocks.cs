@@ -94,6 +94,12 @@ namespace Umbraco.RestApi.Tests.TestHelpers
             return ct;
         }
 
+        public static IMediaType SimpleMockedMediaType()
+        {
+            var ct = Mock.Of<IMediaType>();
+            return ct;
+        }
+
         public static IPublishedContent SimpleMockedPublishedContent(int id = 123, int? parentId = null, int? childId = null)
         {
             return Mock.Of<IPublishedContent>(
