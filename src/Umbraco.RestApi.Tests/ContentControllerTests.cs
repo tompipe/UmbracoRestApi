@@ -454,8 +454,8 @@ namespace Umbraco.RestApi.Tests
                 var djson = JsonConvert.DeserializeObject<JObject>(json);
 
                 Assert.AreEqual(2, djson["totalResults"].Value<int>());
-                Assert.AreEqual("content.contentTypeAlias", djson["_embedded"]["errors"][0]["logRef"].Value<string>());
-                Assert.AreEqual("content.name", djson["_embedded"]["errors"][1]["logRef"].Value<string>());
+                Assert.AreEqual("content.ContentTypeAlias", djson["_embedded"]["errors"][0]["logRef"].Value<string>());
+                Assert.AreEqual("content.Name", djson["_embedded"]["errors"][1]["logRef"].Value<string>());
 
             }
         }

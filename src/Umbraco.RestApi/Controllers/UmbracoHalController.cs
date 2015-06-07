@@ -25,13 +25,59 @@ using WebApi.Hal;
 
 namespace Umbraco.RestApi.Controllers
 {
+    public abstract class UmbracoHalContentControllerBase<TId, TEntity, TRepresentation> : UmbracoHalController<TId, TEntity, TRepresentation, IContentLinkTemplate> 
+        where TEntity : class
+        where TId : struct 
+        where TRepresentation : UmbracoRepresentationBase     
+    {
+         protected UmbracoHalContentControllerBase()
+        {
+        }
+
+         protected UmbracoHalContentControllerBase(
+            UmbracoContext umbracoContext, 
+            UmbracoHelper umbracoHelper)
+            : base(umbracoContext, umbracoHelper)
+        {
+        }
+
+        [HttpGet]
+        [CustomRoute("{id}/children/{pageIndex?}/{pageSize?}")]
+        public HttpResponseMessage GetChildren(TId id, long pageIndex = 0, int pageSize = 100)
+        {
+            var result = GetChildContent(id, pageIndex, pageSize);
+            return result == null
+                ? Request.CreateResponse(HttpStatusCode.NotImplemented)
+                : Request.CreateResponse(HttpStatusCode.OK, CreatePagedContentRepresentation(
+                    result,
+                    LinkTemplate.PagedChildren,
+                    new { id = id }));
+        }
+
+        [HttpGet]
+        [CustomRoute("{id}/descendants/{pageIndex?}/{pageSize?}")]
+        public HttpResponseMessage GetDescendants(TId id, long pageIndex = 0, int pageSize = 100)
+        {
+            var result = GetDescendantContent(id, pageIndex, pageSize);
+            return result == null
+                ? Request.CreateResponse(HttpStatusCode.NotImplemented)
+                : Request.CreateResponse(HttpStatusCode.OK, CreatePagedContentRepresentation(
+                    result,
+                    LinkTemplate.PagedDescendants,
+                    new { id = id }));
+        }
+
+    }
+
     [DynamicCors]
     [UmbracoAuthorize]
     [IsBackOffice]    
-    [HalFormatterConfiguration]  
-    public abstract class UmbracoHalController<TId, TEntity> : UmbracoApiControllerBase
+    [HalFormatterConfiguration]
+    public abstract class UmbracoHalController<TId, TEntity, TRepresentation, TLinkTemplate> : UmbracoApiControllerBase
         where TEntity : class
         where TId: struct
+        where TLinkTemplate : ILinkTemplate
+        where TRepresentation: UmbracoRepresentationBase
     {
        
         protected UmbracoHalController()
@@ -82,34 +128,10 @@ namespace Umbraco.RestApi.Controllers
             var result = GetItem(id);
             return result == null
                 ? Request.CreateResponse(HttpStatusCode.NotFound)
-                : Request.CreateResponse(HttpStatusCode.OK, CreateContentRepresentation(result));
+                : Request.CreateResponse(HttpStatusCode.OK, CreateRepresentation(result));
         }
 
-        [HttpGet]
-        [CustomRoute("{id}/children/{pageIndex?}/{pageSize?}")]
-        public HttpResponseMessage GetChildren(TId id, long pageIndex = 0, int pageSize = 100)
-        {
-            var result = GetChildContent(id, pageIndex, pageSize);
-            return result == null
-                ? Request.CreateResponse(HttpStatusCode.NotImplemented)
-                : Request.CreateResponse(HttpStatusCode.OK, CreatePagedContentRepresentation(
-                    result,
-                    LinkTemplate.PagedChildContent,
-                    new {id = id}));
-        }
-
-        [HttpGet]
-        [CustomRoute("{id}/descendants/{pageIndex?}/{pageSize?}")]
-        public HttpResponseMessage GetDescendants(TId id, long pageIndex = 0, int pageSize = 100)
-        {
-            var result = GetDescendantContent(id, pageIndex, pageSize);
-            return result == null
-                ? Request.CreateResponse(HttpStatusCode.NotImplemented)
-                : Request.CreateResponse(HttpStatusCode.OK, CreatePagedContentRepresentation(
-                    result,
-                    LinkTemplate.PagedDescendantContent,
-                    new {id = id}));
-        }
+        
 
         [HttpGet]
         [CustomRoute("{id}/meta")]
@@ -132,7 +154,7 @@ namespace Umbraco.RestApi.Controllers
                     ? Request.CreateResponse(HttpStatusCode.NotImplemented)
                     : content == null
                     ? Request.CreateResponse(HttpStatusCode.BadRequest, "content is null")
-                    : Request.CreateResponse(HttpStatusCode.Created, CreateContentRepresentation(result));
+                    : Request.CreateResponse(HttpStatusCode.Created, CreateRepresentation(result));
             }
             catch (ModelValidationException exception)
             {
@@ -151,7 +173,7 @@ namespace Umbraco.RestApi.Controllers
                     ? Request.CreateResponse(HttpStatusCode.NotImplemented)
                     : content == null
                     ? Request.CreateResponse(HttpStatusCode.BadRequest, "content is null")
-                    : Request.CreateResponse(HttpStatusCode.OK, CreateContentRepresentation(result));
+                    : Request.CreateResponse(HttpStatusCode.OK, CreateRepresentation(result));
             }
             catch (ModelValidationException exception)
             {
@@ -205,7 +227,7 @@ namespace Umbraco.RestApi.Controllers
 
         #endregion
 
-        protected abstract IContentLinkTemplate LinkTemplate { get; }
+        protected abstract TLinkTemplate LinkTemplate { get; }
 
         /// <summary>
         /// Returns the current version request
@@ -220,23 +242,22 @@ namespace Umbraco.RestApi.Controllers
         /// </summary>
         /// <param name="entities"></param>
         /// <returns></returns>
-        protected ContentListRepresentation CreateContentRepresentation(IEnumerable<TEntity> entities)
+        protected UmbracoListRepresentation<TRepresentation> CreateContentRepresentation(IEnumerable<TEntity> entities)
         {
-            return new ContentListRepresentation(entities.Select(CreateContentRepresentation).ToList(), LinkTemplate);
+            return new UmbracoListRepresentation<TRepresentation>(entities.Select(CreateRepresentation).ToList(), LinkTemplate);
         }
 
-        protected PagedContentListRepresentation CreatePagedContentRepresentation(
+        protected virtual PagedRepresentationList<TRepresentation> CreatePagedContentRepresentation(
             PagedResult<TEntity> pagedResult, 
             Link pagedUriTemplate,
             object uriTemplateParams = null)
         {
-            return new PagedContentListRepresentation(
-                pagedResult.Items.Select(CreateContentRepresentation).ToList(),
+            return new PagedRepresentationList<TRepresentation>(
+                pagedResult.Items.Select(CreateRepresentation).ToList(),
                 pagedResult.TotalItems,
                 pagedResult.TotalPages,
                 pagedResult.PageNumber - 1,
                 Convert.ToInt32(pagedResult.PageSize),
-                LinkTemplate,
                 pagedUriTemplate,
                 uriTemplateParams);
         }
@@ -246,12 +267,8 @@ namespace Umbraco.RestApi.Controllers
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        protected ContentRepresentation CreateContentRepresentation(TEntity entity)
-        {
-            //create it with the current version link representation
-            var representation = new ContentRepresentation(LinkTemplate);
-            return Mapper.Map(entity, representation);
-        }
+        protected abstract TRepresentation CreateRepresentation(TEntity entity);
+        
 
         /// <summary>
         /// Used to throw validation exceptions
@@ -274,19 +291,19 @@ namespace Umbraco.RestApi.Controllers
             {
                 foreach (var error in ms.Value.Errors)
                 {
-                    //hack - because webapi doesn't seem to support an easy way to change the model metadata for a class, we have to manually
-                    // go get the 'display' name from the metadata for the property and use that for the logref otherwise we end up with the c#
-                    // property name (i.e. contentTypeAlias vs ContentTypeAlias). I'm sure there's some webapi way to achieve 
-                    // this by customizing the model metadata but it's not as clear as with MVC which has IMetadataAware attribute
+                    ////hack - because webapi doesn't seem to support an easy way to change the model metadata for a class, we have to manually
+                    //// go get the 'display' name from the metadata for the property and use that for the logref otherwise we end up with the c#
+                    //// property name (i.e. contentTypeAlias vs ContentTypeAlias). I'm sure there's some webapi way to achieve 
+                    //// this by customizing the model metadata but it's not as clear as with MVC which has IMetadataAware attribute
                     var logRef = ms.Key;
-                    var parts = ms.Key.Split('.');
-                    var isContentField = parts.Length == 2 && parts[0] == "content";
-                    if (isContentField)
-                    {
-                        parts[1] = metaDataProvider.GetMetadataForProperty(() => content, typeof (ContentRepresentation), parts[1])
-                                    .GetDisplayName();
-                        logRef = string.Join(".", parts);
-                    }
+                    //var parts = ms.Key.Split('.');
+                    //var isContentField = parts.Length == 2 && parts[0] == "content";
+                    //if (isContentField)
+                    //{
+                    //    parts[1] = metaDataProvider.GetMetadataForProperty(() => content, typeof (ContentRepresentation), parts[1])
+                    //                .GetDisplayName();
+                    //    logRef = string.Join(".", parts);
+                    //}
 
                     errorList.Add(new ValidationErrorRepresentation
                     {

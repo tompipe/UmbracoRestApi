@@ -9,9 +9,9 @@ namespace Umbraco.RestApi.Models
 {
     public class ContentMetadataRepresentation : Representation
     {
-        private readonly IContentLinkTemplate _linkTemplate;       
+        private readonly ILinkTemplate _linkTemplate;       
 
-        public ContentMetadataRepresentation(IContentLinkTemplate linkTemplate, int id)
+        public ContentMetadataRepresentation(ILinkTemplate linkTemplate, int id)
         {
             _linkTemplate = linkTemplate;
             Id = id;
@@ -37,7 +37,7 @@ namespace Umbraco.RestApi.Models
             get
             {
                 if (_linkTemplate == null) throw new NullReferenceException("LinkTemplate is null");
-                return _linkTemplate.ContentMetaData.Rel;
+                return _linkTemplate.MetaData.Rel;
             }
             set { throw new NotSupportedException(); }
         }
@@ -47,7 +47,7 @@ namespace Umbraco.RestApi.Models
             get
             {
                 if (_linkTemplate == null) throw new NullReferenceException("LinkTemplate is null");
-                return _linkTemplate.ContentMetaData.CreateLink(new { id = Id }).Href;
+                return _linkTemplate.MetaData.CreateLink(new { id = Id }).Href;
             }
             set { throw new NotSupportedException(); }
         }
@@ -55,7 +55,7 @@ namespace Umbraco.RestApi.Models
         protected override void CreateHypermedia()
         {
             if (_linkTemplate == null) throw new NullReferenceException("LinkTemplate is null");
-            Links.Add(_linkTemplate.ContentItem.CreateLink(new { id = Id }));      
+            Links.Add(_linkTemplate.Self.CreateLink(new { id = Id }));      
         }
     }
 }

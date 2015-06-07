@@ -4,11 +4,12 @@ using WebApi.Hal;
 
 namespace Umbraco.RestApi.Models
 {
-    public class ContentListRepresentation : SimpleListRepresentation<ContentRepresentation>
+    public class UmbracoListRepresentation<TRepresentation> : SimpleListRepresentation<TRepresentation>
+        where TRepresentation: UmbracoRepresentationBase
     {
-        private readonly IContentLinkTemplate _linkTemplate;
+        private readonly ILinkTemplate _linkTemplate;
 
-        public ContentListRepresentation(IList<ContentRepresentation> res, IContentLinkTemplate linkTemplate)
+        public UmbracoListRepresentation(IList<TRepresentation> res, ILinkTemplate linkTemplate)
             : base(res)
         {
             _linkTemplate = linkTemplate;
@@ -21,7 +22,7 @@ namespace Umbraco.RestApi.Models
         {
             base.CreateHypermedia();
 
-            Links.Add(_linkTemplate.RootContent.CreateLink());
+            Links.Add(_linkTemplate.Root.CreateLink());
 
             //templated link
             Links.Add(_linkTemplate.Search);

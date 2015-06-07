@@ -3,11 +3,11 @@ using WebApi.Hal;
 
 namespace Umbraco.RestApi.Models
 {
-    public abstract class PagedRepresentationList<TRepresentation> : SimpleListRepresentation<TRepresentation> where TRepresentation : Representation
+    public class PagedRepresentationList<TRepresentation> : SimpleListRepresentation<TRepresentation> where TRepresentation : Representation
     {
         readonly Link _uriTemplate;
 
-        protected PagedRepresentationList(IList<TRepresentation> res, long totalResults, long totalPages, long pageIndex, int pageSize, Link uriTemplate, object uriTemplateSubstitutionParams)
+        public PagedRepresentationList(IList<TRepresentation> res, long totalResults, long totalPages, long pageIndex, int pageSize, Link uriTemplate, object uriTemplateSubstitutionParams)
             : base(res)
         {
             this._uriTemplate = uriTemplate;

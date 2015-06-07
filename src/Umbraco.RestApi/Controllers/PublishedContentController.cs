@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web.Http;
+using AutoMapper;
 using Examine;
 using Examine.Providers;
 using Umbraco.Core;
@@ -19,7 +20,7 @@ namespace Umbraco.RestApi.Controllers
     /// REST service for querying against Published content
     /// </summary>    
     [UmbracoRoutePrefix("rest/v1/content/published")]
-    public class PublishedContentController : UmbracoHalController<int, IPublishedContent>
+    public class PublishedContentController : UmbracoHalContentControllerBase<int, IPublishedContent, ContentRepresentation>
     {
         //TODO: We need to make a way to return IPublishedContent from either the cache or from Examine, then convert that to the output
         // this controller needs to support both data sources in one way or another - either base classes, etc...
@@ -125,5 +126,18 @@ namespace Umbraco.RestApi.Controllers
         {
             get { return new PublishedContentLinkTemplate(CurrentVersionRequest); }
         }
+
+        /// <summary>
+        /// Creates the content representation from the entity based on the current API version
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        protected override ContentRepresentation CreateRepresentation(IPublishedContent entity)
+        {
+            //create it with the current version link representation
+            var representation = new ContentRepresentation(LinkTemplate);
+            return Mapper.Map(entity, representation);
+        }
+
     }
 }

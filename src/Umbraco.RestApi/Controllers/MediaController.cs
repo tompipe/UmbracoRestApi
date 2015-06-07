@@ -17,9 +17,8 @@ using Umbraco.Web;
 
 namespace Umbraco.RestApi.Controllers
 {
-
     [UmbracoRoutePrefix("rest/v1/media")]
-    public class MediaController : UmbracoHalController<int, IMedia>
+    public class MediaController : UmbracoHalContentControllerBase<int, IMedia, MediaRepresentation>
     {
 
 
@@ -184,6 +183,18 @@ namespace Umbraco.RestApi.Controllers
         protected override IContentLinkTemplate LinkTemplate
         {
             get { return new MediaLinkTemplate(CurrentVersionRequest); }
+        }
+
+        /// <summary>
+        /// Creates the content representation from the entity based on the current API version
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        protected override MediaRepresentation CreateRepresentation(IMedia entity)
+        {
+            //create it with the current version link representation
+            var representation = new MediaRepresentation(LinkTemplate);
+            return Mapper.Map(entity, representation);
         }
 
         protected IMediaService MediaService

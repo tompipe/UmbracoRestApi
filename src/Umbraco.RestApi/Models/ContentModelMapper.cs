@@ -8,27 +8,39 @@ using Umbraco.Core.Models.Mapping;
 
 namespace Umbraco.RestApi.Models
 {
+    internal class ContentPropertiesResolver : ValueResolver<IContentBase, IDictionary<string, object>>
+    {
+        protected override IDictionary<string, object> ResolveCore(IContentBase content)
+        {
+            var d = new Dictionary<string, object>();
+            foreach (var propertyType in content.PropertyTypes)
+            {
+                var prop = content.HasProperty(propertyType.Alias) ? content.Properties[propertyType.Alias] : null;
+                if (prop != null)
+                {
+                    d.Add(propertyType.Alias, prop.Value);
+                }
+            }
+            return d;
+        }
+    }
+
     public class ContentModelMapper : MapperConfiguration
     {
         public override void ConfigureMappings(IConfiguration config, ApplicationContext applicationContext)
         {
             config.CreateMap<IContent, ContentRepresentation>()
-                .ForMember(representation => representation.HasChildren, expression => expression.MapFrom(content => 
+                .ForMember(representation => representation.HasChildren, expression => expression.MapFrom(content =>
                     applicationContext.Services.ContentService.HasChildren(content.Id)))
+                .ForMember(representation => representation.Properties, expression => expression.ResolveUsing<ContentPropertiesResolver>());
 
-                .ForMember(representation => representation.Properties, expression => expression.ResolveUsing(content =>
-                {
-                    var d = new Dictionary<string, object>();
-                    foreach (var propertyType in content.PropertyTypes)
-                    {                        
-                        var prop = content.HasProperty(propertyType.Alias) ? content.Properties[propertyType.Alias] : null;
-                        if (prop != null)
-                        {
-                            d.Add(propertyType.Alias, prop.Value);
-                        }
-                    }
-                    return d;
-                }));
+            config.CreateMap<IMedia, MediaRepresentation>()
+                .ForMember(representation => representation.HasChildren, expression => expression.MapFrom(content =>
+                    applicationContext.Services.MediaService.HasChildren(content.Id)))
+                .ForMember(representation => representation.Properties, expression => expression.ResolveUsing<ContentPropertiesResolver>());
+
+            config.CreateMap<IMember, MemberRepresentation>()
+                .ForMember(representation => representation.Properties, expression => expression.ResolveUsing<ContentPropertiesResolver>());
 
             config.CreateMap<IContent, ContentTemplate>()
                 .IgnoreAllUnmapped()

@@ -2,14 +2,10 @@ using WebApi.Hal;
 
 namespace Umbraco.RestApi.Links
 {
-    public interface IContentLinkTemplate
-    {
-        Link RootContent { get; }
-        Link ContentItem { get; }
-        Link ParentContent { get; }
-        Link PagedDescendantContent { get; }
-        Link PagedChildContent { get; }
-        Link ContentMetaData { get; }
-        Link Search { get; }
+    public interface IContentLinkTemplate : ILinkTemplate
+    {        
+        Link Parent { get; }
+        Link PagedDescendants { get; }
+        Link PagedChildren { get; }        
     }
 }

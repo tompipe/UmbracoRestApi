@@ -13,10 +13,10 @@ namespace Umbraco.RestApi.Models
     /// </remarks>
     public class ValidationErrorListRepresentation : SimpleListRepresentation<ValidationErrorRepresentation>
     {
-        private readonly IContentLinkTemplate _linkTemplate;
+        private readonly ILinkTemplate _linkTemplate;
         private readonly int? _id;
 
-        public ValidationErrorListRepresentation(IList<ValidationErrorRepresentation> res, IContentLinkTemplate linkTemplate, int? id = null)
+        public ValidationErrorListRepresentation(IList<ValidationErrorRepresentation> res, ILinkTemplate linkTemplate, int? id = null)
             : base(res)
         {
             _linkTemplate = linkTemplate;
@@ -35,7 +35,7 @@ namespace Umbraco.RestApi.Models
             get
             {
                 if (_linkTemplate == null) throw new NullReferenceException("LinkTemplate is null");
-                return _linkTemplate.ContentItem.Rel;
+                return _linkTemplate.Self.Rel;
             }
             set { }
         }
@@ -47,9 +47,9 @@ namespace Umbraco.RestApi.Models
                 if (_linkTemplate == null) throw new NullReferenceException("LinkTemplate is null");
                 
                 return _id.HasValue
-                    ? _linkTemplate.ContentItem.CreateLink(new { id = _id.Value }).Href
+                    ? _linkTemplate.Self.CreateLink(new { id = _id.Value }).Href
                     //Same as 'root' content for Post
-                    : _linkTemplate.RootContent.CreateLink().Href;
+                    : _linkTemplate.Root.CreateLink().Href;
             }
             set { }
         }

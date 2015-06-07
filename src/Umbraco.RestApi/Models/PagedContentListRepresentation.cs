@@ -4,12 +4,13 @@ using WebApi.Hal;
 
 namespace Umbraco.RestApi.Models
 {
-    public class PagedContentListRepresentation : PagedRepresentationList<ContentRepresentation>
+    public class PagedContentListRepresentation<TRepresentation> : PagedRepresentationList<TRepresentation> 
+        where TRepresentation : Representation
     {
         private readonly IContentLinkTemplate _linkTemplate;
 
 
-        public PagedContentListRepresentation(IList<ContentRepresentation> res, long totalResults, long totalPages, long pageIndex, int pageSize, IContentLinkTemplate linkTemplate, Link pagedUriTemplate, object uriTemplateSubstitutionParams)
+        public PagedContentListRepresentation(IList<TRepresentation> res, long totalResults, long totalPages, long pageIndex, int pageSize, IContentLinkTemplate linkTemplate, Link pagedUriTemplate, object uriTemplateSubstitutionParams)
             : base(res, totalResults, totalPages, pageIndex, pageSize, pagedUriTemplate, uriTemplateSubstitutionParams)
         {
             _linkTemplate = linkTemplate;
@@ -20,7 +21,7 @@ namespace Umbraco.RestApi.Models
             base.CreateHypermedia();
 
             //add root
-            Links.Add(_linkTemplate.RootContent.CreateLink());
+            Links.Add(_linkTemplate.Root.CreateLink());
 
             //templated link
             Links.Add(_linkTemplate.Search);

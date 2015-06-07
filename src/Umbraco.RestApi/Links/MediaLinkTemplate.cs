@@ -17,32 +17,32 @@ namespace Umbraco.RestApi.Links
             _version = version;
         }
 
-        public Link RootContent
+        public Link Root
         {
             get { return new Link("root", string.Format("~/{0}/{1}", RouteConstants.GetRestRootPath(_version), RouteConstants.MediaSegment)); }
         }
 
-        public Link ContentItem
+        public Link Self
         {
             get { return new Link("content", string.Format("~/{0}/{1}/{{id}}", RouteConstants.GetRestRootPath(_version), RouteConstants.MediaSegment)); }
         }
 
-        public Link ParentContent
+        public Link Parent
         {
             get { return new Link("parent", string.Format("~/{0}/{1}/{{parentId}}", RouteConstants.GetRestRootPath(_version), RouteConstants.MediaSegment)); }
         }
 
-        public Link PagedChildContent
+        public Link PagedChildren
         {
             get { return new Link("children", string.Format("~/{0}/{1}/{{id}}/children{{?pageIndex,pageSize}}", RouteConstants.GetRestRootPath(_version), RouteConstants.MediaSegment)); }
         }
 
-        public Link PagedDescendantContent
+        public Link PagedDescendants
         {
             get { return new Link("descendants", string.Format("~/{0}/{1}/{{id}}/descendants{{?pageIndex,pageSize}}", RouteConstants.GetRestRootPath(_version), RouteConstants.MediaSegment)); }
         }
 
-        public Link ContentMetaData
+        public Link MetaData
         {
             get { return new Link("meta", string.Format("~/{0}/{1}/{{id}}/meta", RouteConstants.GetRestRootPath(_version), RouteConstants.MediaSegment)); }
         }

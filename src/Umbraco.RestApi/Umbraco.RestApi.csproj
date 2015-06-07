@@ -16,7 +16,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>C:\Users\Shannon\Documents\My Web Sites\Umbraco73WithRestTest\packages\UmbracoCms.RestApi.1.0.0-nightly0009\lib\net45\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -254,9 +254,16 @@
     <Compile Include="Controllers\ContentPropertyValidator.cs" />
     <Compile Include="Controllers\DynamicCorsAttribute.cs" />
     <Compile Include="Controllers\MediaController.cs" />
+    <Compile Include="Controllers\MemberController.cs" />
     <Compile Include="Controllers\QueryStructureModelBinder.cs" />
+    <Compile Include="Links\ILinkTemplate.cs" />
     <Compile Include="Links\MediaLinkTemplate.cs" />
+    <Compile Include="Models\ContentRepresentationBase.cs" />
     <Compile Include="Models\MediaModelMapper.cs" />
+    <Compile Include="Models\MediaRepresentation.cs" />
+    <Compile Include="Models\MemberRepresentation.cs" />
+    <Compile Include="Models\UmbracoRepresentation.cs" />
+    <Compile Include="Models\UmbracoRepresentationBase.cs" />
     <Compile Include="Routing\UmbracoRoutePrefixAttribute.cs" />
     <Compile Include="Routing\CustomRouteAttributeDirectRouteProvider.cs" />
     <Compile Include="Routing\CustomRouteAttribute.cs" />
@@ -274,7 +281,7 @@
     <Compile Include="Links\IContentLinkTemplate.cs" />
     <Compile Include="Links\PublishedContentLinkTemplate.cs" />
     <Compile Include="ModelStateExtensions.cs" />
-    <Compile Include="Models\ContentListRepresentation.cs" />
+    <Compile Include="Models\UmbracoListRepresentation.cs" />
     <Compile Include="Models\ContentMetadataRepresentation.cs" />
     <Compile Include="Models\ContentTemplate.cs" />
     <Compile Include="Models\ContentPropertyInfo.cs" />

@@ -19,7 +19,7 @@ namespace Umbraco.RestApi.Controllers
 {
  
     [UmbracoRoutePrefix("rest/v1/content")]
-    public class ContentController : UmbracoHalController<int, IContent>
+    public class ContentController : UmbracoHalContentControllerBase<int, IContent, ContentRepresentation>
     {
         
 
@@ -186,10 +186,23 @@ namespace Umbraco.RestApi.Controllers
             get { return new ContentLinkTemplate(CurrentVersionRequest); }
         }
 
+        /// <summary>
+        /// Creates the content representation from the entity based on the current API version
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        protected override ContentRepresentation CreateRepresentation(IContent entity)
+        {
+            //create it with the current version link representation
+            var representation = new ContentRepresentation(LinkTemplate);
+            return Mapper.Map(entity, representation);
+        }
+
         protected IContentService ContentService
         {
             get { return ApplicationContext.Services.ContentService; }
         }
+
     }
    
 }
