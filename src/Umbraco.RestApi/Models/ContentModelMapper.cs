@@ -8,23 +8,6 @@ using Umbraco.Core.Models.Mapping;
 
 namespace Umbraco.RestApi.Models
 {
-    internal class ContentPropertiesResolver : ValueResolver<IContentBase, IDictionary<string, object>>
-    {
-        protected override IDictionary<string, object> ResolveCore(IContentBase content)
-        {
-            var d = new Dictionary<string, object>();
-            foreach (var propertyType in content.PropertyTypes)
-            {
-                var prop = content.HasProperty(propertyType.Alias) ? content.Properties[propertyType.Alias] : null;
-                if (prop != null)
-                {
-                    d.Add(propertyType.Alias, prop.Value);
-                }
-            }
-            return d;
-        }
-    }
-
     public class ContentModelMapper : MapperConfiguration
     {
         public override void ConfigureMappings(IConfiguration config, ApplicationContext applicationContext)

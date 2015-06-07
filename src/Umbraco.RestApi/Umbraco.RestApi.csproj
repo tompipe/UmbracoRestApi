@@ -252,12 +252,15 @@
   <ItemGroup>
     <Compile Include="AppBuilderExtensions.cs" />
     <Compile Include="Controllers\ContentPropertyValidator.cs" />
+    <Compile Include="Controllers\CustomActionSelector.cs" />
     <Compile Include="Controllers\DynamicCorsAttribute.cs" />
     <Compile Include="Controllers\MediaController.cs" />
     <Compile Include="Controllers\MemberController.cs" />
     <Compile Include="Controllers\QueryStructureModelBinder.cs" />
+    <Compile Include="Controllers\UmbracoHalContentControllerBase.cs" />
     <Compile Include="Links\ILinkTemplate.cs" />
     <Compile Include="Links\MediaLinkTemplate.cs" />
+    <Compile Include="Models\ContentPropertiesResolver.cs" />
     <Compile Include="Models\ContentRepresentationBase.cs" />
     <Compile Include="Models\MediaModelMapper.cs" />
     <Compile Include="Models\MediaRepresentation.cs" />
