@@ -36,6 +36,12 @@ namespace Umbraco.RestApi.Tests.TestHelpers
 
                 var mediaRepresentationMapper = new MediaModelMapper();
                 mediaRepresentationMapper.ConfigureMappings(configuration, umbracoContext.Application);
+
+                var memberRepresentationMapper = new MemberModelMapper();
+                memberRepresentationMapper.ConfigureMappings(configuration, umbracoContext.Application);
+
+                var relationRepresentationMapper = new RelationModelMapper();
+                relationRepresentationMapper.ConfigureMappings(configuration, umbracoContext.Application);
             });
         }
 

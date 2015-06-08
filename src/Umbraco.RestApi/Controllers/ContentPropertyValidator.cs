@@ -29,7 +29,7 @@ namespace Umbraco.RestApi.Controllers
             _dataTypeService = dataTypeService;
         }
 
-        public void ValidateItem(ContentRepresentation postedItem, TPersisted content)
+        public void ValidateItem(UmbracoRepresentation postedItem, TPersisted content)
         {
             if (postedItem == null) throw new ArgumentNullException("postedItem");
             if (content == null) throw new ArgumentNullException("content");
@@ -45,7 +45,7 @@ namespace Umbraco.RestApi.Controllers
         /// <param name="postedItem"></param>
         /// <param name="content"></param>
         /// <returns></returns>
-        protected bool ValidateProperties(ContentRepresentation postedItem, TPersisted content)
+        protected bool ValidateProperties(UmbracoRepresentation postedItem, TPersisted content)
         {
             var hasErrors = false;
             foreach (var p in postedItem.Properties)

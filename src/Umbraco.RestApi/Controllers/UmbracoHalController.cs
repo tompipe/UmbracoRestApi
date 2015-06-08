@@ -21,6 +21,7 @@ using Umbraco.RestApi.Routing;
 using Umbraco.Web;
 using Umbraco.Web.WebApi;
 using WebApi.Hal;
+using System.Threading.Tasks;
 
 
 namespace Umbraco.RestApi.Controllers
@@ -101,7 +102,7 @@ namespace Umbraco.RestApi.Controllers
 
         [HttpPost]
         [CustomRoute("")]
-        public HttpResponseMessage Post(ContentRepresentation content)
+        public HttpResponseMessage Post(TRepresentation content)
         {
             try
             {
@@ -120,7 +121,7 @@ namespace Umbraco.RestApi.Controllers
 
         [HttpPut]
         [CustomRoute("{id}")]
-        public HttpResponseMessage Put(TId id, ContentRepresentation content)
+        public HttpResponseMessage Put(TId id, TRepresentation content)
         {
             try
             {
@@ -142,7 +143,40 @@ namespace Umbraco.RestApi.Controllers
         public virtual HttpResponseMessage Delete(int id)
         {
             return Request.CreateResponse(HttpStatusCode.NotImplemented);
-        } 
+        }
+
+        [HttpPut]
+        [CustomRoute("{id}/upload")]
+        public async Task<HttpResponseMessage> UploadFile(TId id, string property = "umbracoFile")
+        {
+            if (!Request.Content.IsMimeMultipartContent())
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.UnsupportedMediaType, "The request doesn't contain valid content!");
+            }
+
+            try
+            {
+                var provider = new MultipartMemoryStreamProvider();
+                await Request.Content.ReadAsMultipartAsync(provider);
+
+                if (provider.Contents.Count != 1)
+                    return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "This method only works with a single file at a time");
+
+                StreamContent file = (StreamContent)provider.Contents.First();
+                var name = file.Headers.ContentDisposition.FileName;
+                var contentType = file.Headers.ContentType;
+                var dataStream = await file.ReadAsStreamAsync();
+
+                //build an in-memory file for umbraco
+                var httpFile = new Umbraco.RestApi.Models.MemoryFile(dataStream, contentType.ToString(), name);
+                var entity = SetFileOnProperty(id, property, httpFile);
+                return Request.CreateResponse(HttpStatusCode.OK, entity);
+            }
+            catch (Exception e)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, e.Message);
+            }
+        }
         #endregion
 
         #region Protected - to override for REST implementation
@@ -171,12 +205,17 @@ namespace Umbraco.RestApi.Controllers
             return null;
         }
 
-        protected virtual TEntity CreateNew(ContentRepresentation content)
+        protected virtual TEntity CreateNew(TRepresentation content)
         {
             return null;
         }
 
-        protected virtual TEntity Update(TId id, ContentRepresentation content)
+        protected virtual TEntity Update(TId id, TRepresentation content)
+        {
+            return null;
+        }
+
+        protected virtual TEntity SetFileOnProperty(TId id, string property, System.Web.HttpPostedFileBase file)
         {
             return null;
         } 
@@ -236,8 +275,8 @@ namespace Umbraco.RestApi.Controllers
         /// <param name="errors"></param>
         /// <returns></returns>
         protected ModelValidationException ValidationException(
-            ModelStateDictionary modelState, 
-            ContentRepresentation content,
+            ModelStateDictionary modelState,
+            TRepresentation content,
             string message = null, int? id = null, params string[] errors)
         {
             var metaDataProvider = this.Configuration.Services.GetModelMetadataProvider();

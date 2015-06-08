@@ -125,7 +125,7 @@ namespace Umbraco.RestApi.Controllers
             };
         }
 
-        protected override IMedia CreateNew(ContentRepresentation content)
+        protected override IMedia CreateNew(MediaRepresentation content)
         {
             //we cannot continue here if the mandatory items are empty (i.e. name, etc...)
             if (!ModelState.IsValid)
@@ -159,7 +159,7 @@ namespace Umbraco.RestApi.Controllers
             return created;
         }
 
-        protected override IMedia Update(int id, ContentRepresentation content)
+        protected override IMedia Update(int id, MediaRepresentation content)
         {
             var found = MediaService.GetById(id);
             if (found == null) throw new HttpResponseException(HttpStatusCode.NotFound);

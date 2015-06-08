@@ -8,6 +8,7 @@ namespace Umbraco.RestApi.Routing
         public const string ContentSegment = "content";
         public const string MediaSegment = "media";
         public const string MembersSegment = "members";
+        public const string RelationsSegment = "relations"; 
 
         public static string VersionSegment(int version)
         {
@@ -20,6 +21,7 @@ namespace Umbraco.RestApi.Routing
         public const string ContentRouteName = "UR_Content";
         public const string MediaRouteName = "UR_Media";
         public const string MembersRouteName = "UR_Members";
+        public const string RelationsRouteName = "UR_Relations";
 
         public static string GetRestRootPath(int version)
         {

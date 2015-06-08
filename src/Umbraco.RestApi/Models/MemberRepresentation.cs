@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Umbraco.RestApi.Links;
 
 namespace Umbraco.RestApi.Models
@@ -24,6 +25,14 @@ namespace Umbraco.RestApi.Models
         {
             _linkTemplate = linkTemplate;
         }
+
+        [Required]
+        [Display(Name = "userName")]
+        public string UserName { get; set; }
+
+        [Required]
+        [Display(Name = "email")]
+        public string Email { get; set; }
 
         private readonly ILinkTemplate _linkTemplate;
 
