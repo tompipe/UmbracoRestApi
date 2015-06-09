@@ -7,6 +7,6 @@ namespace Umbraco.RestApi.Links
         Link Parent { get; }
         Link PagedDescendants { get; }
         Link PagedChildren { get; }
-        Link Upload { get; }
+        
     }
 }

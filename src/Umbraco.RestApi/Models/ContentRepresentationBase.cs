@@ -61,7 +61,11 @@ namespace Umbraco.RestApi.Models
                 Links.Add(_linkTemplate.Parent.CreateLink(new { parentId = ParentId }));
             }
 
-            Links.Add(_linkTemplate.Upload.CreateLink(new { id = Id }));
+            if (_linkTemplate.Upload != null)
+            {
+                Links.Add(_linkTemplate.Upload.CreateLink(new { id = Id }));
+            }
+            
         }
     }
 

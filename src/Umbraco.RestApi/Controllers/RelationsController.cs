@@ -142,7 +142,7 @@ namespace Umbraco.RestApi.Controllers
             return Mapper.Map(relation, rep);
         }
 
-        private IContentLinkTemplate GetLinkTemplate(Guid nodeObjectType)
+        private ILinkTemplate GetLinkTemplate(Guid nodeObjectType)
         {
             switch (nodeObjectType.ToString().ToUpper())
             {

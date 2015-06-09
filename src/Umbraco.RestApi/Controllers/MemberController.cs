@@ -17,7 +17,7 @@ using Examine.Providers;
 namespace Umbraco.RestApi.Controllers
 {
     [UmbracoRoutePrefix("rest/v1/members")]
-    public class MemberController : UmbracoHalController<int, IMember, MemberRepresentation, IContentLinkTemplate>
+    public class MemberController : UmbracoHalController<int, IMember, MemberRepresentation, ILinkTemplate>
     {
         public MemberController()
         {
@@ -78,7 +78,7 @@ namespace Umbraco.RestApi.Controllers
                 pageIndex,
                 pageSize,
                 LinkTemplate,
-                LinkTemplate.PagedChildren,
+                LinkTemplate.Root,
                 new { });
 
             return Request.CreateResponse(HttpStatusCode.OK, representation);
@@ -181,7 +181,7 @@ namespace Umbraco.RestApi.Controllers
             return Services.MemberService.GetById(id);  
         }
 
-        protected override IContentLinkTemplate LinkTemplate
+        protected override ILinkTemplate LinkTemplate
         {
             get { return new MembersLinkTemplate(CurrentVersionRequest); }
         }

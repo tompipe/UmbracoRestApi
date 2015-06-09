@@ -8,6 +8,6 @@ namespace Umbraco.RestApi.Links
         Link Self { get; }
         Link MetaData { get; }
         Link Search { get; }
-       
+        Link Upload { get; }
     }
 }
