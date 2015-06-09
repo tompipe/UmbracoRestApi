@@ -170,7 +170,9 @@ namespace Umbraco.RestApi.Controllers
                 //build an in-memory file for umbraco
                 var httpFile = new Umbraco.RestApi.Models.MemoryFile(dataStream, contentType.ToString(), name);
                 var entity = SetFileOnProperty(id, property, httpFile);
-                return Request.CreateResponse(HttpStatusCode.OK, entity);
+                var representation = CreateRepresentation(entity);
+
+                return Request.CreateResponse(HttpStatusCode.OK, representation);
             }
             catch (Exception e)
             {

@@ -6,7 +6,7 @@ namespace Umbraco.RestApi.Models
 {
     public class MemberRepresentation : UmbracoRepresentation
     {
-        public MemberRepresentation(ILinkTemplate linkTemplate, Action<UmbracoRepresentation> createHypermediaCallback)
+        public MemberRepresentation(IContentLinkTemplate linkTemplate, Action<UmbracoRepresentation> createHypermediaCallback)
             : base(createHypermediaCallback)
         {
             _linkTemplate = linkTemplate;
@@ -21,7 +21,7 @@ namespace Umbraco.RestApi.Models
         {
         }
 
-        public MemberRepresentation(ILinkTemplate linkTemplate)
+        public MemberRepresentation(IContentLinkTemplate linkTemplate)
         {
             _linkTemplate = linkTemplate;
         }
@@ -34,7 +34,7 @@ namespace Umbraco.RestApi.Models
         [Display(Name = "email")]
         public string Email { get; set; }
 
-        private readonly ILinkTemplate _linkTemplate;
+        private readonly IContentLinkTemplate _linkTemplate;
 
         protected override void CreateHypermedia()
         {
@@ -46,6 +46,8 @@ namespace Umbraco.RestApi.Models
             Rel = _linkTemplate.Self.Rel;
 
             Links.Add(_linkTemplate.MetaData.CreateLink(new { id = Id }));
+
+            Links.Add(_linkTemplate.Upload.CreateLink(new { id = Id }));
         }
     }
 }

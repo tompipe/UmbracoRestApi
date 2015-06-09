@@ -51,5 +51,10 @@ namespace Umbraco.RestApi.Links
         {
             get { return new Link("search", string.Format("~/{0}/{1}/search{{?pageIndex,pageSize,lucene}}", RouteConstants.GetRestRootPath(_version), RouteConstants.MediaSegment)); }
         }
+
+        public Link Upload
+        {
+            get { return new Link("upload", string.Format("~/{0}/{1}/{{id}}/upload{{?property}}", RouteConstants.GetRestRootPath(_version), RouteConstants.MediaSegment)); }
+        }
     }
 }

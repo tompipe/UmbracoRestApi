@@ -32,11 +32,6 @@ namespace Umbraco.RestApi.Links
             get { return null; }
         }
 
-        public Link PagedChildContent
-        {
-            get { return new Link("query", string.Format("~/{0}/{1}/all{{?pageIndex,pageSize,orderBy,direction,memberTypeAlias,filter}}", RouteConstants.GetRestRootPath(_version), RouteConstants.MembersSegment)); }
-        }
-
         public Link PagedDescendantContent
         {
             get { return null; }
@@ -69,9 +64,10 @@ namespace Umbraco.RestApi.Links
 
         public Link PagedChildren
         {
-            get { throw new NotImplementedException(); }
+            get { return new Link("query", string.Format("~/{0}/{1}/all{{?pageIndex,pageSize,orderBy,direction,memberTypeAlias,filter}}", RouteConstants.GetRestRootPath(_version), RouteConstants.MembersSegment)); }
         }
 
+       
       
     }
 }

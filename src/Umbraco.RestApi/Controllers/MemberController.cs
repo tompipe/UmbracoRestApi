@@ -9,11 +9,13 @@ using System.Net.Http;
 using System.Web.Http;
 using Umbraco.Core.Services;
 using System.Net;
+using Umbraco.Core;
+using System.Linq;
 
 namespace Umbraco.RestApi.Controllers
 {
     [UmbracoRoutePrefix("rest/v1/members")]
-    public class MemberController : UmbracoHalController<int, IMember, MemberRepresentation, ILinkTemplate>
+    public class MemberController : UmbracoHalController<int, IMember, MemberRepresentation, IContentLinkTemplate>
     {
         public MemberController()
         {
@@ -50,6 +52,27 @@ namespace Umbraco.RestApi.Controllers
             }
         }
 
+        [HttpGet]
+        [CustomRoute("all")]
+        public HttpResponseMessage All(long pageIndex = 0, int pageSize = 100, string orderBy = "Name", string direction = "Ascending", string memberTypeAlias = null, string filter = "")
+        {
+            long totalRecords = 0;
+            var direction_enum = Enum<Core.Persistence.DatabaseModelDefinitions.Direction>.Parse(direction);
+            var members = MemberService.GetAll(pageIndex, pageSize, out totalRecords, orderBy, direction_enum, memberTypeAlias, filter);
+            int totalPages = ((int)totalRecords + pageSize - 1) / pageSize;
+
+            var representation = new PagedContentListRepresentation<MemberRepresentation>(
+                members.Select(CreateRepresentation).ToList(),
+                totalRecords,
+                totalPages,
+                pageIndex,
+                pageSize,
+                LinkTemplate,
+                LinkTemplate.PagedChildren,
+                new { });
+
+            return Request.CreateResponse(HttpStatusCode.OK, representation);
+        }
 
         //BASIC CRUD
         protected override IMember CreateNew(MemberRepresentation content)
@@ -141,9 +164,9 @@ namespace Umbraco.RestApi.Controllers
             throw new NotImplementedException();
         }
 
-        protected override ILinkTemplate LinkTemplate
+        protected override IContentLinkTemplate LinkTemplate
         {
-            get { throw new NotImplementedException(); }
+            get { return new MembersLinkTemplate(CurrentVersionRequest); }
         }
 
         /// <summary>
