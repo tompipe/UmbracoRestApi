@@ -11,6 +11,7 @@ using Umbraco.Core.Services;
 using System.Net;
 using Umbraco.Core;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Umbraco.RestApi.Controllers
 {
@@ -83,7 +84,6 @@ namespace Umbraco.RestApi.Controllers
                 throw ValidationException(ModelState, content);
             }
 
-
             var memberType = Services.MemberTypeService.Get(content.ContentTypeAlias);
             if (memberType == null)
             {
@@ -152,6 +152,10 @@ namespace Umbraco.RestApi.Controllers
         }
 
 
+        protected override System.Collections.Generic.IEnumerable<IMember> GetRootContent()
+        {
+            return new List<Member>();
+        }
 
 
         protected override ContentMetadataRepresentation GetMetadataForItem(int id)
@@ -161,7 +165,7 @@ namespace Umbraco.RestApi.Controllers
 
         protected override IMember GetItem(int id)
         {
-            throw new NotImplementedException();
+            return MemberService.GetById(id);
         }
 
         protected override IContentLinkTemplate LinkTemplate
@@ -176,8 +180,15 @@ namespace Umbraco.RestApi.Controllers
         /// <returns></returns>
         protected override MemberRepresentation CreateRepresentation(IMember entity)
         {
+            var relationsLInkTemplate = new RelationLinkTemplate(CurrentVersionRequest);
+
             //create it with the current version link representation
-            var representation = new MemberRepresentation(LinkTemplate);
+            var representation = new MemberRepresentation(LinkTemplate, x =>
+            {
+                x.Links.Add(relationsLInkTemplate.Children.CreateLink("relatedChildren", new {id = entity.Id} ) );
+                x.Links.Add(relationsLInkTemplate.Parents.CreateLink("relatedParents", new { id = entity.Id }));
+            });
+
             return Mapper.Map(entity, representation);
         }
 
