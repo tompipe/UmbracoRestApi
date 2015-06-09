@@ -8,7 +8,7 @@ using WebApi.Hal;
 
 namespace Umbraco.RestApi.Links
 {
-    public class MembersLinkTemplate : IContentLinkTemplate
+    public class MembersLinkTemplate : ILinkTemplate
     {
         private readonly int _version;
 
@@ -19,7 +19,7 @@ namespace Umbraco.RestApi.Links
 
         public Link Root
         {
-            get { return new Link("root", string.Format("~/{0}/{1}", RouteConstants.GetRestRootPath(_version), RouteConstants.MembersSegment)); }
+            get { return new Link("root", string.Format("~/{0}/{1}{{?pageIndex,pageSize,orderBy,direction,memberTypeAlias,filter}}", RouteConstants.GetRestRootPath(_version), RouteConstants.MembersSegment)); }
         }
 
         public Link Self
@@ -52,21 +52,7 @@ namespace Umbraco.RestApi.Links
             get { return new Link("upload", string.Format("~/{0}/{1}/{{id}}/upload{{?property}}", RouteConstants.GetRestRootPath(_version), RouteConstants.MembersSegment)); }
         }
 
-        public Link Parent
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public Link PagedDescendants
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public Link PagedChildren
-        {
-            get { return new Link("query", string.Format("~/{0}/{1}{{?pageIndex,pageSize,orderBy,direction,memberTypeAlias,filter}}", RouteConstants.GetRestRootPath(_version), RouteConstants.MembersSegment)); }
-        }
-
+     
        
       
     }

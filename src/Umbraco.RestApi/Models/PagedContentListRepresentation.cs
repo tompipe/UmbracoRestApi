@@ -7,10 +7,10 @@ namespace Umbraco.RestApi.Models
     public class PagedContentListRepresentation<TRepresentation> : PagedRepresentationList<TRepresentation> 
         where TRepresentation : Representation
     {
-        private readonly IContentLinkTemplate _linkTemplate;
+        private readonly ILinkTemplate _linkTemplate;
 
 
-        public PagedContentListRepresentation(IList<TRepresentation> res, long totalResults, long totalPages, long pageIndex, int pageSize, IContentLinkTemplate linkTemplate, Link pagedUriTemplate, object uriTemplateSubstitutionParams)
+        public PagedContentListRepresentation(IList<TRepresentation> res, long totalResults, long totalPages, long pageIndex, int pageSize, ILinkTemplate linkTemplate, Link pagedUriTemplate, object uriTemplateSubstitutionParams)
             : base(res, totalResults, totalPages, pageIndex, pageSize, pagedUriTemplate, uriTemplateSubstitutionParams)
         {
             _linkTemplate = linkTemplate;

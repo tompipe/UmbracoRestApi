@@ -11,11 +11,11 @@ namespace Umbraco.RestApi.Models
 {
     public class RelationRepresentation : Representation
     {
-        private readonly IContentLinkTemplate _parentLink;
-        private readonly IContentLinkTemplate _childLink;
+        private readonly ILinkTemplate _parentLink;
+        private readonly ILinkTemplate _childLink;
         private readonly IRelationLinkTemplate _relationLink;
 
-        public RelationRepresentation(IRelationLinkTemplate linktemplate, IContentLinkTemplate parentLinkTemplate, IContentLinkTemplate childLinkTemplate)
+        public RelationRepresentation(IRelationLinkTemplate linktemplate, ILinkTemplate parentLinkTemplate, ILinkTemplate childLinkTemplate)
         {
             _parentLink = parentLinkTemplate;
             _childLink = childLinkTemplate;

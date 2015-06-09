@@ -18,7 +18,7 @@ using Examine.Providers;
 namespace Umbraco.RestApi.Controllers
 {
     [UmbracoRoutePrefix("rest/v1/members")]
-    public class MemberController : UmbracoHalController<int, IMember, MemberRepresentation, IContentLinkTemplate>
+    public class MemberController : UmbracoHalController<int, IMember, MemberRepresentation, ILinkTemplate>
     {
         public MemberController()
         {
@@ -37,7 +37,7 @@ namespace Umbraco.RestApi.Controllers
             get { return _searchProvider ?? (_searchProvider = ExamineManager.Instance.SearchProviderCollection["InternalMemberSearcher"]); }
         }
 
-        //LOGIN
+        //TODO: Remove this
         [HttpPost]
         [CustomRoute("login")]
         public HttpResponseMessage Login(MemberLogin login)
@@ -46,7 +46,7 @@ namespace Umbraco.RestApi.Controllers
             {
                 if (Members.Login(login.Username, login.Password))
                 {
-                    /// TODO: There must be a better way ?
+                    // TODO: There must be a better way ?
                     var member = MemberService.GetByUsername(login.Username);
                     var rep = CreateRepresentation(member);
 
@@ -79,7 +79,7 @@ namespace Umbraco.RestApi.Controllers
                 pageIndex,
                 pageSize,
                 LinkTemplate,
-                LinkTemplate.PagedChildren,
+                LinkTemplate.Root,
                 new { });
 
             return Request.CreateResponse(HttpStatusCode.OK, representation);
@@ -185,7 +185,7 @@ namespace Umbraco.RestApi.Controllers
             return MemberService.GetById(id);
         }
 
-        protected override IContentLinkTemplate LinkTemplate
+        protected override ILinkTemplate LinkTemplate
         {
             get { return new MembersLinkTemplate(CurrentVersionRequest); }
         }
