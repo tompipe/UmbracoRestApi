@@ -64,7 +64,7 @@ namespace Umbraco.RestApi.Links
 
         public Link PagedChildren
         {
-            get { return new Link("query", string.Format("~/{0}/{1}/all{{?pageIndex,pageSize,orderBy,direction,memberTypeAlias,filter}}", RouteConstants.GetRestRootPath(_version), RouteConstants.MembersSegment)); }
+            get { return new Link("query", string.Format("~/{0}/{1}{{?pageIndex,pageSize,orderBy,direction,memberTypeAlias,filter}}", RouteConstants.GetRestRootPath(_version), RouteConstants.MembersSegment)); }
         }
 
        

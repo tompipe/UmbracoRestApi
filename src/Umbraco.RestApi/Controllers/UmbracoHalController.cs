@@ -70,7 +70,7 @@ namespace Umbraco.RestApi.Controllers
 
         [HttpGet]
         [CustomRoute("")]
-        public HttpResponseMessage Get()
+        public virtual HttpResponseMessage Get()
         {
             var result = GetRootContent();
             return result == null

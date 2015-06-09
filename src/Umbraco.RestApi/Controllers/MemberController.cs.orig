@@ -11,9 +11,12 @@ using Umbraco.Core.Services;
 using System.Net;
 using Umbraco.Core;
 using System.Linq;
-using Examine;
+<<<<<<< HEAD
 using System.Collections.Generic;
+=======
+using Examine;
 using Examine.Providers;
+>>>>>>> origin/master
 
 namespace Umbraco.RestApi.Controllers
 {
