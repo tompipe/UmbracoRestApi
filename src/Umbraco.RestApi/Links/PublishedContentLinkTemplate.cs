@@ -3,7 +3,7 @@ using WebApi.Hal;
 
 namespace Umbraco.RestApi.Links
 {
-    public class PublishedContentLinkTemplate : IContentLinkTemplate
+    public class PublishedContentLinkTemplate : IContentLinkTemplate<int>
     {
         private readonly int _version;
 
@@ -27,14 +27,16 @@ namespace Umbraco.RestApi.Links
             get { return new Link("parent", string.Format("~/{0}/{1}/{2}/{{parentId}}", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment)); }
         }
 
-        public Link PagedDescendants
+        public Link PagedDescendants(int id)
         {
-            get { return new Link("descendants", string.Format("~/{0}/{1}/{2}/{{id}}/descendants{{?pageIndex,pageSize}}", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment)); }
+            return new Link("descendants", 
+                string.Format("~/{0}/{1}/{2}/{3}/descendants{{?pageIndex,pageSize}}", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment, id));
         }
 
-        public Link PagedChildren
+        public Link PagedChildren(int id)
         {
-            get { return new Link("children", string.Format("~/{0}/{1}/{2}/{{id}}/children{{?pageIndex,pageSize}}", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment)); }
+            return new Link("children", 
+                string.Format("~/{0}/{1}/{2}/{3}/children{{?pageIndex,pageSize}}", RouteConstants.GetRestRootPath(_version), RouteConstants.ContentSegment, RouteConstants.PublishedSegment, id));
         }
 
         public Link MetaData

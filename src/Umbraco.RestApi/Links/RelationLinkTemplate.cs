@@ -22,14 +22,16 @@ namespace Umbraco.RestApi.Links
             get { return new Link("relation", string.Format("~/{0}/{1}/{{id}}", RouteConstants.GetRestRootPath(_version), RouteConstants.RelationsSegment)); }
         }
 
-        public Link Children
+        public Link Children(int id)
         {
-            get { return new Link("relatedChildren", string.Format("~/{0}/{1}/children/{{id}}", RouteConstants.GetRestRootPath(_version), RouteConstants.RelationsSegment)); }
+            return new Link("relatedChildren", 
+                string.Format("~/{0}/{1}/children/{2}{{?relationType}}", RouteConstants.GetRestRootPath(_version), RouteConstants.RelationsSegment, id));
         }
 
-        public Link Parents
+        public Link Parents(int id)
         {
-            get { return new Link("relatedParents", string.Format("~/{0}/{1}/parents/{{id}}", RouteConstants.GetRestRootPath(_version), RouteConstants.RelationsSegment)); }
+            return new Link("relatedParents", 
+                string.Format("~/{0}/{1}/parents/{2}{{?relationType}}", RouteConstants.GetRestRootPath(_version), RouteConstants.RelationsSegment, id));
         }
 
      }

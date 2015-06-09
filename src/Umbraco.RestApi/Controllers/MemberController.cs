@@ -202,8 +202,8 @@ namespace Umbraco.RestApi.Controllers
             //create it with the current version link representation
             var representation = new MemberRepresentation(LinkTemplate, x =>
             {
-                x.Links.Add(relationsLInkTemplate.Children.CreateLink("relatedChildren", new {id = entity.Id} ) );
-                x.Links.Add(relationsLInkTemplate.Parents.CreateLink("relatedParents", new { id = entity.Id }));
+                x.Links.Add(relationsLInkTemplate.Children(entity.Id));
+                x.Links.Add(relationsLInkTemplate.Parents(entity.Id));
             });
 
             return Mapper.Map(entity, representation);

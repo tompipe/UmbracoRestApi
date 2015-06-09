@@ -8,7 +8,7 @@ using WebApi.Hal;
 
 namespace Umbraco.RestApi.Links
 {
-    public class MediaLinkTemplate : IContentLinkTemplate
+    public class MediaLinkTemplate : IContentLinkTemplate<int>
     {
         private readonly int _version;
 
@@ -32,14 +32,16 @@ namespace Umbraco.RestApi.Links
             get { return new Link("parent", string.Format("~/{0}/{1}/{{parentId}}", RouteConstants.GetRestRootPath(_version), RouteConstants.MediaSegment)); }
         }
 
-        public Link PagedChildren
+        public Link PagedChildren(int id)
         {
-            get { return new Link("children", string.Format("~/{0}/{1}/{{id}}/children{{?pageIndex,pageSize}}", RouteConstants.GetRestRootPath(_version), RouteConstants.MediaSegment)); }
+            return new Link("children", 
+                string.Format("~/{0}/{1}/{2}/children{{?pageIndex,pageSize}}", RouteConstants.GetRestRootPath(_version), RouteConstants.MediaSegment, id));
         }
 
-        public Link PagedDescendants
+        public Link PagedDescendants(int id)
         {
-            get { return new Link("descendants", string.Format("~/{0}/{1}/{{id}}/descendants{{?pageIndex,pageSize}}", RouteConstants.GetRestRootPath(_version), RouteConstants.MediaSegment)); }
+            return new Link("descendants", 
+                string.Format("~/{0}/{1}/{2}/descendants{{?pageIndex,pageSize}}", RouteConstants.GetRestRootPath(_version), RouteConstants.MediaSegment, id));
         }
 
         public Link MetaData

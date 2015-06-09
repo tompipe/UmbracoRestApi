@@ -122,7 +122,7 @@ namespace Umbraco.RestApi.Controllers
             };
         }
 
-        protected override IContentLinkTemplate LinkTemplate
+        protected override IContentLinkTemplate<int> LinkTemplate
         {
             get { return new PublishedContentLinkTemplate(CurrentVersionRequest); }
         }

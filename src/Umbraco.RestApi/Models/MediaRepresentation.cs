@@ -5,12 +5,12 @@ namespace Umbraco.RestApi.Models
 {
     public class MediaRepresentation : ContentRepresentationBase
     {
-        public MediaRepresentation(IContentLinkTemplate linkTemplate, Action<UmbracoRepresentation> createHypermediaCallback)
+        public MediaRepresentation(IContentLinkTemplate<int> linkTemplate, Action<UmbracoRepresentation> createHypermediaCallback)
             : base(linkTemplate, createHypermediaCallback)
         {
         }
 
-        public MediaRepresentation(IContentLinkTemplate linkTemplate)
+        public MediaRepresentation(IContentLinkTemplate<int> linkTemplate)
             : base(linkTemplate)
         {
         }

@@ -8,7 +8,7 @@ using Umbraco.Web;
 
 namespace Umbraco.RestApi.Controllers
 {
-    public abstract class UmbracoHalContentControllerBase<TId, TEntity, TRepresentation> : UmbracoHalController<TId, TEntity, TRepresentation, IContentLinkTemplate> 
+    public abstract class UmbracoHalContentControllerBase<TId, TEntity, TRepresentation> : UmbracoHalController<TId, TEntity, TRepresentation, IContentLinkTemplate<TId>> 
         where TEntity : class
         where TId : struct 
         where TRepresentation : UmbracoRepresentationBase     
@@ -33,7 +33,7 @@ namespace Umbraco.RestApi.Controllers
                 ? Request.CreateResponse(HttpStatusCode.NotImplemented)
                 : Request.CreateResponse(HttpStatusCode.OK, CreatePagedContentRepresentation(
                     result,
-                    LinkTemplate.PagedChildren,
+                    LinkTemplate.PagedChildren(id),
                     new { id = id }));
         }
 
@@ -46,7 +46,7 @@ namespace Umbraco.RestApi.Controllers
                 ? Request.CreateResponse(HttpStatusCode.NotImplemented)
                 : Request.CreateResponse(HttpStatusCode.OK, CreatePagedContentRepresentation(
                     result,
-                    LinkTemplate.PagedDescendants,
+                    LinkTemplate.PagedDescendants(id),
                     new { id = id }));
         }
 

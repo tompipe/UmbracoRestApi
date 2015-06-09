@@ -9,13 +9,13 @@ namespace Umbraco.RestApi.Models
     /// </summary>
     public abstract class ContentRepresentationBase : UmbracoRepresentation
     {
-        protected ContentRepresentationBase(IContentLinkTemplate linkTemplate, Action<UmbracoRepresentation> createHypermediaCallback)
+        protected ContentRepresentationBase(IContentLinkTemplate<int> linkTemplate, Action<UmbracoRepresentation> createHypermediaCallback)
             : base(createHypermediaCallback)
         {
             _linkTemplate = linkTemplate;
         }
 
-        protected ContentRepresentationBase(IContentLinkTemplate linkTemplate)
+        protected ContentRepresentationBase(IContentLinkTemplate<int> linkTemplate)
         {
             _linkTemplate = linkTemplate;
         }
@@ -29,7 +29,7 @@ namespace Umbraco.RestApi.Models
         {
         }
 
-        private readonly IContentLinkTemplate _linkTemplate;
+        private readonly IContentLinkTemplate<int> _linkTemplate;
 
         public bool HasChildren { get; set; }
 
@@ -52,8 +52,8 @@ namespace Umbraco.RestApi.Models
             if (HasChildren)
             {
                 //templated links
-                Links.Add(_linkTemplate.PagedChildren);
-                Links.Add(_linkTemplate.PagedDescendants);
+                Links.Add(_linkTemplate.PagedChildren(Id));
+                Links.Add(_linkTemplate.PagedDescendants(Id));
             }
 
             if (ParentId > 0)
