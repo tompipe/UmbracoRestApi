@@ -11,6 +11,8 @@ using Umbraco.Core.Services;
 using System.Net;
 using Umbraco.Core;
 using System.Linq;
+using Examine;
+using Examine.Providers;
 
 namespace Umbraco.RestApi.Controllers
 {
@@ -21,9 +23,17 @@ namespace Umbraco.RestApi.Controllers
         {
         }
 
-        public MemberController(UmbracoContext umbracoContext, UmbracoHelper umbracoHelper)
+        public MemberController(UmbracoContext umbracoContext, UmbracoHelper umbracoHelper, BaseSearchProvider searchProvider)
             : base(umbracoContext, umbracoHelper)
         {
+            if (searchProvider == null) throw new ArgumentNullException("searchProvider");
+            _searchProvider = searchProvider;
+        }
+
+        private BaseSearchProvider _searchProvider;
+        protected BaseSearchProvider SearchProvider
+        {
+            get { return _searchProvider ?? (_searchProvider = ExamineManager.Instance.SearchProviderCollection["InternalMemberSearcher"]); }
         }
 
         //LOGIN
@@ -53,8 +63,8 @@ namespace Umbraco.RestApi.Controllers
         }
 
         [HttpGet]
-        [CustomRoute("all")]
-        public HttpResponseMessage All(long pageIndex = 0, int pageSize = 100, string orderBy = "Name", string direction = "Ascending", string memberTypeAlias = null, string filter = "")
+        [CustomRoute("")]
+        public HttpResponseMessage Get(long pageIndex = 0, int pageSize = 100, string orderBy = "Name", string direction = "Ascending", string memberTypeAlias = null, string filter = "")
         {
             long totalRecords = 0;
             var direction_enum = Enum<Core.Persistence.DatabaseModelDefinitions.Direction>.Parse(direction);
@@ -72,6 +82,13 @@ namespace Umbraco.RestApi.Controllers
                 new { });
 
             return Request.CreateResponse(HttpStatusCode.OK, representation);
+        }
+
+        //Don't route here (which is normally the default)
+        [NonAction]
+        public override HttpResponseMessage Get()
+        {
+            throw new NotImplementedException();
         }
 
         //BASIC CRUD
