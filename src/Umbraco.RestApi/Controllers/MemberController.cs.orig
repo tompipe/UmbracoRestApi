@@ -182,7 +182,11 @@ namespace Umbraco.RestApi.Controllers
 
         protected override IMember GetItem(int id)
         {
+<<<<<<< HEAD
             return MemberService.GetById(id);
+=======
+            return Services.MemberService.GetById(id);  
+>>>>>>> f93a68b303bdb5468733363aa47c530913f05abe
         }
 
         protected override ILinkTemplate LinkTemplate
