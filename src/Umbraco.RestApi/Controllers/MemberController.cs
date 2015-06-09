@@ -72,7 +72,7 @@ namespace Umbraco.RestApi.Controllers
             var members = MemberService.GetAll(pageIndex, pageSize, out totalRecords, orderBy, direction_enum, memberTypeAlias, filter);
             int totalPages = ((int)totalRecords + pageSize - 1) / pageSize;
 
-            var representation = new PagedContentListRepresentation<MemberRepresentation>(
+            var representation = new PagedMemberListRepresentation<MemberRepresentation>(
                 members.Select(CreateRepresentation).ToList(),
                 totalRecords,
                 totalPages,

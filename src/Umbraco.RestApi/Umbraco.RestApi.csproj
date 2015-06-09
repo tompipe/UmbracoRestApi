@@ -274,6 +274,7 @@
     <Compile Include="Models\MemberLogin.cs" />
     <Compile Include="Models\MemberRepresentation.cs" />
     <Compile Include="Models\MemoryFile.cs" />
+    <Compile Include="Models\PagedMemberListRepresentation.cs" />
     <Compile Include="Models\RelationListRepresentation.cs" />
     <Compile Include="Models\RelationRepresentation.cs" />
     <Compile Include="Models\UmbracoRepresentation.cs" />
