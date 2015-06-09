@@ -206,7 +206,7 @@ namespace Umbraco.RestApi.Tests
                 var djson = JsonConvert.DeserializeObject<JObject>(json);
 
                 Assert.AreEqual("/umbraco/rest/v1/members/123", djson["_links"]["self"]["href"].Value<string>());
-                Assert.AreEqual("/umbraco/rest/v1/members", djson["_links"]["root"]["href"].Value<string>());
+                Assert.AreEqual("/umbraco/rest/v1/members{?pageIndex,pageSize,orderBy,direction,memberTypeAlias,filter}", djson["_links"]["root"]["href"].Value<string>());
 
                 var properties = djson["properties"].ToObject<IDictionary<string, object>>();
                 Assert.AreEqual(2, properties.Count());

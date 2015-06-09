@@ -38,16 +38,20 @@ namespace Umbraco.RestApi.Models
 
         protected override void CreateHypermedia()
         {
-            base.CreateHypermedia();
-
             if (_linkTemplate == null) throw new NullReferenceException("LinkTemplate is null");
+
+            base.CreateHypermedia();            
 
             Href = _linkTemplate.Self.CreateLink(new { id = Id }).Href;
             Rel = _linkTemplate.Self.Rel;
 
+            Links.Add(_linkTemplate.Root);
             Links.Add(_linkTemplate.MetaData.CreateLink(new { id = Id }));
 
-            Links.Add(_linkTemplate.Upload.CreateLink(new { id = Id }));
+            if (_linkTemplate.Upload != null)
+            {
+                Links.Add(_linkTemplate.Upload.CreateLink(new { id = Id }));
+            }
         }
     }
 }
