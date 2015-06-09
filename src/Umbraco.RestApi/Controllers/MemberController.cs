@@ -36,7 +36,7 @@ namespace Umbraco.RestApi.Controllers
             get { return _searchProvider ?? (_searchProvider = ExamineManager.Instance.SearchProviderCollection["InternalMemberSearcher"]); }
         }
 
-        //LOGIN
+        //TODO: Remove this
         [HttpPost]
         [CustomRoute("login")]
         public HttpResponseMessage Login(MemberLogin login)
@@ -45,7 +45,7 @@ namespace Umbraco.RestApi.Controllers
             {
                 if (Members.Login(login.Username, login.Password))
                 {
-                    /// TODO: There must be a better way ?
+                    // TODO: There must be a better way ?
                     var member = MemberService.GetByUsername(login.Username);
                     var rep = CreateRepresentation(member);
 
@@ -178,7 +178,7 @@ namespace Umbraco.RestApi.Controllers
 
         protected override IMember GetItem(int id)
         {
-            throw new NotImplementedException();
+            return Services.MemberService.GetById(id);  
         }
 
         protected override IContentLinkTemplate LinkTemplate
