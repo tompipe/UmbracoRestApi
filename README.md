@@ -1,6 +1,6 @@
 # Umbraco REST API
 
-The Umbraco REST API is for content, media, members & relations. It's Based on the [HAL specification](http://stateless.co/hal_specification.html) and is using a wonderful WebApi implementation of HAL which can be found on GitHub: [https://github.com/JakeGinnivan/WebApi.Hal](https://github.com/JakeGinnivan/WebApi.Hal)
+The Umbraco REST API is for content, media, members & relations. It's Based on the [HAL specification](http://stateless.co/hal_specification.html) ([GitHub link](https://github.com/mikekelly/hal_specification)) and is using a wonderful WebApi implementation of HAL which can be found on GitHub: [https://github.com/JakeGinnivan/WebApi.Hal](https://github.com/JakeGinnivan/WebApi.Hal)
 
 ## Installation
 
